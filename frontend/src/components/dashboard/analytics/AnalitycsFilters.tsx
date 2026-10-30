@@ -38,7 +38,7 @@ export default function AnalyticsFilters() {
                             <SelectItem value="last-month">Last month</SelectItem>
                             <SelectItem value="last-3">Last 3 months</SelectItem>
                             <SelectItem value="last-6">Last 6 months</SelectItem>
-                            <SelectItem value="this-year">This year</SelectItem>
+                            <SelectItem value="last-12">Last 12 months</SelectItem>
                             <SelectItem value="all">All time</SelectItem>
                             <SelectItem value="custom">Custom range…</SelectItem>
                         </SelectContent>

@@ -19,7 +19,9 @@ import { Link } from "react-router";
 import { useEffect, useState } from "react";
 import { getTransactions, type Transaction } from "@/api/transactions";
 import CardError from "@/components/dashboard/shared/CardError";
+import EmptyState from "@/components/dashboard/shared/EmptyState";
 import { formatCurrency } from "@/lib/format";
+import { ArrowLeftRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 const TYPE_STYLES: Record<Transaction["type"], string> = {
@@ -98,9 +100,10 @@ export default function OverviewTable() {
             ))}
           </div>
         ) : transactions.length === 0 ? (
-          <p className="text-sm text-muted-foreground">
-            {t("dashboard.overview.recentTransactions.empty")}
-          </p>
+          <EmptyState
+            icon={ArrowLeftRight}
+            message={t("dashboard.overview.recentTransactions.empty")}
+          />
         ) : (
           <div className="w-full overflow-x-auto">
             <Table>

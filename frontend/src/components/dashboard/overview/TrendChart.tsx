@@ -11,8 +11,10 @@ import { Link } from "react-router";
 import { useEffect, useState } from "react";
 import { getBudgetTrend, type BudgetTrendPoint } from "@/api/budget";
 import CardError from "@/components/dashboard/shared/CardError";
+import EmptyState from "@/components/dashboard/shared/EmptyState";
 import { formatCurrency } from "@/lib/format";
 import type { Period } from "@/lib/periods";
+import { LineChart } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import {
@@ -127,6 +129,21 @@ export default function SpendingTrendingChart({ period }: Props) {
       </div>
     </CardHeader>
   );
+
+  // No transactions in the whole range: a flat line at 0 looks like a broken chart
+  if (trend.every((p) => p.income === 0 && p.expense === 0)) {
+    return (
+      <Card className="flex flex-col">
+        {header}
+        <CardContent className="flex flex-1">
+          <EmptyState
+            icon={LineChart}
+            message={t("dashboard.overview.trend.empty")}
+          />
+        </CardContent>
+      </Card>
+    );
+  }
 
   // Points are monthly, so a one-month period has nothing to draw a line with
   if (spendingTrend.length < 2) {

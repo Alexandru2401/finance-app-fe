@@ -8,21 +8,44 @@ import {
 
 import BalanceOverview from "@/components/dashboard/overview/BalanceOverview";
 import NetBalance from "@/components/dashboard/overview/NetBalance";
+import OnboardingCard from "@/components/dashboard/overview/OnboardingCard";
 import OverviewTable from "@/components/dashboard/overview/OverviewTable";
 import SpendingOverview from "@/components/dashboard/overview/SpendingOverview";
 import SpendingTrendingChart from "@/components/dashboard/overview/TrendChart";
 import PageHeader from "@/components/dashboard/shared/PageHeader";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { getTransactions } from "@/api/transactions";
 import { useAuth } from "@/hooks/useAuth";
-import { PERIODS, type Period } from "@/lib/periods";
+import { DEFAULT_PERIOD, PERIODS, type Period } from "@/lib/periods";
+
+// All-time totals: undefined while loading, null if the request failed
+type AllTime = { count: number; balance: number } | null | undefined;
 
 export default function DashboardHomePage() {
   const { t } = useTranslation();
-  const [period, setPeriod] = useState<Period>("last-month");
+  const [period, setPeriod] = useState<Period>(DEFAULT_PERIOD);
 
   const user = useAuth().user;
+
+  // Without filters, the transactions endpoint returns the count and net of all
+  // transactions; one row is enough to read them
+  const [allTime, setAllTime] = useState<AllTime>(undefined);
+
+  useEffect(() => {
+    let cancelled = false;
+    getTransactions({ limit: 1 })
+      .then((res) => (res.ok ? res.data : null))
+      .catch(() => null)
+      .then((data) => {
+        if (cancelled) return;
+        setAllTime(data ? { count: data.total, balance: data.net } : null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   return (
     <section className="px-4 py-4 max-w-7xl mx-auto">
@@ -40,7 +63,7 @@ export default function DashboardHomePage() {
             className="w-40"
             aria-label={t("dashboard.overview.selectPeriod")}
           >
-            <SelectValue placeholder={t("dashboard.periods.last-month")} />
+            <SelectValue placeholder={t(`dashboard.periods.${DEFAULT_PERIOD}`)} />
           </SelectTrigger>
           <SelectContent>
             {PERIODS.map((p) => (
@@ -52,8 +75,13 @@ export default function DashboardHomePage() {
         </Select>
       </PageHeader>
 
+      {allTime?.count === 0 && <OnboardingCard />}
+
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-6">
-        <NetBalance period={period} />
+        <NetBalance
+          period={period}
+          totalBalance={allTime === undefined ? undefined : (allTime?.balance ?? null)}
+        />
         <div className="col-span-1 md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
           <BalanceOverview period={period} />
           <SpendingOverview period={period} />

@@ -805,7 +805,7 @@
       "last-month": "Luna trecută",
       "last-3": "Ultimele 3 luni",
       "last-6": "Ultimele 6 luni",
-      "this-year": "Anul acesta"
+      "last-12": "Ultimele 12 luni"
     },
     "common": {
       "seeAll": "Vezi tot",
@@ -822,14 +822,19 @@
       "defaultUser": "Utilizator",
       "subtitle": "Aruncă o privire peste situația ta financiară.",
       "selectPeriod": "Selectează perioada",
+      "onboarding": {
+        "title": "Hai să-ți organizăm finanțele",
+        "description": "Adaugă prima tranzacție ca să vezi analiza situației tale financiare.",
+        "addTransaction": "Adaugă tranzacție"
+      },
       "netBalance": {
-        "title": "Sold net total",
-        "netMargin": "{{value}}% marjă netă",
-        "net": "Net",
-        "sparklineLabel": "Sold net lunar: {{values}}",
-        "totalIncome": "Venituri totale",
-        "totalExpenses": "Cheltuieli totale",
-        "totalSavings": "Economii totale",
+        "title": "Sold net · {{period}}",
+        "definition": "Venituri minus cheltuieli în perioada aleasă",
+        "margin": "{{value}}% din venituri",
+        "allTime": "Sold total, de la început: {{amount}}",
+        "cashFlow": "Flux de numerar",
+        "sparklineCaption": "Flux de numerar · {{period}}",
+        "sparklineLabel": "Flux de numerar lunar (venituri minus cheltuieli): {{values}}",
         "error": "Soldul nu a putut fi încărcat."
       },
       "breakdown": {
@@ -851,7 +856,8 @@
         "chartLabel": "Grafic cu veniturile și cheltuielile, {{period}}",
         "notEnoughData": "Evoluția are nevoie de cel puțin 2 luni de date.",
         "pickLongerPeriod": "Alege o perioadă mai lungă ca s-o vezi.",
-        "error": "Evoluția bugetului nu a putut fi încărcată."
+        "error": "Evoluția bugetului nu a putut fi încărcată.",
+        "empty": "Evoluția finanțelor tale va apărea aici după ce adaugi tranzacții."
       },
       "recentTransactions": {
         "title": "Tranzacții recente",

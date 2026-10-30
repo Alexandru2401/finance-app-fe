@@ -22,6 +22,8 @@ import { useTranslation } from "react-i18next";
 
 interface Props {
   period: Period;
+  // All-time balance, shown under the period net: undefined while loading, null if it could not be loaded
+  totalBalance?: number | null;
 }
 
 const formatMonth = (month: string, locale: string) =>
@@ -30,20 +32,21 @@ const formatMonth = (month: string, locale: string) =>
     year: "numeric",
   });
 
+// The tiles cover only the selected period; the period is shown next to each label
 const TILES = [
   {
     key: "income",
-    label: "dashboard.overview.netBalance.totalIncome",
+    label: "dashboard.common.income",
     color: "text-finance-success",
   },
   {
     key: "expense",
-    label: "dashboard.overview.netBalance.totalExpenses",
+    label: "dashboard.common.expenses",
     color: "text-finance-danger",
   },
   {
     key: "savings",
-    label: "dashboard.overview.netBalance.totalSavings",
+    label: "dashboard.common.savings",
     color: "text-finance-primary",
   },
 ] as const;
@@ -72,17 +75,20 @@ function NetBalanceSkeleton() {
   );
 }
 
-/** Net balance (income - expenses) per month, as a small area line. */
+/** Cash flow (income - expenses) per month, as a small area line. */
 function NetSparkline({
   trend,
   loading,
   error,
   positive,
+  rangeLabel,
 }: {
   trend: BudgetTrendPoint[] | null;
   loading: boolean;
   error?: boolean;
   positive: boolean;
+  // Interval actually shown, which can differ from the selected period
+  rangeLabel: string;
 }) {
   const { t, i18n } = useTranslation();
 
@@ -90,6 +96,8 @@ function NetSparkline({
   if (error) return null;
   if (loading || !trend) return <Skeleton className="mt-4 h-20 w-full" />;
   if (trend.length < 2) return null;
+  // A flat line at 0 looks like a broken chart, so leave it out
+  if (trend.every((p) => p.income === 0 && p.expense === 0)) return null;
 
   const data = trend.map((p) => ({
     month: formatMonth(p.month, i18n.language),
@@ -98,7 +106,7 @@ function NetSparkline({
 
   const chartConfig = {
     net: {
-      label: t("dashboard.overview.netBalance.net"),
+      label: t("dashboard.overview.netBalance.cashFlow"),
       color: positive ? "var(--finance-success)" : "var(--finance-danger)",
     },
   } satisfies ChartConfig;
@@ -140,7 +148,7 @@ function NetSparkline({
                 indicator="line"
                 formatter={(value) => (
                   <span className="font-medium tabular-nums">
-                    {t("dashboard.overview.netBalance.net")}{" "}
+                    {t("dashboard.overview.netBalance.cashFlow")}{" "}
                     {fmt(Number(value))}
                   </span>
                 )}
@@ -158,11 +166,16 @@ function NetSparkline({
           />
         </AreaChart>
       </ChartContainer>
+      <p className="mt-1 text-xs text-muted-foreground">
+        {t("dashboard.overview.netBalance.sparklineCaption", {
+          period: rangeLabel,
+        })}
+      </p>
     </div>
   );
 }
 
-export default function NetBalance({ period }: Props) {
+export default function NetBalance({ period, totalBalance }: Props) {
   const { t } = useTranslation();
   const [attempt, setAttempt] = useState(0);
   const [result, setResult] = useState<{
@@ -188,17 +201,31 @@ export default function NetBalance({ period }: Props) {
   const error = !loading && !summary;
   const onRetry = () => setAttempt((n) => n + 1);
 
-  // The sparkline always shows the last 6 months, whatever the period
-  const [trend, setTrend] = useState<BudgetTrendPoint[] | null>(null);
-  const [trendLoading, setTrendLoading] = useState(true);
+  // The sparkline follows the selected period; a one-month trend is a single
+  // point, so short periods keep the default trend (last 6 months), as in TrendChart
+  const trendPeriod =
+    period === "this-month" || period === "last-month" ? undefined : period;
+  const trendKey = trendPeriod ?? "default";
+  const [trendResult, setTrendResult] = useState<{
+    key: string;
+    trend: BudgetTrendPoint[] | null;
+  } | null>(null);
 
   useEffect(() => {
-    getBudgetTrend()
-      .then((res) => setTrend(res.data))
-      .catch(() => setTrend(null))
-      .finally(() => setTrendLoading(false));
-  }, []);
+    let cancelled = false;
+    getBudgetTrend(trendPeriod)
+      .then((res) => res.data)
+      .catch(() => null)
+      .then(
+        (data) => !cancelled && setTrendResult({ key: trendKey, trend: data }),
+      );
+    return () => {
+      cancelled = true;
+    };
+  }, [trendKey, trendPeriod]);
 
+  const trendLoading = trendResult?.key !== trendKey;
+  const trend = trendLoading ? null : (trendResult?.trend ?? null);
   const trendError = !trendLoading && !trend;
 
   if (!loading && error) {
@@ -220,6 +247,7 @@ export default function NetBalance({ period }: Props) {
     );
   }
 
+  const periodLabel = t(`dashboard.periods.${period}`);
   const positive = summary.net >= 0;
   const TrendIcon = positive ? TrendingUp : TrendingDown;
   const netMargin =
@@ -230,26 +258,39 @@ export default function NetBalance({ period }: Props) {
       <CardContent className="grid gap-6 sm:grid-cols-5">
         <div className="min-w-0 sm:col-span-3">
           <CardDescription>
-            {t("dashboard.overview.netBalance.title")} ·{" "}
-            {t(`dashboard.periods.${period}`)}
+            {t("dashboard.overview.netBalance.title", { period: periodLabel })}
           </CardDescription>
           <p className="mt-1 text-4xl font-bold tabular-nums text-foreground">
             {fmt(summary.net)}
           </p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {t("dashboard.overview.netBalance.definition")}
+          </p>
           <p
-            className={`mt-1 flex items-center gap-1 text-xs ${
+            className={`mt-3 flex items-center gap-1 text-xs ${
               positive ? "text-finance-success" : "text-finance-danger"
             }`}
           >
             <TrendIcon className="h-4 w-4" aria-hidden="true" />
-            {t("dashboard.overview.netBalance.netMargin", { value: netMargin })}
+            {t("dashboard.overview.netBalance.margin", { value: netMargin })}
           </p>
+          {/* The all-time balance does not depend on the selected period */}
+          {totalBalance === undefined ? (
+            <Skeleton className="mt-2 h-3 w-32" />
+          ) : (
+            <p className="mt-1 text-xs text-muted-foreground">
+              {t("dashboard.overview.netBalance.allTime", {
+                amount: totalBalance === null ? "—" : fmt(totalBalance),
+              })}
+            </p>
+          )}
 
           <NetSparkline
             trend={trend}
             loading={trendLoading}
             error={trendError}
             positive={positive}
+            rangeLabel={t(`dashboard.periods.${trendPeriod ?? "last-6"}`)}
           />
         </div>
 
@@ -259,7 +300,10 @@ export default function NetBalance({ period }: Props) {
               key={tile.key}
               className="rounded-lg border border-border bg-accent/50 p-3"
             >
-              <p className="text-sm">{t(tile.label)}</p>
+              <p className="text-sm">
+                {t(tile.label)}{" "}
+                <span className="text-muted-foreground">· {periodLabel}</span>
+              </p>
               <p
                 className={`mt-0.5 text-lg font-semibold tabular-nums ${tile.color}`}
               >

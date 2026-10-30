@@ -12,8 +12,10 @@ import { Link } from "react-router";
 import { useEffect, useState } from "react";
 import { getTopExpenses, type TopExpense } from "@/api/budget";
 import CardError from "@/components/dashboard/shared/CardError";
+import EmptyState from "@/components/dashboard/shared/EmptyState";
 import { formatCurrency } from "@/lib/format";
 import type { Period } from "@/lib/periods";
+import { Receipt } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 const CATEGORY_BAR_COLORS = [
@@ -94,9 +96,10 @@ export default function SpendingOverview({ period }: Props) {
             ))}
           </div>
         ) : items.length === 0 ? (
-          <p className="text-sm text-muted-foreground">
-            {t("dashboard.overview.topSpendings.empty")}
-          </p>
+          <EmptyState
+            icon={Receipt}
+            message={t("dashboard.overview.topSpendings.empty")}
+          />
         ) : (
           <div className="space-y-3 pt-2">
             {items.map((item, i) => (

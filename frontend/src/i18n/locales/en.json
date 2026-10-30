@@ -805,7 +805,7 @@
       "last-month": "Last month",
       "last-3": "Last 3 months",
       "last-6": "Last 6 months",
-      "this-year": "This year"
+      "last-12": "Last 12 months"
     },
     "common": {
       "seeAll": "See all",
@@ -822,14 +822,19 @@
       "defaultUser": "User",
       "subtitle": "Take a look over your financial dashboard.",
       "selectPeriod": "Select period",
+      "onboarding": {
+        "title": "Let's get your finances organized",
+        "description": "Add your first transaction to see your financial insights.",
+        "addTransaction": "Add transaction"
+      },
       "netBalance": {
-        "title": "Total net balance",
-        "netMargin": "{{value}}% net margin",
-        "net": "Net",
-        "sparklineLabel": "Monthly net balance: {{values}}",
-        "totalIncome": "Total income",
-        "totalExpenses": "Total spendings",
-        "totalSavings": "Total savings",
+        "title": "Net balance · {{period}}",
+        "definition": "Income minus expenses for the selected period",
+        "margin": "{{value}}% of income",
+        "allTime": "All-time balance: {{amount}}",
+        "cashFlow": "Cash flow",
+        "sparklineCaption": "Cash flow · {{period}}",
+        "sparklineLabel": "Monthly cash flow (income minus expenses): {{values}}",
         "error": "Could not load your balance."
       },
       "breakdown": {
@@ -851,7 +856,8 @@
         "chartLabel": "Area chart of income and expenses, {{period}}",
         "notEnoughData": "The trend needs at least 2 months of data.",
         "pickLongerPeriod": "Pick a longer period to see it.",
-        "error": "Could not load the budget trend."
+        "error": "Could not load the budget trend.",
+        "empty": "Your financial trends will appear here once you add transactions."
       },
       "recentTransactions": {
         "title": "Recent Transactions",

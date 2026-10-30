@@ -17,7 +17,9 @@ import {
 } from "@/components/ui/chart";
 import { Skeleton } from "@/components/ui/skeleton";
 import CardError from "@/components/dashboard/shared/CardError";
+import EmptyState from "@/components/dashboard/shared/EmptyState";
 import type { Period } from "@/lib/periods";
+import { PieChart as PieChartIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Pie, PieChart } from "recharts";
 
@@ -107,10 +109,11 @@ export default function BalanceOverview({ period }: Props) {
     return (
       <Card className="flex flex-col">
         <BalanceCardHeader period={period} />
-        <CardContent className="flex flex-1 items-center justify-center">
-          <p className="text-sm text-muted-foreground">
-            {t("dashboard.overview.breakdown.empty")}
-          </p>
+        <CardContent className="flex flex-1">
+          <EmptyState
+            icon={PieChartIcon}
+            message={t("dashboard.overview.breakdown.empty")}
+          />
         </CardContent>
       </Card>
     );
