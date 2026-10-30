@@ -26,6 +26,9 @@ interface TransactionsParams {
   limit?: number;
   page?: number;
   sort?: "newest" | "oldest";
+  year?: number;
+  // 1-12
+  month?: number;
 }
 
 async function getTransactions(
@@ -38,6 +41,8 @@ async function getTransactions(
   if (params.limit) qs.set("limit", String(params.limit));
   if (params.page) qs.set("page", String(params.page));
   if (params.sort) qs.set("sort", params.sort);
+  if (params.year) qs.set("year", String(params.year));
+  if (params.month) qs.set("month", String(params.month));
 
   const response = await get<TransactionsResponse>(`/transactions?${qs}`);
   if (!response.ok) return { ok: false, error: "Could not load transactions" };

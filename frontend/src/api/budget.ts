@@ -1,5 +1,6 @@
 import { del, get, patch, post } from "./client";
 import type { BudgetItemPayload } from "@/schemas/budget-item.schema";
+import { DEFAULT_PERIOD, periodMonth } from "@/lib/periods";
 
 export interface BudgetItem {
   id: string;
@@ -126,32 +127,159 @@ export {
   deleteTransaction,
 };
 
+// Same shape for targets and progress (%); null = not set
+export interface BudgetTarget {
+  income: number | null;
+  expense: number | null;
+  savings: number | null;
+  net: number | null;
+}
+
+export interface MonthlyBudgetTarget extends BudgetTarget {
+  id: string;
+  month: string;
+  inheritedFrom: string | null;
+}
+
+type ApiNumber = number | string | null;
+
+type ApiBudgetTarget = {
+  income: ApiNumber;
+  expense: ApiNumber;
+  savings: ApiNumber;
+};
+
+// GET target sends the net as "netBalance", the summary sends it as "net"
+type ApiMonthlyTarget = ApiBudgetTarget & {
+  id: string;
+  month: string;
+  inheritedFrom: string | null;
+  netBalance: ApiNumber;
+};
+
+const toNullableNumber = (value: ApiNumber): number | null =>
+  value === null ? null : Number(value);
+
+const fromApiTarget = (
+  target: ApiBudgetTarget,
+  net: ApiNumber,
+): BudgetTarget => ({
+  income: toNullableNumber(target.income),
+  expense: toNullableNumber(target.expense),
+  savings: toNullableNumber(target.savings),
+  net: toNullableNumber(net),
+});
+
+interface BudgetTargetResponse {
+  success: boolean;
+  target: ApiMonthlyTarget | null;
+}
+
+const fromApiMonthlyTarget = (
+  target: ApiMonthlyTarget,
+): MonthlyBudgetTarget => ({
+  ...fromApiTarget(target, target.netBalance),
+  id: target.id,
+  month: target.month,
+  inheritedFrom: target.inheritedFrom,
+});
+
+// Defaults to the month of the overview's default period
+async function getBudgetTarget(month = periodMonth(DEFAULT_PERIOD)) {
+  const response = await get<BudgetTargetResponse>(`/target?month=${month}`);
+
+  const target = response.ok ? response.data.target : null;
+  return {
+    ok: response.ok,
+    data: target ? fromApiMonthlyTarget(target) : null,
+  };
+}
+
+interface AllBudgetTargetsResponse {
+  success: boolean;
+  targets: ApiMonthlyTarget[];
+}
+
+// Only the months with a saved target (no inherited ones), newest first
+async function getAllBudgetTargets() {
+  const response = await get<AllBudgetTargetsResponse>("/target/all");
+
+  return {
+    ok: response.ok,
+    data: response.ok ? response.data.targets.map(fromApiMonthlyTarget) : null,
+  };
+}
+
+export type BudgetTargetValues = Pick<
+  BudgetTarget,
+  "income" | "expense" | "savings"
+>;
+
+// Creates the month's target or updates it. The backend ignores null fields
+// (they keep their current value), so a target cannot be cleared from here
+async function saveBudgetTarget(
+  month: string,
+  values: BudgetTargetValues,
+): Promise<MonthlyBudgetTarget> {
+  const body = Object.fromEntries(
+    Object.entries(values).filter(([, value]) => value !== null),
+  );
+  const response = await post<
+    (BudgetTargetResponse & ApiError) | null
+  >("/target", { month, ...body });
+
+  if (!response.ok || !response.data?.target) {
+    throw new Error(
+      response.data?.message ??
+        response.data?.error ??
+        "Could not save targets",
+    );
+  }
+  return fromApiMonthlyTarget(response.data.target);
+}
+
+export { getBudgetTarget, getAllBudgetTargets, saveBudgetTarget };
+
 export interface BudgetSummary {
   income: number;
   expense: number;
   savings: number;
   net: number;
+  target: BudgetTarget;
+  progress: BudgetTarget;
 }
+
+type ApiBudgetTargetWithNet = ApiBudgetTarget & { net: ApiNumber };
 
 interface BudgetSummaryResponse {
   success: boolean;
-  summary: BudgetSummary;
+  summary: {
+    income: ApiNumber;
+    expense: ApiNumber;
+    savings: ApiNumber;
+    net: ApiNumber;
+    target: ApiBudgetTargetWithNet;
+    progress: ApiBudgetTargetWithNet;
+  };
 }
 
-async function getBudgetSummary(period = "last-month") {
+async function getBudgetSummary(period: string = DEFAULT_PERIOD) {
   const response = await get<BudgetSummaryResponse>(
     `/budget/summary?period=${period}`,
   );
 
+  const summary = response.ok ? response.data.summary : null;
   return {
     ok: response.ok,
     // Numeric DB columns may arrive as strings, so coerce them
-    data: response.ok
+    data: summary
       ? {
-          income: Number(response.data.summary.income),
-          expense: Number(response.data.summary.expense),
-          savings: Number(response.data.summary.savings),
-          net: Number(response.data.summary.net),
+          income: Number(summary.income),
+          expense: Number(summary.expense),
+          savings: Number(summary.savings),
+          net: Number(summary.net),
+          target: fromApiTarget(summary.target, summary.target.net),
+          progress: fromApiTarget(summary.progress, summary.progress.net),
         }
       : null,
   };
@@ -174,7 +302,7 @@ interface TopExpensesResponse {
   topExpenses: (Omit<TopExpense, "amount"> & { amount: string })[];
 }
 
-async function getTopExpenses(period = "last-month") {
+async function getTopExpenses(period: string = DEFAULT_PERIOD) {
   const response = await get<TopExpensesResponse>(
     `/budget/spending/top?period=${period}`,
   );
