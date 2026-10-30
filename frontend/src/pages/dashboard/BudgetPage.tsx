@@ -1,16 +1,22 @@
 import BudgetForm from "@/components/dashboard/budget/BudgetForm";
 import ItemCard from "@/components/dashboard/budget/ItemCard";
 import { Button } from "@/components/ui/button";
-import { ChevronDown, Plus, SlidersHorizontal, Target } from "lucide-react";
+import { CalendarDays, Plus, Target } from "lucide-react";
 import { useEffect, useState } from "react";
 
-import BudgetFilters from "@/components/dashboard/budget/BudgetFilters";
 import ExtraInfo from "@/components/dashboard/budget/ExtraInfo";
 import Insights from "@/components/dashboard/budget/Insights";
 import SummaryCards from "@/components/dashboard/budget/SummaryCards";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import TargetsPanel from "@/components/dashboard/budget/TargetsPanel";
 import {
@@ -18,12 +24,22 @@ import {
   getBudgetSummary,
   type BudgetItem,
   type BudgetSummary,
+  type BudgetTarget,
+  type BudgetTargetValues,
   type UpdateTransactionPayload,
+  saveBudgetTarget,
   updateTransaction,
 } from "@/api/budget";
 import { getTransactions, type Transaction } from "@/api/transactions";
 import PageHeader from "@/components/dashboard/shared/PageHeader";
 import { toast } from "sonner";
+import {
+  DEFAULT_PERIOD,
+  formatMonth,
+  monthPeriod,
+  periodMonth,
+  shiftMonth,
+} from "@/lib/periods";
 
 function toBudgetItem(t: Transaction): BudgetItem {
   return {
@@ -36,6 +52,13 @@ function toBudgetItem(t: Transaction): BudgetItem {
     notes: t.notes ?? undefined,
   };
 }
+
+const EMPTY_TARGET: BudgetTarget = {
+  income: null,
+  expense: null,
+  savings: null,
+  net: null,
+};
 
 function SummaryCardsSkeleton() {
   return (
@@ -115,14 +138,22 @@ export default function BudgetPage() {
   );
 
   const [showForm, setShowForm] = useState(false);
-  const [openFilters, setOpenFilters] = useState(false);
 
   const [openTargets, setOpenTargets] = useState(false);
-  const [budgetTargets, setBudgetTargets] = useState({
-    income: 8000,
-    expenses: 4000,
-    savings: 1500,
-  });
+
+  // Month the whole page shows (YYYY-MM-01); starts on the overview's default
+  const currentMonth = periodMonth(DEFAULT_PERIOD);
+  const [selectedMonth, setSelectedMonth] = useState(currentMonth);
+  // Current month first, then the 11 before it; later months have no data yet
+  const monthOptions = Array.from({ length: 12 }, (_, i) =>
+    shiftMonth(currentMonth, -i),
+  );
+
+  function changeMonth(month: string) {
+    setSelectedMonth(month);
+    // The cached lists belong to the previous month
+    setItemsByTab({});
+  }
 
   const refresh = () => setRefreshKey((k) => k + 1);
 
@@ -132,15 +163,18 @@ export default function BudgetPage() {
     refresh();
   }
 
-  // Latest 5 transactions for the active tab
+  // Latest 5 transactions of the selected month for the active tab
   useEffect(() => {
     let ignore = false;
 
     async function fetchTransactions() {
+      const [year, month] = selectedMonth.split("-").map(Number);
       const res = await getTransactions({
         type: activeTab,
         limit: 5,
         sort: "newest",
+        year,
+        month,
       });
       if (ignore) return;
 
@@ -159,14 +193,14 @@ export default function BudgetPage() {
     return () => {
       ignore = true;
     };
-  }, [activeTab, refreshKey]);
+  }, [activeTab, refreshKey, selectedMonth]);
 
   // Totals come from the summary endpoint, not from the 5 items shown
   useEffect(() => {
     let ignore = false;
 
     async function fetchSummary() {
-      const res = await getBudgetSummary();
+      const res = await getBudgetSummary(monthPeriod(selectedMonth));
       if (ignore) return;
 
       // Keep the previous totals if a refetch fails
@@ -178,12 +212,27 @@ export default function BudgetPage() {
     return () => {
       ignore = true;
     };
-  }, [refreshKey]);
+  }, [refreshKey, selectedMonth]);
 
   const totalIncome = summary?.income ?? 0;
   const totalExpenses = summary?.expense ?? 0;
   const totalSavings = summary?.savings ?? 0;
   const netBalance = summary?.net ?? totalIncome - totalExpenses;
+  const target = summary?.target ?? EMPTY_TARGET;
+  const progress = summary?.progress ?? EMPTY_TARGET;
+
+  // The summary is fetched again so target and progress come from the backend
+  async function saveTargets(values: BudgetTargetValues): Promise<boolean> {
+    try {
+      await saveBudgetTarget(selectedMonth, values);
+      toast.success("Targets saved.");
+      refresh();
+      return true;
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Could not save targets");
+      return false;
+    }
+  }
 
   async function deleteItem(id: string) {
     try {
@@ -231,18 +280,6 @@ export default function BudgetPage() {
     onEdit: editItem,
   }));
 
-  const incomePct = Math.min((totalIncome / budgetTargets.income) * 100, 100);
-  const expensesPct = Math.min(
-    (totalExpenses / budgetTargets.expenses) * 100,
-    100,
-  );
-  const savingsPct = Math.min(
-    (totalSavings / budgetTargets.savings) * 100,
-    100,
-  );
-  const savingsRate =
-    totalIncome > 0 ? Math.min((netBalance / totalIncome) * 100, 100) : 0;
-
   return (
     <section className="relative py-4 px-4 max-w-7xl mx-auto">
       <PageHeader
@@ -252,17 +289,23 @@ export default function BudgetPage() {
         {" "}
         <div className="flex flex-col md:items-end">
           <div className="flex flex-wrap md:flex-row md:items-center gap-2 mt-4">
-            <Button
-              variant="outline"
-              size="sm"
-              className="cursor-pointer gap-2"
-              data-active="true"
-              onClick={() => setOpenFilters((prev) => !prev)}
-            >
-              <SlidersHorizontal size={16} />
-              Filters
-              <ChevronDown size={14} className="opacity-60" />
-            </Button>
+            <Select value={selectedMonth} onValueChange={changeMonth}>
+              <SelectTrigger
+                size="sm"
+                className="w-44 cursor-pointer"
+                aria-label="Select month"
+              >
+                <CalendarDays size={16} className="text-muted-foreground" />
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {monthOptions.map((month) => (
+                  <SelectItem key={month} value={month}>
+                    {formatMonth(month)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
 
             <Button
               variant="outline"
@@ -294,14 +337,11 @@ export default function BudgetPage() {
           ) : (
             <SummaryCards
               totalIncome={totalIncome}
-              incomePct={incomePct}
-              budgetTargets={budgetTargets}
               totalExpenses={totalExpenses}
-              expensesPct={expensesPct}
               totalSavings={totalSavings}
-              savingsPct={savingsPct}
               netBalance={netBalance}
-              savingsRate={savingsRate}
+              target={target}
+              progress={progress}
             />
           )}
 
@@ -381,20 +421,11 @@ export default function BudgetPage() {
         </>
       )}
 
-      {openFilters && (
-        <>
-          <div
-            className="fixed inset-0 z-30"
-            onClick={() => setOpenFilters(false)}
-          />
-          <BudgetFilters />
-        </>
-      )}
-
       {openTargets && (
         <TargetsPanel
-          targets={budgetTargets}
-          onSave={setBudgetTargets}
+          targets={target}
+          month={selectedMonth}
+          onSave={saveTargets}
           onClose={() => setOpenTargets(false)}
         />
       )}

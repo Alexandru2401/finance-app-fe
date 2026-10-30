@@ -15,7 +15,6 @@ export default function TransactionsPage() {
   const [filters, setFilters] = useState<TransactionFilters>(DEFAULT_FILTERS);
 
   useEffect(() => {
-    setLoading(true);
     getTransactions({ limit: 10, sort: "newest" })
       .then((res) => res.ok && setTransactions(res.data.transactions))
       .finally(() => setLoading(false));

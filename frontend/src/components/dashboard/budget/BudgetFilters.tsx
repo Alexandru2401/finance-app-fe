@@ -14,7 +14,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 type BudgetType = "income" | "expenses" | "savings";
 
@@ -59,60 +58,6 @@ export default function BudgetFilters() {
     return <Card className="mb-4 border border-slate-800 py-4 absolute top-39 md:top-20 max-w-1/2 md:max-w-1/3 md:right-15 z-40">
         <CardContent className="px-4">
             <div className="flex flex-wrap items-end gap-3">
-                {/* Perioada */}
-                <div className="flex flex-col gap-1.5">
-                    <Label
-                        htmlFor="filter-period"
-                        className="text-xs text-muted-foreground"
-                    >
-                        Period
-                    </Label>
-                    <Select>
-                        <SelectTrigger id="filter-period" className="w-42.5">
-                            <SelectValue placeholder="This month" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="this-month">This month</SelectItem>
-                            <SelectItem value="last-month">Last month</SelectItem>
-                            <SelectItem value="last-3">Last 3 months</SelectItem>
-                            <SelectItem value="last-6">Last 6 months</SelectItem>
-                            <SelectItem value="this-year">This year</SelectItem>
-                            <SelectItem value="all">All time</SelectItem>
-                            <SelectItem value="custom">Custom range…</SelectItem>
-                        </SelectContent>
-                    </Select>
-                </div>
-
-                {/* Interval custom — vizibil doar cand period === "custom" */}
-                <div className="flex flex-col gap-1.5">
-                    <Label
-                        htmlFor="filter-from"
-                        className="text-xs text-muted-foreground"
-                    >
-                        From
-                    </Label>
-                    <Input
-                        id="filter-from"
-                        type="date"
-                        className="w-37.5"
-
-                    />
-                </div>
-                <div className="flex flex-col gap-1.5">
-                    <Label
-                        htmlFor="filter-to"
-                        className="text-xs text-muted-foreground"
-                    >
-                        To
-                    </Label>
-                    <Input
-                        id="filter-to"
-                        type="date"
-                        className="w-37.5"
-
-                    />
-                </div>
-
                 {/* Categorii — multi-select grupat pe tip */}
                 <div className="flex flex-col gap-1.5">
                     <Label className="text-xs text-muted-foreground">
@@ -243,17 +188,6 @@ export default function BudgetFilters() {
             {/* Chip-uri cu filtrele active */}
             <div className="mt-3 flex flex-wrap items-center gap-2 border-t pt-3">
                 <span className="text-xs text-muted-foreground">Active:</span>
-
-                <Badge variant="secondary" className="gap-1 pr-1 font-normal">
-                    Period: This month
-                    <button
-                        type="button"
-                        aria-label="Remove period filter"
-                        className="cursor-pointer rounded-full p-0.5 hover:bg-background/70"
-                    >
-                        <X size={12} />
-                    </button>
-                </Badge>
 
                 <Badge variant="secondary" className="gap-1 pr-1 font-normal">
                     Category: Rent
