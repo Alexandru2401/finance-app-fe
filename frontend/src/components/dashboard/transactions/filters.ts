@@ -4,7 +4,8 @@ export interface TransactionFilters {
   month: string;
   day: string;
   type: string;
-  categories: string[];
+  // "all" or a category_id; the backend filters by a single category
+  categoryId: string;
   minAmount: string;
   maxAmount: string;
   sort: string;
@@ -16,7 +17,7 @@ export const DEFAULT_FILTERS: TransactionFilters = {
   month: "all",
   day: "all",
   type: "all",
-  categories: [],
+  categoryId: "all",
   minAmount: "",
   maxAmount: "",
   sort: "date-desc",

@@ -2,20 +2,17 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ChevronDown, Download, Search, X } from "lucide-react";
+import { Download, Search, X } from "lucide-react";
+import type { Category } from "@/api/budget";
 import type { TransactionFilters } from "./filters";
 
 const MONTHS = [
@@ -39,12 +36,29 @@ const TYPE_LABELS: Record<string, string> = {
   savings: "Savings",
 };
 
+// Active filter chips: tinted so they stand out, with a clear remove button
+const CHIP_CLASS =
+  "gap-1.5 rounded-full border-finance-primary/30 bg-finance-primary/10 py-1 pl-3 pr-1 text-sm font-normal text-foreground";
+const CHIP_REMOVE_CLASS =
+  "inline-flex size-5 cursor-pointer items-center justify-center rounded-full bg-foreground/10 text-foreground/70 transition-colors hover:bg-destructive hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive/50";
+
+// Category types use "expenses", the type filter uses "expense"
+const CATEGORY_GROUPS: {
+  type: Category["type"];
+  filter: string;
+  label: string;
+}[] = [
+  { type: "income", filter: "income", label: "Income" },
+  { type: "expenses", filter: "expense", label: "Expenses" },
+  { type: "savings", filter: "savings", label: "Savings" },
+];
+
 interface Props {
   filters: TransactionFilters;
   onChange: (patch: Partial<TransactionFilters>) => void;
   onClear: () => void;
   years: string[];
-  categories: string[];
+  categories: Category[];
 }
 
 export default function TransactionsFilters({
@@ -54,13 +68,22 @@ export default function TransactionsFilters({
   years,
   categories,
 }: Props) {
-  const toggleCategory = (cat: string) => {
-    const active = filters.categories.includes(cat);
-    onChange({
-      categories: active
-        ? filters.categories.filter((c) => c !== cat)
-        : [...filters.categories, cat],
-    });
+  const selectedCategory = categories.find(
+    (c) => c.category_id === filters.categoryId,
+  );
+
+  // With a type selected, only its categories make sense
+  const categoryGroups = CATEGORY_GROUPS.filter(
+    (g) => filters.type === "all" || g.filter === filters.type,
+  );
+
+  const changeType = (type: string) => {
+    const group = CATEGORY_GROUPS.find(
+      (g) => g.type === selectedCategory?.type,
+    );
+    // Drop a selected category of another type, it would match nothing
+    const keepCategory = type === "all" || !group || group.filter === type;
+    onChange(keepCategory ? { type } : { type, categoryId: "all" });
   };
 
   const hasActiveFilters =
@@ -69,7 +92,7 @@ export default function TransactionsFilters({
     filters.month !== "all" ||
     filters.day !== "all" ||
     filters.type !== "all" ||
-    filters.categories.length > 0 ||
+    filters.categoryId !== "all" ||
     filters.minAmount !== "" ||
     filters.maxAmount !== "";
 
@@ -85,7 +108,7 @@ export default function TransactionsFilters({
           <Input
             type="search"
             id="search-transactions"
-            placeholder="Search notes or category..."
+            placeholder="Search category..."
             className="pl-9"
             value={filters.search}
             onChange={(e) => onChange({ search: e.target.value })}
@@ -180,10 +203,7 @@ export default function TransactionsFilters({
           >
             Type
           </Label>
-          <Select
-            value={filters.type}
-            onValueChange={(v) => onChange({ type: v })}
-          >
+          <Select value={filters.type} onValueChange={changeType}>
             <SelectTrigger id="filter-type" className="w-35">
               <SelectValue placeholder="All types" />
             </SelectTrigger>
@@ -197,45 +217,37 @@ export default function TransactionsFilters({
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <Label className="text-xs text-muted-foreground">Category</Label>
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                className="w-45 justify-between font-normal"
-              >
-                <span className="truncate text-muted-foreground">
-                  {filters.categories.length === 0
-                    ? "All categories"
-                    : `${filters.categories.length} selected`}
-                </span>
-                <ChevronDown size={16} className="opacity-50" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent align="start" className="w-55 p-1">
-              <div className="max-h-64 overflow-y-auto">
-                {categories.length === 0 ? (
-                  <p className="px-2 py-1.5 text-sm text-muted-foreground">
-                    No categories yet
-                  </p>
-                ) : (
-                  categories.map((cat) => (
-                    <Label
-                      key={cat}
-                      className="flex cursor-pointer items-center gap-2 rounded-sm px-2 py-1.5 text-sm font-normal hover:bg-accent"
-                    >
-                      <Checkbox
-                        id={`cat-${cat}`}
-                        checked={filters.categories.includes(cat)}
-                        onCheckedChange={() => toggleCategory(cat)}
-                      />
-                      {cat}
-                    </Label>
-                  ))
-                )}
-              </div>
-            </PopoverContent>
-          </Popover>
+          <Label
+            htmlFor="filter-category"
+            className="text-xs text-muted-foreground"
+          >
+            Category
+          </Label>
+          <Select
+            value={filters.categoryId}
+            onValueChange={(v) => onChange({ categoryId: v })}
+          >
+            <SelectTrigger id="filter-category" className="w-45">
+              <SelectValue placeholder="All categories" />
+            </SelectTrigger>
+            <SelectContent className="**:data-radix-select-viewport:max-h-[min(22rem,var(--radix-select-content-available-height))]">
+              <SelectItem value="all">All categories</SelectItem>
+              {categoryGroups.map(({ type, label }) => {
+                const items = categories.filter((c) => c.type === type);
+                if (items.length === 0) return null;
+                return (
+                  <SelectGroup key={type}>
+                    <SelectLabel>{label}</SelectLabel>
+                    {items.map((c) => (
+                      <SelectItem key={c.category_id} value={c.category_id}>
+                        {c.name}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                );
+              })}
+            </SelectContent>
+          </Select>
         </div>
 
         <div className="flex flex-col gap-1.5">
@@ -263,16 +275,16 @@ export default function TransactionsFilters({
           </div>
         </div>
 
-        <Button
-          variant="ghost"
-          size="sm"
-          className="text-muted-foreground"
-          onClick={onClear}
-          disabled={!hasActiveFilters}
-        >
-          <X className="h-4 w-4" aria-hidden="true" />
-          Clear
-        </Button>
+        {hasActiveFilters && (
+          <Button
+            variant="outline"
+            className="cursor-pointer gap-1.5 border-destructive/40 text-destructive hover:bg-destructive/10 hover:text-destructive"
+            onClick={onClear}
+          >
+            <X className="h-4 w-4" aria-hidden="true" />
+            Clear filters
+          </Button>
+        )}
 
         <div className="flex flex-col gap-1.5 sm:ml-auto">
           <Label
@@ -304,103 +316,99 @@ export default function TransactionsFilters({
           <span className="text-xs text-muted-foreground">Active:</span>
 
           {filters.search !== "" && (
-            <Badge variant="secondary" className="gap-1 pr-1 font-normal">
+            <Badge variant="outline" className={CHIP_CLASS}>
               Search: {filters.search}
               <button
                 type="button"
                 aria-label="Remove search filter"
-                className="cursor-pointer rounded-full p-0.5 hover:bg-background/70"
+                className={CHIP_REMOVE_CLASS}
                 onClick={() => onChange({ search: "" })}
               >
-                <X size={12} />
+                <X size={12} strokeWidth={2.5} />
               </button>
             </Badge>
           )}
 
           {filters.year !== "all" && (
-            <Badge variant="secondary" className="gap-1 pr-1 font-normal">
+            <Badge variant="outline" className={CHIP_CLASS}>
               Year: {filters.year}
               <button
                 type="button"
                 aria-label="Remove year filter"
-                className="cursor-pointer rounded-full p-0.5 hover:bg-background/70"
+                className={CHIP_REMOVE_CLASS}
                 onClick={() => onChange({ year: "all" })}
               >
-                <X size={12} />
+                <X size={12} strokeWidth={2.5} />
               </button>
             </Badge>
           )}
 
           {filters.month !== "all" && (
-            <Badge variant="secondary" className="gap-1 pr-1 font-normal">
+            <Badge variant="outline" className={CHIP_CLASS}>
               Month: {MONTHS[Number(filters.month) - 1]}
               <button
                 type="button"
                 aria-label="Remove month filter"
-                className="cursor-pointer rounded-full p-0.5 hover:bg-background/70"
+                className={CHIP_REMOVE_CLASS}
                 onClick={() => onChange({ month: "all" })}
               >
-                <X size={12} />
+                <X size={12} strokeWidth={2.5} />
               </button>
             </Badge>
           )}
 
           {filters.day !== "all" && (
-            <Badge variant="secondary" className="gap-1 pr-1 font-normal">
+            <Badge variant="outline" className={CHIP_CLASS}>
               Day: {filters.day}
               <button
                 type="button"
                 aria-label="Remove day filter"
-                className="cursor-pointer rounded-full p-0.5 hover:bg-background/70"
+                className={CHIP_REMOVE_CLASS}
                 onClick={() => onChange({ day: "all" })}
               >
-                <X size={12} />
+                <X size={12} strokeWidth={2.5} />
               </button>
             </Badge>
           )}
 
           {filters.type !== "all" && (
-            <Badge variant="secondary" className="gap-1 pr-1 font-normal">
+            <Badge variant="outline" className={CHIP_CLASS}>
               Type: {TYPE_LABELS[filters.type]}
               <button
                 type="button"
                 aria-label="Remove type filter"
-                className="cursor-pointer rounded-full p-0.5 hover:bg-background/70"
+                className={CHIP_REMOVE_CLASS}
                 onClick={() => onChange({ type: "all" })}
               >
-                <X size={12} />
+                <X size={12} strokeWidth={2.5} />
               </button>
             </Badge>
           )}
 
-          {filters.categories.map((cat) => (
-            <Badge
-              key={cat}
-              variant="secondary"
-              className="gap-1 pr-1 font-normal"
-            >
-              Category: {cat}
+          {filters.categoryId !== "all" && (
+            <Badge variant="outline" className={CHIP_CLASS}>
+              Category: {selectedCategory?.name ?? "…"}
               <button
                 type="button"
-                aria-label={`Remove ${cat} category filter`}
-                className="cursor-pointer rounded-full p-0.5 hover:bg-background/70"
-                onClick={() => toggleCategory(cat)}
+                aria-label="Remove category filter"
+                className={CHIP_REMOVE_CLASS}
+                onClick={() => onChange({ categoryId: "all" })}
               >
-                <X size={12} />
+                <X size={12} strokeWidth={2.5} />
               </button>
             </Badge>
-          ))}
+          )}
 
           {(filters.minAmount !== "" || filters.maxAmount !== "") && (
-            <Badge variant="secondary" className="gap-1 pr-1 font-normal">
+            <Badge variant="outline" className={CHIP_CLASS}>
               Amount: {filters.minAmount || "0"}–{filters.maxAmount || "∞"}
               <button
                 type="button"
                 aria-label="Remove amount filter"
-                className="cursor-pointer rounded-full p-0.5 hover:bg-background/70"
+                className={CHIP_REMOVE_CLASS}
                 onClick={() => onChange({ minAmount: "", maxAmount: "" })}
               >
-                <X size={12} />
+                <X size={12} strokeWidth={2.5} />
               </button>
             </Badge>
           )}
