@@ -38,9 +38,9 @@ export function monthPeriod(month: string): string {
   return `${yearMonth}:${yearMonth}`;
 }
 
-// "YYYY-MM-01" -> e.g. "October 2026", in the browser's locale
-export function formatMonth(month: string): string {
-  return new Date(`${month}T00:00:00`).toLocaleDateString(undefined, {
+// "YYYY-MM-01" -> e.g. "October 2026"; without a locale the browser's is used
+export function formatMonth(month: string, locale?: string): string {
+  return new Date(`${month}T00:00:00`).toLocaleDateString(locale, {
     month: "long",
     year: "numeric",
   });

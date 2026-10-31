@@ -29,10 +29,12 @@ export function formatCurrency(
   currency: Currency = DEFAULT_CURRENCY,
   sign: "auto" | "+" | "-" = "auto",
   fixed = false,
+  // App language; without it the browser locale is used
+  locale?: string,
 ) {
   const prefix = sign === "auto" ? (amount < 0 ? "-" : "") : sign;
   const { before, after } = SYMBOLS[currency];
-  const value = Math.abs(amount).toLocaleString(undefined, {
+  const value = Math.abs(amount).toLocaleString(locale, {
     minimumFractionDigits: fixed ? 2 : 0,
     maximumFractionDigits: 2,
   });
