@@ -7,6 +7,7 @@ import {
   DollarSign,
   PiggyBank,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface SummaryProps {
   totalIncome: number;
@@ -20,11 +21,13 @@ interface SummaryProps {
 interface TargetProgressProps {
   target: number | null;
   pct: number | null;
-  label: string;
+  // Key under dashboard.budget.summary, e.g. "42% of target"
+  label: "ofTarget" | "ofLimit" | "ofGoal";
   barClassName: string;
 }
 
 function TargetProgress({ target, pct, label, barClassName }: TargetProgressProps) {
+  const { t } = useTranslation();
   const { format } = useCurrency();
   // Progress can be negative (net) or above 100, the bar only shows 0-100
   const width = Math.min(Math.max(pct ?? 0, 0), 100);
@@ -33,10 +36,16 @@ function TargetProgress({ target, pct, label, barClassName }: TargetProgressProp
     <div className="mt-3 space-y-1">
       <div className="flex justify-between text-xs text-muted-foreground">
         {target === null ? (
-          <span>No target set</span>
+          <span>{t("dashboard.budget.summary.noTarget")}</span>
         ) : (
           <>
-            <span>{pct === null ? "—" : `${Math.round(pct)}% ${label}`}</span>
+            <span>
+              {pct === null
+                ? "—"
+                : t(`dashboard.budget.summary.${label}`, {
+                    pct: Math.round(pct),
+                  })}
+            </span>
             <span>{format(target)}</span>
           </>
         )}
@@ -59,6 +68,7 @@ export default function SummaryCards({
   target,
   progress,
 }: SummaryProps) {
+  const { t } = useTranslation();
   const { format } = useCurrency();
 
   return (
@@ -66,7 +76,8 @@ export default function SummaryCards({
       <Card className="border min-w-[80%] snap-center shrink-0 md:min-w-0 md:shrink">
         <CardHeader>
           <CardTitle className="flex items-center gap-1 text-lg text-foreground">
-            <ArrowUpRight className="text-finance-success" /> Income
+            <ArrowUpRight className="text-finance-success" />{" "}
+            {t("dashboard.common.income")}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -76,7 +87,7 @@ export default function SummaryCards({
           <TargetProgress
             target={target.income}
             pct={progress.income}
-            label="of target"
+            label="ofTarget"
             barClassName="bg-finance-success"
           />
         </CardContent>
@@ -86,7 +97,7 @@ export default function SummaryCards({
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg text-foreground">
             <ArrowDownRight className="text-finance-danger" />
-            Expenses
+            {t("dashboard.common.expenses")}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -96,7 +107,7 @@ export default function SummaryCards({
           <TargetProgress
             target={target.expense}
             pct={progress.expense}
-            label="of limit"
+            label="ofLimit"
             barClassName="bg-finance-danger"
           />
         </CardContent>
@@ -105,7 +116,8 @@ export default function SummaryCards({
       <Card className="border min-w-[80%] snap-center shrink-0 md:min-w-0 md:shrink">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg text-foreground">
-            <PiggyBank className="text-finance-primary" /> Savings
+            <PiggyBank className="text-finance-primary" />{" "}
+            {t("dashboard.common.savings")}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -115,7 +127,7 @@ export default function SummaryCards({
           <TargetProgress
             target={target.savings}
             pct={progress.savings}
-            label="of goal"
+            label="ofGoal"
             barClassName="bg-finance-primary"
           />
         </CardContent>
@@ -124,7 +136,8 @@ export default function SummaryCards({
       <Card className="border min-w-[80%] snap-center shrink-0 md:min-w-0 md:shrink">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg text-foreground">
-            <DollarSign className="text-finance-purple" /> Net balance
+            <DollarSign className="text-finance-purple" />{" "}
+            {t("dashboard.budget.summary.netBalance")}
           </CardTitle>
         </CardHeader>
         <CardContent>

@@ -20,6 +20,9 @@ import { ChevronDownIcon, Loader2, Plus } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
+import { useTranslation } from "react-i18next";
+import type ro from "@/i18n/locales/ro.json";
+import { useDateLocale } from "@/hooks/useDateLocale";
 import BudgetItemSchema, {
   NOTES_MAX_LENGTH,
   type BudgetItemInput,
@@ -34,7 +37,15 @@ import {
 
 type BudgetType = BudgetItemInput["type"];
 
-type FormErrors = { category?: string; amount?: string; notes?: string };
+// The schema messages are keys under dashboard.budget.form.errors
+type SchemaErrorKey =
+  `dashboard.budget.form.errors.${keyof (typeof ro)["dashboard"]["budget"]["form"]["errors"]}`;
+
+type FormErrors = {
+  category?: SchemaErrorKey;
+  amount?: SchemaErrorKey;
+  notes?: SchemaErrorKey;
+};
 
 const NOTES_WARNING_THRESHOLD = 100;
 
@@ -48,6 +59,8 @@ interface BudgetFormProps {
 }
 
 export default function BudgetForm({ onCreated }: BudgetFormProps) {
+  const { t } = useTranslation();
+  const dateLocale = useDateLocale();
   const [formData, setFormData] = useState<BudgetItemInput>({
     type: "income",
     category: "",
@@ -86,11 +99,9 @@ export default function BudgetForm({ onCreated }: BudgetFormProps) {
           category: data[0]?.category_id ?? "",
         }));
       })
-      .catch((err) => {
+      .catch(() => {
         if (cancelled) return;
-        toast.error(
-          err instanceof Error ? err.message : "Could not load categories",
-        );
+        toast.error(t("dashboard.budget.form.toasts.categoriesError"));
       })
       .finally(() => {
         if (!cancelled) setCategoriesLoading(false);
@@ -99,7 +110,7 @@ export default function BudgetForm({ onCreated }: BudgetFormProps) {
     return () => {
       cancelled = true;
     };
-  }, [formData.type]);
+  }, [formData.type, t]);
 
   const notesRemaining = NOTES_MAX_LENGTH - formData.notes.length;
   const notesNearLimit = notesRemaining <= NOTES_WARNING_THRESHOLD;
@@ -131,7 +142,7 @@ export default function BudgetForm({ onCreated }: BudgetFormProps) {
     const name = newCategoryName.trim();
 
     if (!name) {
-      setNewCategoryError("Please enter a category name.");
+      setNewCategoryError(t("dashboard.budget.form.errors.categoryNameRequired"));
       return;
     }
 
@@ -139,7 +150,7 @@ export default function BudgetForm({ onCreated }: BudgetFormProps) {
       (cat) => cat.name.toLowerCase() === name.toLowerCase(),
     );
     if (exists) {
-      setNewCategoryError("This category already exists.");
+      setNewCategoryError(t("dashboard.budget.form.errors.categoryExists"));
       return;
     }
 
@@ -150,11 +161,11 @@ export default function BudgetForm({ onCreated }: BudgetFormProps) {
       setCategories((prev) => [...prev, category]);
       setFormData((prev) => ({ ...prev, category: category.category_id }));
       handleNewCategoryOpenChange(false);
-      toast.success(`Category "${category.name}" added.`);
-    } catch (err) {
-      setNewCategoryError(
-        err instanceof Error ? err.message : "Could not create category",
+      toast.success(
+        t("dashboard.budget.form.toasts.categoryAdded", { name: category.name }),
       );
+    } catch {
+      setNewCategoryError(t("dashboard.budget.form.toasts.categoryError"));
     } finally {
       setCreatingCategory(false);
     }
@@ -175,9 +186,9 @@ export default function BudgetForm({ onCreated }: BudgetFormProps) {
     if (!result.success) {
       const fieldErrors = z.flattenError(result.error).fieldErrors;
       setFormErrors({
-        category: fieldErrors.category?.[0],
-        amount: fieldErrors.amount?.[0],
-        notes: fieldErrors.notes?.[0],
+        category: fieldErrors.category?.[0] as SchemaErrorKey | undefined,
+        amount: fieldErrors.amount?.[0] as SchemaErrorKey | undefined,
+        notes: fieldErrors.notes?.[0] as SchemaErrorKey | undefined,
       });
       if (fieldErrors.amount) amountRef.current?.focus();
       return;
@@ -189,7 +200,7 @@ export default function BudgetForm({ onCreated }: BudgetFormProps) {
     try {
       await addNewTransaction(result.data);
 
-      toast.success("Budget item added successfully!");
+      toast.success(t("dashboard.budget.form.toasts.added"));
       onCreated?.(result.data.type);
 
       setFormData((prev) => ({
@@ -199,12 +210,8 @@ export default function BudgetForm({ onCreated }: BudgetFormProps) {
         notes: "",
         date: toDateString(new Date()),
       }));
-    } catch (err) {
-      toast.error(
-        err instanceof Error
-          ? err.message
-          : "Could not save the item. Please try again.",
-      );
+    } catch {
+      toast.error(t("dashboard.budget.form.toasts.addError"));
     } finally {
       setSubmitting(false);
     }
@@ -215,18 +222,20 @@ export default function BudgetForm({ onCreated }: BudgetFormProps) {
       <fieldset disabled={submitting} className="grid min-w-0 gap-4">
         {/* Type */}
         <div className="space-y-2">
-          <Label htmlFor="type">Type</Label>
+          <Label htmlFor="type">{t("dashboard.budget.form.type")}</Label>
           <Select
             value={formData.type}
             onValueChange={(v) => handleTypeChange(v as BudgetType)}
           >
             <SelectTrigger id="type" className="w-full">
-              <SelectValue placeholder="Select type" />
+              <SelectValue placeholder={t("dashboard.budget.form.selectType")} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="income">Income</SelectItem>
-              <SelectItem value="expenses">Expense</SelectItem>
-              <SelectItem value="savings">Savings</SelectItem>
+              {(["income", "expenses", "savings"] as const).map((type) => (
+                <SelectItem key={type} value={type}>
+                  {t(`dashboard.budget.form.types.${type}`)}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
@@ -234,7 +243,9 @@ export default function BudgetForm({ onCreated }: BudgetFormProps) {
         {/* Category */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <Label htmlFor="category">Category</Label>
+            <Label htmlFor="category">
+              {t("dashboard.budget.form.category")}
+            </Label>
             <Popover
               open={newCategoryOpen}
               onOpenChange={handleNewCategoryOpenChange}
@@ -247,11 +258,13 @@ export default function BudgetForm({ onCreated }: BudgetFormProps) {
                   className="h-6 cursor-pointer gap-1 px-2 text-xs text-muted-foreground"
                 >
                   <Plus className="h-3 w-3" aria-hidden="true" />
-                  Add new category
+                  {t("dashboard.budget.form.addCategory")}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-64 space-y-2" align="end">
-                <Label htmlFor="new-category">New category</Label>
+                <Label htmlFor="new-category">
+                  {t("dashboard.budget.form.newCategory")}
+                </Label>
                 {/* Not a nested <form>: submit events would bubble to the parent form through the portal */}
                 <div className="flex gap-2">
                   <Input
@@ -270,7 +283,7 @@ export default function BudgetForm({ onCreated }: BudgetFormProps) {
                         handleAddCategory();
                       }
                     }}
-                    placeholder="e.g. Gym"
+                    placeholder={t("dashboard.budget.form.newCategoryPlaceholder")}
                     aria-invalid={!!newCategoryError}
                     aria-describedby={
                       newCategoryError ? "new-category-error" : undefined
@@ -290,7 +303,7 @@ export default function BudgetForm({ onCreated }: BudgetFormProps) {
                         aria-hidden="true"
                       />
                     ) : (
-                      "Add"
+                      t("dashboard.budget.form.add")
                     )}
                   </Button>
                 </div>
@@ -325,8 +338,8 @@ export default function BudgetForm({ onCreated }: BudgetFormProps) {
               <SelectValue
                 placeholder={
                   categoriesLoading
-                    ? "Loading categories..."
-                    : "Select category"
+                    ? t("dashboard.budget.form.loadingCategories")
+                    : t("dashboard.budget.form.selectCategory")
                 }
               />
             </SelectTrigger>
@@ -344,7 +357,7 @@ export default function BudgetForm({ onCreated }: BudgetFormProps) {
               role="alert"
               className="text-sm text-destructive"
             >
-              {formErrors.category}
+              {t(formErrors.category)}
             </p>
           )}
         </div>
@@ -352,7 +365,7 @@ export default function BudgetForm({ onCreated }: BudgetFormProps) {
         {/* Amount + Date */}
         <div className="flex justify-between gap-4">
           <div className="space-y-2">
-            <Label htmlFor="amount">Amount</Label>
+            <Label htmlFor="amount">{t("dashboard.budget.form.amount")}</Label>
             <Input
               id="amount"
               name="amount"
@@ -372,12 +385,12 @@ export default function BudgetForm({ onCreated }: BudgetFormProps) {
                 role="alert"
                 className="text-sm text-destructive"
               >
-                {formErrors.amount}
+                {t(formErrors.amount)}
               </p>
             )}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="date">Date</Label>
+            <Label htmlFor="date">{t("dashboard.budget.form.date")}</Label>
             <Popover open={dateOpen} onOpenChange={setDateOpen}>
               <PopoverTrigger asChild>
                 <Button
@@ -388,9 +401,9 @@ export default function BudgetForm({ onCreated }: BudgetFormProps) {
                   className="w-full justify-between text-left font-normal data-[empty=true]:text-muted-foreground"
                 >
                   {selectedDate ? (
-                    format(selectedDate, "PPP")
+                    format(selectedDate, "PPP", { locale: dateLocale })
                   ) : (
-                    <span>Pick a date</span>
+                    <span>{t("dashboard.budget.form.pickDate")}</span>
                   )}
                   <ChevronDownIcon />
                 </Button>
@@ -399,6 +412,7 @@ export default function BudgetForm({ onCreated }: BudgetFormProps) {
                 <Calendar
                   mode="single"
                   required
+                  locale={dateLocale}
                   selected={selectedDate}
                   onSelect={handleDateSelect}
                   defaultMonth={selectedDate}
@@ -410,7 +424,7 @@ export default function BudgetForm({ onCreated }: BudgetFormProps) {
 
         {/* Notes */}
         <div className="space-y-2">
-          <Label htmlFor="notes">Notes</Label>
+          <Label htmlFor="notes">{t("dashboard.budget.form.notes")}</Label>
           <textarea
             id="notes"
             name="notes"
@@ -421,7 +435,7 @@ export default function BudgetForm({ onCreated }: BudgetFormProps) {
             aria-describedby={
               formErrors.notes ? "notes-error notes-counter" : "notes-counter"
             }
-            placeholder="Optional notes about this entry..."
+            placeholder={t("dashboard.budget.form.notesPlaceholder")}
             className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm outline-none min-h-40 resize-none transition focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]"
           />
           <p
@@ -439,7 +453,7 @@ export default function BudgetForm({ onCreated }: BudgetFormProps) {
               role="alert"
               className="text-sm text-destructive"
             >
-              {formErrors.notes}
+              {t(formErrors.notes, { max: NOTES_MAX_LENGTH })}
             </p>
           )}
         </div>
@@ -455,7 +469,9 @@ export default function BudgetForm({ onCreated }: BudgetFormProps) {
           {submitting && (
             <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
           )}
-          {submitting ? "Saving..." : "Save item"}
+          {submitting
+            ? t("dashboard.budget.form.saving")
+            : t("dashboard.budget.form.save")}
         </Button>
       </div>
     </form>

@@ -18,6 +18,7 @@ import { formatMonth, monthPeriod } from "@/lib/periods";
 import { useCurrency } from "@/hooks/useCurrency";
 import { Download } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 
 interface HistoryRow {
   target: MonthlyBudgetTarget;
@@ -52,15 +53,20 @@ function TargetCell({ actual, target, pct }: TargetCellProps) {
 }
 
 function HistoryHeader({ children }: { children?: ReactNode }) {
+  const { t } = useTranslation();
+
   return (
     <div className="mb-3 flex items-center justify-between gap-2">
-      <h3 className="text-sm font-semibold">Target history</h3>
+      <h3 className="text-sm font-semibold">
+        {t("dashboard.budget.history.title")}
+      </h3>
       {children}
     </div>
   );
 }
 
 export default function TargetHistory() {
+  const { t, i18n } = useTranslation();
   // undefined while loading, null if the targets could not be loaded
   const [rows, setRows] = useState<HistoryRow[] | null | undefined>(undefined);
 
@@ -109,7 +115,7 @@ export default function TargetHistory() {
       <>
         <HistoryHeader />
         <p className="text-sm text-destructive">
-          Could not load target history.
+          {t("dashboard.budget.history.loadError")}
         </p>
       </>
     );
@@ -119,7 +125,9 @@ export default function TargetHistory() {
     return (
       <>
         <HistoryHeader />
-        <p className="text-sm text-muted-foreground">No targets saved yet.</p>
+        <p className="text-sm text-muted-foreground">
+          {t("dashboard.budget.history.empty")}
+        </p>
       </>
     );
   }
@@ -134,25 +142,25 @@ export default function TargetHistory() {
           className="cursor-pointer gap-1.5"
         >
           <Download size={14} />
-          Download
+          {t("dashboard.budget.history.download")}
         </Button>
       </HistoryHeader>
       <div className="max-h-80 overflow-y-auto rounded-md border">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Month</TableHead>
-              <TableHead>Income</TableHead>
-              <TableHead>Expenses</TableHead>
-              <TableHead>Savings</TableHead>
-              <TableHead>Net</TableHead>
+              <TableHead>{t("dashboard.budget.history.month")}</TableHead>
+              <TableHead>{t("dashboard.common.income")}</TableHead>
+              <TableHead>{t("dashboard.common.expenses")}</TableHead>
+              <TableHead>{t("dashboard.common.savings")}</TableHead>
+              <TableHead>{t("dashboard.budget.history.net")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {rows.map(({ target, summary }) => (
               <TableRow key={target.id}>
                 <TableCell className="font-medium">
-                  {formatMonth(target.month)}
+                  {formatMonth(target.month, i18n.language)}
                 </TableCell>
                 <TableCell>
                   <TargetCell

@@ -874,6 +874,154 @@
           "savings": "Savings"
         }
       }
+    },
+    "budget": {
+      "title": "Budget Overview",
+      "subtitle": "Track income, expenses, savings and add new budget items quickly.",
+      "selectMonth": "Select month",
+      "yourTarget": "Your Target",
+      "addEntry": "Add new entry",
+      "close": "Close",
+      "loadError": "Could not load transactions.",
+      "form": {
+        "title": "Add a budget item",
+        "subtitle": "Choose whether it's income, expense or savings.",
+        "type": "Type",
+        "selectType": "Select type",
+        "types": {
+          "income": "Income",
+          "expenses": "Expense",
+          "savings": "Savings"
+        },
+        "category": "Category",
+        "addCategory": "Add new category",
+        "newCategory": "New category",
+        "newCategoryPlaceholder": "e.g. Gym",
+        "add": "Add",
+        "loadingCategories": "Loading categories...",
+        "selectCategory": "Select category",
+        "amount": "Amount",
+        "date": "Date",
+        "pickDate": "Pick a date",
+        "notes": "Notes",
+        "notesPlaceholder": "Optional notes about this entry...",
+        "saving": "Saving...",
+        "save": "Save item",
+        "errors": {
+          "categoryNameRequired": "Please enter a category name.",
+          "categoryExists": "This category already exists.",
+          "categoryRequired": "Category is required.",
+          "amountRequired": "Amount is required.",
+          "amountInvalid": "Please enter a valid amount.",
+          "amountPositive": "Amount must be greater than 0.",
+          "notesTooLong": "Notes can't be longer than {{max}} characters."
+        },
+        "toasts": {
+          "categoryAdded": "Category \"{{name}}\" added.",
+          "categoryError": "Could not create category.",
+          "categoriesError": "Could not load categories.",
+          "added": "Budget item added successfully!",
+          "addError": "Could not save the item. Please try again."
+        }
+      },
+      "items": {
+        "summary_one": "Total: {{total}} · {{count}} item",
+        "summary_other": "Total: {{total}} · {{count}} items",
+        "empty": "No entries yet.",
+        "addEntry": "Add entry",
+        "addMore": "Add more items",
+        "viewDetails": "View details",
+        "edit": "Edit",
+        "delete": "Delete",
+        "detailsTitle": "Item details",
+        "entryOf": "{{type}} entry",
+        "category": "Category",
+        "date": "Date",
+        "notes": "Notes",
+        "noNotes": "No notes added.",
+        "close": "Close",
+        "editTitle": "Edit item",
+        "editSubtitle": "Update the details for this {{type}} entry.",
+        "amount": "Amount",
+        "selectCategory": "Select category",
+        "pickDate": "Pick a date",
+        "notesPlaceholder": "Add a note for this item...",
+        "cancel": "Cancel",
+        "saveChanges": "Save changes",
+        "deleteTitle": "Delete item",
+        "deleteConfirm": "Are you sure you want to delete <bold>{{category}}</bold> ({{amount}})? The action cannot be undone."
+      },
+      "summary": {
+        "netBalance": "Net balance",
+        "noTarget": "No target set",
+        "ofTarget": "{{pct}}% of target",
+        "ofLimit": "{{pct}}% of limit",
+        "ofGoal": "{{pct}}% of goal"
+      },
+      "targets": {
+        "title": "Set your targets for {{month}}",
+        "income": "Income target",
+        "expense": "Expenses limit",
+        "savings": "Savings goal",
+        "showHistory": "View target history",
+        "hideHistory": "Hide target history",
+        "cancel": "Cancel",
+        "saving": "Saving...",
+        "save": "Save targets",
+        "saved": "Targets saved.",
+        "saveError": "Could not save targets."
+      },
+      "history": {
+        "title": "Target history",
+        "loadError": "Could not load target history.",
+        "empty": "No targets saved yet.",
+        "download": "Download",
+        "month": "Month",
+        "net": "Net"
+      },
+      "toasts": {
+        "deleted": "Transaction deleted.",
+        "deleteError": "Could not delete transaction.",
+        "updated": "Transaction updated.",
+        "updateError": "Could not update transaction."
+      },
+      "extraInfo": {
+        "income": {
+          "title": "Recurring income sources",
+          "badge": "Recurring"
+        },
+        "expenses": {
+          "title": "Fixed monthly expenses",
+          "badge": "Recurring"
+        },
+        "savings": {
+          "title": "Savings goals",
+          "badge": "Goals"
+        },
+        "monthlyTotal": "Monthly total:",
+        "items": {
+          "salary": "Salary",
+          "investments": "Investments",
+          "internet": "Internet",
+          "rent": "Rent",
+          "utilities": "Utilities",
+          "emergency": "Emergency fund",
+          "vacation": "Vacation"
+        }
+      },
+      "insights": {
+        "title": "Insights",
+        "doingGreat": "You're doing great!",
+        "doingGreatValue": "You've saved {{pct}}% of your goal this month.",
+        "topExpense": "Top expense",
+        "incomeTrend": "Income trend",
+        "incomeTrendValue": "{{pct}}% vs last month",
+        "savingsRate": "Savings rate",
+        "savingsRateValue": "{{pct}}% of income",
+        "daysLeft": "Days left in period",
+        "daysLeftValue_one": "{{count}} day",
+        "daysLeftValue_other": "{{count}} days"
+      }
     }
   }
 }

@@ -874,6 +874,156 @@
           "savings": "Economii"
         }
       }
+    },
+    "budget": {
+      "title": "Prezentare buget",
+      "subtitle": "Urmărește veniturile, cheltuielile și economiile și adaugă rapid înregistrări noi.",
+      "selectMonth": "Alege luna",
+      "yourTarget": "Țintele tale",
+      "addEntry": "Adaugă înregistrare",
+      "close": "Închide",
+      "loadError": "Tranzacțiile nu au putut fi încărcate.",
+      "form": {
+        "title": "Adaugă o înregistrare",
+        "subtitle": "Alege dacă e venit, cheltuială sau economie.",
+        "type": "Tip",
+        "selectType": "Alege tipul",
+        "types": {
+          "income": "Venit",
+          "expenses": "Cheltuială",
+          "savings": "Economie"
+        },
+        "category": "Categorie",
+        "addCategory": "Adaugă categorie nouă",
+        "newCategory": "Categorie nouă",
+        "newCategoryPlaceholder": "ex. Sală",
+        "add": "Adaugă",
+        "loadingCategories": "Se încarcă categoriile...",
+        "selectCategory": "Alege categoria",
+        "amount": "Sumă",
+        "date": "Dată",
+        "pickDate": "Alege o dată",
+        "notes": "Note",
+        "notesPlaceholder": "Note opționale despre această înregistrare...",
+        "saving": "Se salvează...",
+        "save": "Salvează",
+        "errors": {
+          "categoryNameRequired": "Introdu un nume pentru categorie.",
+          "categoryExists": "Această categorie există deja.",
+          "categoryRequired": "Categoria este obligatorie.",
+          "amountRequired": "Suma este obligatorie.",
+          "amountInvalid": "Introdu o sumă validă.",
+          "amountPositive": "Suma trebuie să fie mai mare decât 0.",
+          "notesTooLong": "Notele nu pot avea mai mult de {{max}} de caractere."
+        },
+        "toasts": {
+          "categoryAdded": "Categoria „{{name}}” a fost adăugată.",
+          "categoryError": "Categoria nu a putut fi creată.",
+          "categoriesError": "Categoriile nu au putut fi încărcate.",
+          "added": "Înregistrarea a fost adăugată!",
+          "addError": "Înregistrarea nu a putut fi salvată. Încearcă din nou."
+        }
+      },
+      "items": {
+        "summary_one": "Total: {{total}} · {{count}} înregistrare",
+        "summary_few": "Total: {{total}} · {{count}} înregistrări",
+        "summary_other": "Total: {{total}} · {{count}} de înregistrări",
+        "empty": "Nu există înregistrări încă.",
+        "addEntry": "Adaugă înregistrare",
+        "addMore": "Adaugă mai multe",
+        "viewDetails": "Vezi detalii",
+        "edit": "Editează",
+        "delete": "Șterge",
+        "detailsTitle": "Detalii înregistrare",
+        "entryOf": "Înregistrare: {{type}}",
+        "category": "Categorie",
+        "date": "Dată",
+        "notes": "Note",
+        "noNotes": "Nicio notă adăugată.",
+        "close": "Închide",
+        "editTitle": "Editează înregistrarea",
+        "editSubtitle": "Actualizează detaliile acestei înregistrări ({{type}}).",
+        "amount": "Sumă",
+        "selectCategory": "Alege categoria",
+        "pickDate": "Alege o dată",
+        "notesPlaceholder": "Adaugă o notă pentru această înregistrare...",
+        "cancel": "Anulează",
+        "saveChanges": "Salvează modificările",
+        "deleteTitle": "Șterge înregistrarea",
+        "deleteConfirm": "Sigur vrei să ștergi <bold>{{category}}</bold> ({{amount}})? Acțiunea nu poate fi anulată."
+      },
+      "summary": {
+        "netBalance": "Sold net",
+        "noTarget": "Nicio țintă setată",
+        "ofTarget": "{{pct}}% din țintă",
+        "ofLimit": "{{pct}}% din limită",
+        "ofGoal": "{{pct}}% din obiectiv"
+      },
+      "targets": {
+        "title": "Setează țintele pentru {{month}}",
+        "income": "Țintă venituri",
+        "expense": "Limită cheltuieli",
+        "savings": "Obiectiv economii",
+        "showHistory": "Vezi istoricul țintelor",
+        "hideHistory": "Ascunde istoricul țintelor",
+        "cancel": "Anulează",
+        "saving": "Se salvează...",
+        "save": "Salvează țintele",
+        "saved": "Țintele au fost salvate.",
+        "saveError": "Țintele nu au putut fi salvate."
+      },
+      "history": {
+        "title": "Istoric ținte",
+        "loadError": "Istoricul țintelor nu a putut fi încărcat.",
+        "empty": "Nu ai salvat nicio țintă încă.",
+        "download": "Descarcă",
+        "month": "Luna",
+        "net": "Net"
+      },
+      "toasts": {
+        "deleted": "Tranzacția a fost ștearsă.",
+        "deleteError": "Tranzacția nu a putut fi ștearsă.",
+        "updated": "Tranzacția a fost actualizată.",
+        "updateError": "Tranzacția nu a putut fi actualizată."
+      },
+      "extraInfo": {
+        "income": {
+          "title": "Surse de venit recurente",
+          "badge": "Recurente"
+        },
+        "expenses": {
+          "title": "Cheltuieli fixe lunare",
+          "badge": "Recurente"
+        },
+        "savings": {
+          "title": "Obiective de economisire",
+          "badge": "Obiective"
+        },
+        "monthlyTotal": "Total lunar:",
+        "items": {
+          "salary": "Salariu",
+          "investments": "Investiții",
+          "internet": "Internet",
+          "rent": "Chirie",
+          "utilities": "Utilități",
+          "emergency": "Fond urgență",
+          "vacation": "Vacanță"
+        }
+      },
+      "insights": {
+        "title": "Observații",
+        "doingGreat": "Te descurci excelent!",
+        "doingGreatValue": "Ai economisit {{pct}}% din obiectiv luna aceasta.",
+        "topExpense": "Cea mai mare cheltuială",
+        "incomeTrend": "Evoluția veniturilor",
+        "incomeTrendValue": "{{pct}}% față de luna trecută",
+        "savingsRate": "Rata de economisire",
+        "savingsRateValue": "{{pct}}% din venituri",
+        "daysLeft": "Zile rămase din perioadă",
+        "daysLeftValue_one": "{{count}} zi",
+        "daysLeftValue_few": "{{count}} zile",
+        "daysLeftValue_other": "{{count}} de zile"
+      }
     }
   }
 }

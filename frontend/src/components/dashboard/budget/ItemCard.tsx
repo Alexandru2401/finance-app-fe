@@ -21,7 +21,9 @@ import {
   Trash2,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { Trans, useTranslation } from "react-i18next";
 import { useCurrency } from "@/hooks/useCurrency";
+import { useDateLocale } from "@/hooks/useDateLocale";
 import { Link } from "react-router";
 import type { Section } from "../../../pages/dashboard/BudgetPage";
 import { Button } from "../../ui/button";
@@ -45,13 +47,24 @@ import {
 
 type BudgetType = "income" | "expenses" | "savings";
 
+const formatDate = (date: string, locale: string) =>
+  new Date(date).toLocaleDateString(locale, {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+
 interface ItemCardProps {
   section: Section;
   onShowForm: () => void;
 }
 
 export default function ItemCard({ section, onShowForm }: ItemCardProps) {
+  const { t, i18n } = useTranslation();
   const { format: formatMoney } = useCurrency();
+  const dateLocale = useDateLocale();
+  const categoryName = (item: BudgetItem) =>
+    item.category || t("dashboard.common.uncategorized");
   const [editingItem, setEditingItem] = useState<BudgetItem | null>(null);
   const [deletingItem, setDeletingItem] = useState<BudgetItem | null>(null);
   const [viewingItem, setViewingItem] = useState<BudgetItem | null>(null);
@@ -158,13 +171,15 @@ export default function ItemCard({ section, onShowForm }: ItemCardProps) {
                   variant="outline"
                   className="cursor-pointer max-w-34 md:w-auto"
                 >
-                  See all
+                  {t("dashboard.common.seeAll")}
                 </Button>
               </Link>
             </CardTitle>
             <CardDescription className="text-xs text-muted-foreground font-medium">
-              Total: {formatMoney(section.total, "auto", true)} · {section.items.length} item
-              {section.items.length === 1 ? "" : "s"}
+              {t("dashboard.budget.items.summary", {
+                total: formatMoney(section.total, "auto", true),
+                count: section.items.length,
+              })}
             </CardDescription>
           </div>
         </CardHeader>
@@ -173,14 +188,16 @@ export default function ItemCard({ section, onShowForm }: ItemCardProps) {
           <CardContent className="overflow-hidden">
             {section.items.length === 0 ? (
               <div className="flex flex-col items-center justify-center gap-4 py-6">
-                <p className="text-sm text-muted-foreground">No entries yet.</p>
+                <p className="text-sm text-muted-foreground">
+                  {t("dashboard.budget.items.empty")}
+                </p>
                 <Button
                   variant="default"
                   onClick={() => onShowForm()}
                   className="cursor-pointer"
                 >
                   <Plus size={16} />
-                  Add entry
+                  {t("dashboard.budget.items.addEntry")}
                 </Button>
               </div>
             ) : (
@@ -198,15 +215,11 @@ export default function ItemCard({ section, onShowForm }: ItemCardProps) {
 
                     <div className="flex min-w-0 flex-col">
                       <p className="truncate text-sm font-semibold capitalize text-foreground">
-                        {item.category}
+                        {categoryName(item)}
                       </p>
                       {item.date && (
                         <p className="text-xs text-muted-foreground">
-                          {new Date(item.date).toLocaleDateString("ro-RO", {
-                            day: "2-digit",
-                            month: "short",
-                            year: "numeric",
-                          })}
+                          {formatDate(item.date, i18n.language)}
                         </p>
                       )}
                     </div>
@@ -224,6 +237,7 @@ export default function ItemCard({ section, onShowForm }: ItemCardProps) {
                         variant="ghost"
                         size="sm"
                         onClick={() => setViewingItem(item)}
+                        aria-label={t("dashboard.budget.items.viewDetails")}
                         className="cursor-pointer  hover:bg-slate-400/20"
                       >
                         <FileText size={18} className="text-finance-warning" />
@@ -234,6 +248,7 @@ export default function ItemCard({ section, onShowForm }: ItemCardProps) {
                         variant="ghost"
                         size="sm"
                         onClick={() => startEdit(item)}
+                        aria-label={t("dashboard.budget.items.edit")}
                         className="cursor-pointer  hover:bg-slate-400/20"
                       >
                         <Pencil size={16} className="text-finance-primary" />
@@ -244,6 +259,7 @@ export default function ItemCard({ section, onShowForm }: ItemCardProps) {
                         variant="ghost"
                         size="sm"
                         onClick={() => startDelete(item)}
+                        aria-label={t("dashboard.budget.items.delete")}
                         className="cursor-pointer  hover:bg-slate-400/20"
                       >
                         <Trash2 size={18} className="text-finance-danger" />
@@ -264,7 +280,7 @@ export default function ItemCard({ section, onShowForm }: ItemCardProps) {
               className="cursor-pointer max-w-34 md:w-auto"
             >
               <Plus size={16} />
-              Add more items
+              {t("dashboard.budget.items.addMore")}
             </Button>
           </CardFooter>
         )}
@@ -281,10 +297,10 @@ export default function ItemCard({ section, onShowForm }: ItemCardProps) {
             <div className="flex items-start justify-between gap-4">
               <div>
                 <h2 className="text-lg font-semibold text-foreground">
-                  Item details
+                  {t("dashboard.budget.items.detailsTitle")}
                 </h2>
-                <p className="text-sm capitalize text-muted-foreground">
-                  {section.title} entry
+                <p className="text-sm text-muted-foreground">
+                  {t("dashboard.budget.items.entryOf", { type: section.title })}
                 </p>
               </div>
               <span
@@ -300,33 +316,35 @@ export default function ItemCard({ section, onShowForm }: ItemCardProps) {
 
             <div className="grid grid-cols-2 gap-3 text-sm">
               <div className="rounded-lg bg-muted/40 p-3">
-                <p className="mb-0.5 text-xs text-muted-foreground">Category</p>
+                <p className="mb-0.5 text-xs text-muted-foreground">
+                  {t("dashboard.budget.items.category")}
+                </p>
                 <p className="font-medium capitalize text-foreground">
-                  {viewingItem.category}
+                  {categoryName(viewingItem)}
                 </p>
               </div>
               <div className="rounded-lg bg-muted/40 p-3">
-                <p className="mb-0.5 text-xs text-muted-foreground">Date</p>
+                <p className="mb-0.5 text-xs text-muted-foreground">
+                  {t("dashboard.budget.items.date")}
+                </p>
                 <p className="font-medium text-foreground">
                   {viewingItem.date
-                    ? new Date(viewingItem.date).toLocaleDateString("ro-RO", {
-                        day: "2-digit",
-                        month: "short",
-                        year: "numeric",
-                      })
+                    ? formatDate(viewingItem.date, i18n.language)
                     : "—"}
                 </p>
               </div>
             </div>
 
             <div className="rounded-lg bg-muted/40 p-3">
-              <p className="mb-1 text-xs text-muted-foreground">Notes</p>
+              <p className="mb-1 text-xs text-muted-foreground">
+                {t("dashboard.budget.items.notes")}
+              </p>
               <p className="max-h-32 overflow-y-auto overflow-x-hidden whitespace-pre-wrap break-all text-sm text-foreground">
                 {viewingItem.notes?.trim() ? (
                   viewingItem.notes
                 ) : (
                   <span className="italic text-muted-foreground">
-                    No notes added.
+                    {t("dashboard.budget.items.noNotes")}
                   </span>
                 )}
               </p>
@@ -339,7 +357,7 @@ export default function ItemCard({ section, onShowForm }: ItemCardProps) {
                 onClick={() => setViewingItem(null)}
                 className="cursor-pointer"
               >
-                Close
+                {t("dashboard.budget.items.close")}
               </Button>
               <Button
                 type="button"
@@ -349,7 +367,7 @@ export default function ItemCard({ section, onShowForm }: ItemCardProps) {
                 }}
                 className="w-22 cursor-pointer"
               >
-                Edit
+                {t("dashboard.budget.items.edit")}
               </Button>
             </div>
           </div>
@@ -367,16 +385,18 @@ export default function ItemCard({ section, onShowForm }: ItemCardProps) {
             <div>
               <h2 className="flex items-center gap-1 text-lg font-semibold text-foreground">
                 <Pencil size={16} className="mr-1 shrink-0" />
-                Edit item
+                {t("dashboard.budget.items.editTitle")}
               </h2>
               <p className="mt-1 text-sm text-muted-foreground">
-                Update the details for this {section.title.toLowerCase()} entry.
+                {t("dashboard.budget.items.editSubtitle", {
+                  type: section.title.toLowerCase(),
+                })}
               </p>
             </div>
 
             {/* Amount */}
             <div className="space-y-2">
-              <Label>Amount</Label>
+              <Label>{t("dashboard.budget.items.amount")}</Label>
               <Input
                 type="number"
                 value={editValues.amount}
@@ -391,7 +411,7 @@ export default function ItemCard({ section, onShowForm }: ItemCardProps) {
 
             {/* Category */}
             <div className="space-y-2">
-              <Label>Category</Label>
+              <Label>{t("dashboard.budget.items.category")}</Label>
               <Select
                 value={editValues.category}
                 onValueChange={(v) =>
@@ -399,7 +419,9 @@ export default function ItemCard({ section, onShowForm }: ItemCardProps) {
                 }
               >
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select category" />
+                  <SelectValue
+                    placeholder={t("dashboard.budget.items.selectCategory")}
+                  />
                 </SelectTrigger>
                 <SelectContent>
                   {categories.map((cat) => (
@@ -413,7 +435,7 @@ export default function ItemCard({ section, onShowForm }: ItemCardProps) {
 
             {/* Date */}
             <div className="space-y-2">
-              <Label>Date</Label>
+              <Label>{t("dashboard.budget.items.date")}</Label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
@@ -421,7 +443,11 @@ export default function ItemCard({ section, onShowForm }: ItemCardProps) {
                     data-empty={!date}
                     className="w-full justify-between text-left font-normal data-[empty=true]:text-muted-foreground"
                   >
-                    {date ? format(date, "PPP") : <span>Pick a date</span>}
+                    {date ? (
+                      format(date, "PPP", { locale: dateLocale })
+                    ) : (
+                      <span>{t("dashboard.budget.items.pickDate")}</span>
+                    )}
                     <ChevronDownIcon />
                   </Button>
                 </PopoverTrigger>
@@ -431,6 +457,7 @@ export default function ItemCard({ section, onShowForm }: ItemCardProps) {
                     selected={date}
                     onSelect={setDate}
                     defaultMonth={date}
+                    locale={dateLocale}
                   />
                 </PopoverContent>
               </Popover>
@@ -438,14 +465,14 @@ export default function ItemCard({ section, onShowForm }: ItemCardProps) {
 
             {/* Notes */}
             <div className="space-y-2">
-              <Label>Notes</Label>
+              <Label>{t("dashboard.budget.items.notes")}</Label>
               <textarea
                 className="min-h-20 w-full resize-none rounded-md border border-input bg-transparent px-3 py-2 text-sm outline-none transition focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
                 value={editValues.notes}
                 onChange={(e) =>
                   setEditValues((v) => ({ ...v, notes: e.target.value }))
                 }
-                placeholder="Add a note for this item..."
+                placeholder={t("dashboard.budget.items.notesPlaceholder")}
               />
             </div>
 
@@ -456,14 +483,14 @@ export default function ItemCard({ section, onShowForm }: ItemCardProps) {
                 onClick={cancelEdit}
                 className="cursor-pointer"
               >
-                Cancel
+                {t("dashboard.budget.items.cancel")}
               </Button>
               <Button
                 type="button"
                 onClick={confirmEdit}
                 className="cursor-pointer"
               >
-                Save changes
+                {t("dashboard.budget.items.saveChanges")}
               </Button>
             </div>
           </div>
@@ -480,15 +507,19 @@ export default function ItemCard({ section, onShowForm }: ItemCardProps) {
             <div>
               <h2 className="flex items-center gap-1 text-lg font-semibold text-foreground">
                 <Trash2 size={16} className="shrink-0 text-finance-danger" />{" "}
-                Delete item
+                {t("dashboard.budget.items.deleteTitle")}
               </h2>
               <p className="mt-2 text-sm text-muted-foreground">
-                Are you sure you want to delete{" "}
-                <span className="font-medium text-foreground">
-                  {deletingItem.category}
-                </span>{" "}
-                ({formatMoney(deletingItem.amount, "auto", true)})? The action cannot be
-                undone.
+                <Trans
+                  i18nKey="dashboard.budget.items.deleteConfirm"
+                  values={{
+                    category: categoryName(deletingItem),
+                    amount: formatMoney(deletingItem.amount, "auto", true),
+                  }}
+                  components={{
+                    bold: <span className="font-medium text-foreground" />,
+                  }}
+                />
               </p>
             </div>
             <div className="flex justify-end gap-2 pt-2">
@@ -498,7 +529,7 @@ export default function ItemCard({ section, onShowForm }: ItemCardProps) {
                 onClick={cancelDelete}
                 className="cursor-pointer"
               >
-                Cancel
+                {t("dashboard.budget.items.cancel")}
               </Button>
               <Button
                 type="button"
@@ -506,7 +537,7 @@ export default function ItemCard({ section, onShowForm }: ItemCardProps) {
                 onClick={confirmDelete}
                 className="cursor-pointer"
               >
-                Delete
+                {t("dashboard.budget.items.delete")}
               </Button>
             </div>
           </div>

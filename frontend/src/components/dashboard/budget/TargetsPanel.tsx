@@ -6,6 +6,7 @@ import type { BudgetTargetValues } from "@/api/budget";
 import { formatMonth } from "@/lib/periods";
 import { History } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 interface TargetsPanelProps {
     targets: BudgetTargetValues;
@@ -21,6 +22,7 @@ const toInput = (value: number | null) => (value === null ? "" : String(value));
 const fromInput = (value: string) => (value.trim() === "" ? null : Number(value) || 0);
 
 export default function TargetsPanel({ targets, month, onSave, onClose }: TargetsPanelProps) {
+    const { t, i18n } = useTranslation();
     const [values, setValues] = useState({
         income: toInput(targets.income),
         expense: toInput(targets.expense),
@@ -49,12 +51,12 @@ export default function TargetsPanel({ targets, month, onSave, onClose }: Target
             <div className="absolute inset-0 bg-black/40" onClick={onClose} />
             <div className={`relative z-10 max-h-[90vh] w-full overflow-y-auto rounded-xl ${showHistory ? "max-w-3xl" : "max-w-lg"} border border-muted/30 bg-background p-6 shadow-2xl`}>
                 <h2 className="mb-4 text-lg font-semibold">
-                    Set your targets for {formatMonth(month)}
+                    {t("dashboard.budget.targets.title", { month: formatMonth(month, i18n.language) })}
                 </h2>
 
                 <div className="flex flex-wrap items-end gap-4">
                     <div className="flex flex-col gap-1.5">
-                        <Label htmlFor="t-income" className="text-xs text-muted-foreground">Income target</Label>
+                        <Label htmlFor="t-income" className="text-xs text-muted-foreground">{t("dashboard.budget.targets.income")}</Label>
                         <Input
                             id="t-income"
                             type="number"
@@ -66,7 +68,7 @@ export default function TargetsPanel({ targets, month, onSave, onClose }: Target
                     </div>
 
                     <div className="flex flex-col gap-1.5">
-                        <Label htmlFor="t-expenses" className="text-xs text-muted-foreground">Expenses limit</Label>
+                        <Label htmlFor="t-expenses" className="text-xs text-muted-foreground">{t("dashboard.budget.targets.expense")}</Label>
                         <Input
                             id="t-expenses"
                             type="number"
@@ -78,7 +80,7 @@ export default function TargetsPanel({ targets, month, onSave, onClose }: Target
                     </div>
 
                     <div className="flex flex-col gap-1.5">
-                        <Label htmlFor="t-savings" className="text-xs text-muted-foreground">Savings goal</Label>
+                        <Label htmlFor="t-savings" className="text-xs text-muted-foreground">{t("dashboard.budget.targets.savings")}</Label>
                         <Input
                             id="t-savings"
                             type="number"
@@ -98,12 +100,16 @@ export default function TargetsPanel({ targets, month, onSave, onClose }: Target
                         className="cursor-pointer gap-1.5 px-0"
                     >
                         <History size={14} />
-                        {showHistory ? "Hide target history" : "View target history"}
+                        {showHistory
+                            ? t("dashboard.budget.targets.hideHistory")
+                            : t("dashboard.budget.targets.showHistory")}
                     </Button>
                     <div className="flex gap-2">
-                        <Button variant="ghost" onClick={onClose} className="cursor-pointer">Cancel</Button>
+                        <Button variant="ghost" onClick={onClose} className="cursor-pointer">
+                            {t("dashboard.budget.targets.cancel")}
+                        </Button>
                         <Button onClick={handleSave} disabled={saving || isEmpty} className="cursor-pointer">
-                            {saving ? "Saving..." : "Save targets"}
+                            {saving ? t("dashboard.budget.targets.saving") : t("dashboard.budget.targets.save")}
                         </Button>
                     </div>
                 </div>

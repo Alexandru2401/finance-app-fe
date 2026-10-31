@@ -3,6 +3,7 @@ import ItemCard from "@/components/dashboard/budget/ItemCard";
 import { Button } from "@/components/ui/button";
 import { CalendarDays, Plus, Target } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import ExtraInfo from "@/components/dashboard/budget/ExtraInfo";
 import Insights from "@/components/dashboard/budget/Insights";
@@ -45,7 +46,8 @@ function toBudgetItem(t: Transaction): BudgetItem {
   return {
     id: t.item_id,
     type: t.type === "expense" ? "expenses" : t.type,
-    category: t.category_name ?? "Uncategorized",
+    // Empty = no category; ItemCard shows the translated "Uncategorized"
+    category: t.category_name ?? "",
     categoryId: t.category_id ?? undefined,
     amount: Number(t.amount),
     date: t.date,
@@ -123,6 +125,7 @@ export interface Section {
 }
 
 export default function BudgetPage() {
+  const { t, i18n } = useTranslation();
   // Cached per tab so refetches and tab switches keep showing the last data
   // instead of flashing a skeleton; undefined = not loaded yet
   const [itemsByTab, setItemsByTab] = useState<
@@ -225,11 +228,11 @@ export default function BudgetPage() {
   async function saveTargets(values: BudgetTargetValues): Promise<boolean> {
     try {
       await saveBudgetTarget(selectedMonth, values);
-      toast.success("Targets saved.");
+      toast.success(t("dashboard.budget.targets.saved"));
       refresh();
       return true;
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Could not save targets");
+    } catch {
+      toast.error(t("dashboard.budget.targets.saveError"));
       return false;
     }
   }
@@ -237,24 +240,20 @@ export default function BudgetPage() {
   async function deleteItem(id: string) {
     try {
       await deleteTransaction(id);
-      toast.success("Transaction deleted.");
+      toast.success(t("dashboard.budget.toasts.deleted"));
       refresh();
-    } catch (err) {
-      toast.error(
-        err instanceof Error ? err.message : "Could not delete transaction",
-      );
+    } catch {
+      toast.error(t("dashboard.budget.toasts.deleteError"));
     }
   }
 
   async function editItem(id: string, payload: UpdateTransactionPayload) {
     try {
       await updateTransaction(id, payload);
-      toast.success("Transaction updated.");
+      toast.success(t("dashboard.budget.toasts.updated"));
       refresh();
-    } catch (err) {
-      toast.error(
-        err instanceof Error ? err.message : "Could not update transaction",
-      );
+    } catch {
+      toast.error(t("dashboard.budget.toasts.updateError"));
     }
   }
 
@@ -264,27 +263,23 @@ export default function BudgetPage() {
     savings: totalSavings,
   };
 
-  const sections: Section[] = (
-    [
-      { title: "Income", section: "income" },
-      { title: "Expenses", section: "expenses" },
-      { title: "Savings", section: "savings" },
-    ] as const
-  ).map(({ title, section }) => ({
-    title,
-    section,
-    // Only the active tab is rendered, so it is the only one that needs items
-    items: itemsByTab[section] ?? [],
-    total: totalsByType[section],
-    onDelete: deleteItem,
-    onEdit: editItem,
-  }));
+  const sections: Section[] = (["income", "expenses", "savings"] as const).map(
+    (section) => ({
+      title: t(`dashboard.common.${section}`),
+      section,
+      // Only the active tab is rendered, so it is the only one that needs items
+      items: itemsByTab[section] ?? [],
+      total: totalsByType[section],
+      onDelete: deleteItem,
+      onEdit: editItem,
+    }),
+  );
 
   return (
     <section className="relative py-4 px-4 max-w-7xl mx-auto">
       <PageHeader
-        title="Budget Overview"
-        subtitle="Track income, expenses, savings and add new budget items quickly."
+        title={t("dashboard.budget.title")}
+        subtitle={t("dashboard.budget.subtitle")}
       >
         {" "}
         <div className="flex flex-col md:items-end">
@@ -293,7 +288,7 @@ export default function BudgetPage() {
               <SelectTrigger
                 size="sm"
                 className="w-44 cursor-pointer"
-                aria-label="Select month"
+                aria-label={t("dashboard.budget.selectMonth")}
               >
                 <CalendarDays size={16} className="text-muted-foreground" />
                 <SelectValue />
@@ -301,7 +296,7 @@ export default function BudgetPage() {
               <SelectContent>
                 {monthOptions.map((month) => (
                   <SelectItem key={month} value={month}>
-                    {formatMonth(month)}
+                    {formatMonth(month, i18n.language)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -314,7 +309,7 @@ export default function BudgetPage() {
               className="cursor-pointer gap-2"
             >
               <Target size={16} />
-              Your Target
+              {t("dashboard.budget.yourTarget")}
             </Button>
 
             <Button
@@ -324,7 +319,9 @@ export default function BudgetPage() {
               size="sm"
             >
               <Plus size={16} />
-              {showForm ? "Close" : "Add new entry"}
+              {showForm
+                ? t("dashboard.budget.close")
+                : t("dashboard.budget.addEntry")}
             </Button>
           </div>
         </div>
@@ -373,7 +370,7 @@ export default function BudgetPage() {
                   ) : itemsError ? (
                     <Card>
                       <CardContent className="py-6 text-sm text-destructive">
-                        {itemsError}
+                        {t("dashboard.budget.loadError")}
                       </CardContent>
                     </Card>
                   ) : (
@@ -400,9 +397,11 @@ export default function BudgetPage() {
           <aside className="fixed inset-y-0 right-0 z-50 max-w-md overflow-y-auto bg-background shadow-2xl border-l border-muted/30 md:max-w-xl lg:max-w-2xl">
             <div className="flex items-center justify-between border-b border-muted/20 px-6 py-4">
               <div>
-                <h2 className="text-xl font-semibold">Add a budget item</h2>
+                <h2 className="text-xl font-semibold">
+                  {t("dashboard.budget.form.title")}
+                </h2>
                 <p className="text-sm text-muted-foreground">
-                  Choose whether it's income, expense or savings.
+                  {t("dashboard.budget.form.subtitle")}
                 </p>
               </div>
               <Button
@@ -410,7 +409,7 @@ export default function BudgetPage() {
                 onClick={() => setShowForm(false)}
                 className="cursor-pointer"
               >
-                Close
+                {t("dashboard.budget.close")}
               </Button>
             </div>
 
