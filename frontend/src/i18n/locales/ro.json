@@ -23,7 +23,8 @@
     "ro": "Română",
     "roHint": "Limba română",
     "en": "English",
-    "enHint": "Limba engleză"
+    "enHint": "Limba engleză",
+    "saveError": "Limba nu a putut fi salvată în cont."
   },
   "home": {
     "hero": {
@@ -1023,6 +1024,80 @@
         "daysLeftValue_one": "{{count}} zi",
         "daysLeftValue_few": "{{count}} zile",
         "daysLeftValue_other": "{{count}} de zile"
+      }
+    },
+    "transactions": {
+      "title": "Tranzacții",
+      "subtitle": "Vezi toate tranzacțiile tale.",
+      "deleted": "Tranzacția a fost ștearsă.",
+      "deleteError": "Tranzacția nu a putut fi ștearsă.",
+      "filters": {
+        "searchPlaceholder": "Caută categoria...",
+        "exportCsv": "Exportă CSV",
+        "year": "An",
+        "allYears": "Toți anii",
+        "month": "Lună",
+        "allMonths": "Toate lunile",
+        "day": "Zi",
+        "allDays": "Toate zilele",
+        "type": "Tip",
+        "allTypes": "Toate tipurile",
+        "category": "Categorie",
+        "allCategories": "Toate categoriile",
+        "amount": "Sumă",
+        "min": "Min",
+        "max": "Max",
+        "maxAmount": "Suma maximă",
+        "clear": "Șterge filtrele",
+        "sort": "Sortare",
+        "sorts": {
+          "date-desc": "Dată: cele mai noi",
+          "date-asc": "Dată: cele mai vechi",
+          "amount-desc": "Sumă: descrescător",
+          "amount-asc": "Sumă: crescător"
+        },
+        "active": "Active:",
+        "chips": {
+          "search": "Căutare: {{value}}",
+          "year": "An: {{value}}",
+          "month": "Lună: {{value}}",
+          "day": "Zi: {{value}}",
+          "type": "Tip: {{value}}",
+          "category": "Categorie: {{value}}",
+          "amount": "Sumă: {{value}}"
+        },
+        "remove": {
+          "search": "Elimină filtrul de căutare",
+          "year": "Elimină filtrul de an",
+          "month": "Elimină filtrul de lună",
+          "day": "Elimină filtrul de zi",
+          "type": "Elimină filtrul de tip",
+          "category": "Elimină filtrul de categorie",
+          "amount": "Elimină filtrul de sumă"
+        }
+      },
+      "table": {
+        "caption": "Lista tranzacțiilor tale recente.",
+        "type": "Tip",
+        "category": "Categorie",
+        "date": "Dată",
+        "amount": "Sumă",
+        "actions": "Acțiuni",
+        "emptyTitle": "Nu am găsit tranzacții",
+        "emptyHint": "Încearcă să modifici filtrele sau căutarea.",
+        "delete": "Șterge tranzacția",
+        "netTotal": "Total net",
+        "showing": "Se afișează <bold>{{from}}–{{to}}</bold> din <bold>{{total}}</bold> tranzacții",
+        "perPage": "Pe pagină",
+        "deleteTitle": "Șterge tranzacția",
+        "deleteConfirm": "Sigur vrei să ștergi <bold>{{category}}</bold> ({{amount}}, {{date}})? Acțiunea nu poate fi anulată.",
+        "cancel": "Anulează",
+        "deleting": "Se șterge...",
+        "confirmDelete": "Șterge",
+        "previous": "Înapoi",
+        "next": "Înainte",
+        "previousPage": "Pagina anterioară",
+        "nextPage": "Pagina următoare"
       }
     }
   }

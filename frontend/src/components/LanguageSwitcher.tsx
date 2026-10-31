@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { SUPPORTED_LANGUAGES } from "@/i18n";
 import { cn } from "@/lib/utils";
+import { useChangeLanguage } from "@/hooks/useChangeLanguage";
 
 export default function LanguageSwitcher({
   className,
@@ -19,6 +20,8 @@ export default function LanguageSwitcher({
 }) {
   const { t, i18n } = useTranslation();
   const current = i18n.resolvedLanguage;
+  // Also saves the language on the account when logged in
+  const changeLanguage = useChangeLanguage();
 
   return (
     <DropdownMenu modal={false}>
@@ -55,7 +58,7 @@ export default function LanguageSwitcher({
           return (
             <DropdownMenuItem
               key={lng}
-              onSelect={() => i18n.changeLanguage(lng)}
+              onSelect={() => changeLanguage(lng)}
               className={cn(
                 "cursor-pointer gap-2 rounded-lg px-1 py-1",
                 active && "bg-accent",

@@ -7,6 +7,7 @@ import {
 } from "@/components/dashboard/transactions/filters";
 
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   getTransactions,
   type Transaction,
@@ -45,6 +46,7 @@ const toAmount = (value: string) =>
   value.trim() === "" ? undefined : Number(value);
 
 export default function TransactionsPage() {
+  const { t } = useTranslation();
   const [transactions, setTransactions] = useState<Transaction[] | null>(null);
   const [filters, setFilters] = useState<TransactionFilters>(DEFAULT_FILTERS);
   // Debounced copy of filters.search, the one sent to the backend
@@ -136,15 +138,13 @@ export default function TransactionsPage() {
   async function handleDelete(id: string): Promise<boolean> {
     try {
       await deleteTransaction(id);
-      toast.success("Transaction deleted.");
+      toast.success(t("dashboard.transactions.deleted"));
       // The last row of a page: go back one page instead of showing it empty
       if (transactions?.length === 1 && page > 1) setPage(page - 1);
       else setRefreshKey((k) => k + 1);
       return true;
-    } catch (err) {
-      toast.error(
-        err instanceof Error ? err.message : "Could not delete transaction",
-      );
+    } catch {
+      toast.error(t("dashboard.transactions.deleteError"));
       return false;
     }
   }
@@ -171,8 +171,8 @@ export default function TransactionsPage() {
   return (
     <section className="px-4 py-4 max-w-7xl mx-auto">
       <PageHeader
-        title="Transactions"
-        subtitle="Take a look over all your transactions."
+        title={t("dashboard.transactions.title")}
+        subtitle={t("dashboard.transactions.subtitle")}
       />
       <TransactionsFilters
         filters={filters}

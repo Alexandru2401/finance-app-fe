@@ -40,18 +40,13 @@ import type { Transaction } from "@/api/transactions";
 import type { PaginationInfo } from "@/pages/dashboard/TransactionsPage";
 import { Trash2 } from "lucide-react";
 import { useState, type MouseEvent } from "react";
+import { Trans, useTranslation } from "react-i18next";
 import { useCurrency } from "@/hooks/useCurrency";
 
 const TYPE_STYLES: Record<Transaction["type"], string> = {
   income: "bg-finance-success-bg text-finance-success",
   expense: "bg-finance-danger-bg text-finance-danger",
   savings: "bg-finance-primary-bg text-finance-primary",
-};
-
-const TYPE_LABELS: Record<Transaction["type"], string> = {
-  income: "Income",
-  expense: "Expense",
-  savings: "Savings",
 };
 
 // Savings are money kept, not spent, so they get no sign
@@ -67,8 +62,8 @@ const AMOUNT_STYLES: Record<Transaction["type"], string> = {
   savings: "text-finance-primary",
 };
 
-const fmtDate = (date: string) =>
-  new Date(date).toLocaleDateString("en-US", {
+const fmtDate = (date: string, locale: string) =>
+  new Date(date).toLocaleDateString(locale, {
     month: "short",
     day: "numeric",
     year: "numeric",
@@ -90,6 +85,8 @@ function getPageItems(page: number, totalPages: number) {
   return items;
 }
 
+const BOLD = { bold: <span className="font-medium text-foreground" /> };
+
 interface Props {
   transactions: Transaction[] | null;
   loading: boolean;
@@ -109,9 +106,12 @@ export default function TransactionsTable({
   onLimitChange,
   onDelete,
 }: Props) {
+  const { t, i18n } = useTranslation();
   const { format } = useCurrency();
   const fmtAmount = (amount: number, type: Transaction["type"]) =>
     `${AMOUNT_SIGNS[type]}${format(Math.abs(amount))}`;
+  const categoryName = (tx: Transaction) =>
+    tx.category_name ?? t("dashboard.common.uncategorized");
 
   // Transaction waiting for confirmation in the dialog
   const [deleting, setDeleting] = useState<Transaction | null>(null);
@@ -149,16 +149,26 @@ export default function TransactionsTable({
       <div className="w-full overflow-x-auto rounded-md border bg-card">
         <Table>
           <TableCaption className="sr-only">
-            A list of your recent transactions.
+            {t("dashboard.transactions.table.caption")}
           </TableCaption>
           <TableHeader className="sticky top-0 z-10 bg-card">
             <TableRow>
               <TableHead className="w-12 text-muted-foreground">#</TableHead>
-              <TableHead className="min-w-40">Type</TableHead>
-              <TableHead className="min-w-40">Category</TableHead>
-              <TableHead className="min-w-40">Date</TableHead>
-              <TableHead className="min-w-40 text-right">Amount</TableHead>
-              <TableHead className="w-16 text-right">Actions</TableHead>
+              <TableHead className="min-w-40">
+                {t("dashboard.transactions.table.type")}
+              </TableHead>
+              <TableHead className="min-w-40">
+                {t("dashboard.transactions.table.category")}
+              </TableHead>
+              <TableHead className="min-w-40">
+                {t("dashboard.transactions.table.date")}
+              </TableHead>
+              <TableHead className="min-w-40 text-right">
+                {t("dashboard.transactions.table.amount")}
+              </TableHead>
+              <TableHead className="w-16 text-right">
+                {t("dashboard.transactions.table.actions")}
+              </TableHead>
             </TableRow>
           </TableHeader>
 
@@ -189,43 +199,45 @@ export default function TransactionsTable({
             ) : transactions.length === 0 ? (
               <TableRow className="hover:bg-transparent">
                 <TableCell colSpan={6} className="h-32 text-center">
-                  <p className="text-sm font-medium">No transactions found</p>
+                  <p className="text-sm font-medium">
+                    {t("dashboard.transactions.table.emptyTitle")}
+                  </p>
                   <p className="text-xs text-muted-foreground mt-1">
-                    Try adjusting your filters or search term.
+                    {t("dashboard.transactions.table.emptyHint")}
                   </p>
                 </TableCell>
               </TableRow>
             ) : (
-              transactions.map((t, index) => (
-                <TableRow key={t.item_id}>
+              transactions.map((tx, index) => (
+                <TableRow key={tx.item_id}>
                   <TableCell className="text-muted-foreground tabular-nums">
                     {offset + index + 1}
                   </TableCell>
                   <TableCell>
                     <span
-                      className={`text-xs font-medium px-2.5 py-1 rounded-full ${TYPE_STYLES[t.type]}`}
+                      className={`text-xs font-medium px-2.5 py-1 rounded-full ${TYPE_STYLES[tx.type]}`}
                     >
-                      {TYPE_LABELS[t.type]}
+                      {t(`dashboard.overview.recentTransactions.types.${tx.type}`)}
                     </span>
                   </TableCell>
                   <TableCell className="font-medium">
-                    {t.category_name ?? "Uncategorized"}
+                    {categoryName(tx)}
                   </TableCell>
                   <TableCell className="text-muted-foreground whitespace-nowrap">
-                    {fmtDate(t.date)}
+                    {fmtDate(tx.date, i18n.language)}
                   </TableCell>
                   <TableCell
-                    className={`text-right font-medium whitespace-nowrap ${AMOUNT_STYLES[t.type]}`}
+                    className={`text-right font-medium whitespace-nowrap ${AMOUNT_STYLES[tx.type]}`}
                   >
-                    {fmtAmount(t.amount, t.type)}
+                    {fmtAmount(tx.amount, tx.type)}
                   </TableCell>
                   <TableCell className="text-right">
                     <Button
                       variant="ghost"
                       size="icon"
                       className="size-8 cursor-pointer text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
-                      aria-label="Delete transaction"
-                      onClick={() => setDeleting(t)}
+                      aria-label={t("dashboard.transactions.table.delete")}
+                      onClick={() => setDeleting(tx)}
                     >
                       <Trash2 size={16} />
                     </Button>
@@ -238,7 +250,7 @@ export default function TransactionsTable({
           <TableFooter>
             <TableRow className="hover:bg-transparent">
               <TableCell colSpan={4} className="font-medium">
-                Net total
+                {t("dashboard.transactions.table.netTotal")}
               </TableCell>
               <TableCell
                 className={`text-right font-semibold whitespace-nowrap ${
@@ -259,19 +271,22 @@ export default function TransactionsTable({
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6">
         <div className="flex items-center gap-4">
           <p className="text-sm text-muted-foreground">
-            Showing{" "}
-            <span className="font-medium text-foreground">
-              {total === 0 ? 0 : offset + 1}–{Math.min(offset + limit, total)}
-            </span>{" "}
-            of <span className="font-medium text-foreground">{total}</span>{" "}
-            transactions
+            <Trans
+              i18nKey="dashboard.transactions.table.showing"
+              values={{
+                from: total === 0 ? 0 : offset + 1,
+                to: Math.min(offset + limit, total),
+                total,
+              }}
+              components={BOLD}
+            />
           </p>
           <div className="flex items-center gap-2">
             <Label
               htmlFor="page-size"
               className="text-xs text-muted-foreground"
             >
-              Per page
+              {t("dashboard.transactions.table.perPage")}
             </Label>
             <Select
               value={String(limit)}
@@ -297,6 +312,8 @@ export default function TransactionsTable({
               <PaginationItem>
                 <PaginationPrevious
                   href="#"
+                  text={t("dashboard.transactions.table.previous")}
+                  aria-label={t("dashboard.transactions.table.previousPage")}
                   onClick={goTo(page - 1)}
                   aria-disabled={isFirst}
                   className={
@@ -327,6 +344,8 @@ export default function TransactionsTable({
               <PaginationItem>
                 <PaginationNext
                   href="#"
+                  text={t("dashboard.transactions.table.next")}
+                  aria-label={t("dashboard.transactions.table.nextPage")}
                   onClick={goTo(page + 1)}
                   aria-disabled={isLast}
                   className={
@@ -348,24 +367,25 @@ export default function TransactionsTable({
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
               <Trash2 size={18} className="text-finance-danger" />
-              Delete transaction
+              {t("dashboard.transactions.table.deleteTitle")}
             </AlertDialogTitle>
             <AlertDialogDescription>
               {deleting && (
-                <>
-                  Are you sure you want to delete{" "}
-                  <span className="font-medium text-foreground">
-                    {deleting.category_name ?? "Uncategorized"}
-                  </span>{" "}
-                  ({fmtAmount(deleting.amount, deleting.type)},{" "}
-                  {fmtDate(deleting.date)})? This action cannot be undone.
-                </>
+                <Trans
+                  i18nKey="dashboard.transactions.table.deleteConfirm"
+                  values={{
+                    category: categoryName(deleting),
+                    amount: fmtAmount(deleting.amount, deleting.type),
+                    date: fmtDate(deleting.date, i18n.language),
+                  }}
+                  components={BOLD}
+                />
               )}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={isDeleting} className="cursor-pointer">
-              Cancel
+              {t("dashboard.transactions.table.cancel")}
             </AlertDialogCancel>
             {/* A plain button, so the dialog stays open until the delete finishes */}
             <Button
@@ -374,7 +394,9 @@ export default function TransactionsTable({
               disabled={isDeleting}
               className="cursor-pointer"
             >
-              {isDeleting ? "Deleting..." : "Delete"}
+              {isDeleting
+                ? t("dashboard.transactions.table.deleting")
+                : t("dashboard.transactions.table.confirmDelete")}
             </Button>
           </AlertDialogFooter>
         </AlertDialogContent>

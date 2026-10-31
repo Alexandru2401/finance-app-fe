@@ -1,5 +1,6 @@
 import type { User } from "@/context/AuthContext";
 import type { Currency } from "@/lib/format";
+import type { Language } from "@/i18n";
 import { post, get, patch } from "./client";
 
 interface AuthResponse {
@@ -49,11 +50,17 @@ async function logoutUser() {
 }
 
 // Changing the currency converts all saved amounts on the backend (BNR rate);
-// the response user only has user_id, username and currency
-async function addUserInfo(username: string, currency: Currency) {
+// the response user only has user_id, username, currency and language.
+// Without a language the backend keeps the current one
+async function addUserInfo(
+  username: string,
+  currency: Currency,
+  language?: Language,
+) {
   const response = await patch<AuthResponse>("/auth/user-info", {
     username,
     currency,
+    language,
   });
   return response;
 }

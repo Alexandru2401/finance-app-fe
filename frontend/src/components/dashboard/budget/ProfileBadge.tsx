@@ -25,6 +25,7 @@ import { cn } from "@/lib/utils";
 
 import { logoutUser } from "@/api/user";
 import { useAuth } from "@/hooks/useAuth";
+import { useChangeLanguage } from "@/hooks/useChangeLanguage";
 
 export default function ProfileBadge() {
   const [openProfile, setOpenProfile] = useState(false);
@@ -36,6 +37,7 @@ export default function ProfileBadge() {
 
   const { dark, toggleTheme } = useTheme();
   const { t, i18n } = useTranslation();
+  const changeLanguage = useChangeLanguage();
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -157,7 +159,7 @@ export default function ProfileBadge() {
                         type="button"
                         aria-pressed={active}
                         aria-label={t(`language.${lng}`)}
-                        onClick={() => i18n.changeLanguage(lng)}
+                        onClick={() => changeLanguage(lng)}
                         className={cn(
                           "cursor-pointer rounded-full px-2.5 py-0.5 text-xs font-semibold uppercase transition-colors",
                           active

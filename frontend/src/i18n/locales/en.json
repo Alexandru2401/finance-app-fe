@@ -23,7 +23,8 @@
     "ro": "Română",
     "roHint": "Romanian",
     "en": "English",
-    "enHint": "English"
+    "enHint": "English",
+    "saveError": "Could not save the language on your account."
   },
   "home": {
     "hero": {
@@ -1021,6 +1022,80 @@
         "daysLeft": "Days left in period",
         "daysLeftValue_one": "{{count}} day",
         "daysLeftValue_other": "{{count}} days"
+      }
+    },
+    "transactions": {
+      "title": "Transactions",
+      "subtitle": "Take a look over all your transactions.",
+      "deleted": "Transaction deleted.",
+      "deleteError": "Could not delete transaction.",
+      "filters": {
+        "searchPlaceholder": "Search category...",
+        "exportCsv": "Export CSV",
+        "year": "Year",
+        "allYears": "All years",
+        "month": "Month",
+        "allMonths": "All months",
+        "day": "Day",
+        "allDays": "All days",
+        "type": "Type",
+        "allTypes": "All types",
+        "category": "Category",
+        "allCategories": "All categories",
+        "amount": "Amount",
+        "min": "Min",
+        "max": "Max",
+        "maxAmount": "Maximum amount",
+        "clear": "Clear filters",
+        "sort": "Sort",
+        "sorts": {
+          "date-desc": "Date: newest first",
+          "date-asc": "Date: oldest first",
+          "amount-desc": "Amount: high to low",
+          "amount-asc": "Amount: low to high"
+        },
+        "active": "Active:",
+        "chips": {
+          "search": "Search: {{value}}",
+          "year": "Year: {{value}}",
+          "month": "Month: {{value}}",
+          "day": "Day: {{value}}",
+          "type": "Type: {{value}}",
+          "category": "Category: {{value}}",
+          "amount": "Amount: {{value}}"
+        },
+        "remove": {
+          "search": "Remove search filter",
+          "year": "Remove year filter",
+          "month": "Remove month filter",
+          "day": "Remove day filter",
+          "type": "Remove type filter",
+          "category": "Remove category filter",
+          "amount": "Remove amount filter"
+        }
+      },
+      "table": {
+        "caption": "A list of your recent transactions.",
+        "type": "Type",
+        "category": "Category",
+        "date": "Date",
+        "amount": "Amount",
+        "actions": "Actions",
+        "emptyTitle": "No transactions found",
+        "emptyHint": "Try adjusting your filters or search term.",
+        "delete": "Delete transaction",
+        "netTotal": "Net total",
+        "showing": "Showing <bold>{{from}}–{{to}}</bold> of <bold>{{total}}</bold> transactions",
+        "perPage": "Per page",
+        "deleteTitle": "Delete transaction",
+        "deleteConfirm": "Are you sure you want to delete <bold>{{category}}</bold> ({{amount}}, {{date}})? This action cannot be undone.",
+        "cancel": "Cancel",
+        "deleting": "Deleting...",
+        "confirmDelete": "Delete",
+        "previous": "Previous",
+        "next": "Next",
+        "previousPage": "Go to previous page",
+        "nextPage": "Go to next page"
       }
     }
   }
