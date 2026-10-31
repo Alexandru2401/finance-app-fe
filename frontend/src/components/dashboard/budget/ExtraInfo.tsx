@@ -6,6 +6,7 @@ import {
   CardFooter,
 } from "@/components/ui/card";
 import { Pin } from "lucide-react";
+import { useCurrency } from "@/hooks/useCurrency";
 
 type Tab = "income" | "expenses" | "savings";
 
@@ -47,6 +48,7 @@ const DATA: Record<
 };
 
 export default function ExtraInfo({ activeTab }: { activeTab: Tab }) {
+  const { format } = useCurrency();
   const { title, badge, items } = DATA[activeTab];
   const total = items.reduce((s, i) => s + i.amount, 0);
 
@@ -75,7 +77,7 @@ export default function ExtraInfo({ activeTab }: { activeTab: Tab }) {
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">{label}</span>
                 <span className="font-medium tabular-nums">
-                  ${amount.toLocaleString()}
+                  {format(amount)}
                 </span>
               </div>
               <div className="h-1.5 w-full rounded-full bg-muted">
@@ -93,7 +95,7 @@ export default function ExtraInfo({ activeTab }: { activeTab: Tab }) {
         <p className="text-xs text-muted-foreground">
           Total lunar:{" "}
           <span className="font-semibold text-foreground tabular-nums">
-            ${total.toLocaleString()}
+            {format(total)}
           </span>
         </p>
       </CardFooter>

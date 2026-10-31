@@ -1,5 +1,5 @@
 import { useEffect, useState, type ReactNode } from "react";
-import { get } from "@/api/client";
+import { getUserInfo } from "@/api/user";
 import { AuthContext, type AuthValue, type User } from "@/context/AuthContext";
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -11,9 +11,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     (async () => {
       try {
-        const res = await get<{ success: boolean; user?: User }>(
-          "/auth/check-me",
-        );
+        // /auth/check-me does not return the currency, /auth/user-info does
+        const res = await getUserInfo();
         if (active) setUser(res.data.user ?? null);
       } catch {
         if (active) setUser(null); // 401 / neautentificat

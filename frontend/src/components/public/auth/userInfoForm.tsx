@@ -23,7 +23,7 @@ import { addUserInfo } from "@/api/user";
 
 import { useAuth } from "@/hooks/useAuth";
 
-type Currency = "USD" | "RON" | "EUR";
+import type { Currency } from "@/lib/format";
 
 const ACCENT = "#ffd649";
 
@@ -91,15 +91,18 @@ export default function UserInfoForm() {
   const [currency, setCurrency] = useState<Currency | "">("");
   const [loading, setLoading] = useState(false);
 
-  const { setUser } = useAuth();
+  const { user, setUser } = useAuth();
 
   const handleFinish = async () => {
+    if (!currency || !user) return;
     setLoading(true);
     try {
       const response = await addUserInfo(name.trim(), currency);
       console.log("addUserInfo response:", response);
 
-      setUser(response.data.user ?? null); // actualizezi AuthContext cu userul nou (username + currency)
+      if (!response.ok || !response.data?.user) return;
+      // Raspunsul are doar user_id, username si currency
+      setUser({ ...user, ...response.data.user });
       setStep(4);
     } catch (err) {
       console.log(err);

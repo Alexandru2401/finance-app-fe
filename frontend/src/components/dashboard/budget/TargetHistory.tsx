@@ -15,6 +15,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { formatMonth, monthPeriod } from "@/lib/periods";
+import { useCurrency } from "@/hooks/useCurrency";
 import { Download } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 
@@ -24,8 +25,6 @@ interface HistoryRow {
   summary: BudgetSummary | null;
 }
 
-const formatMoney = (value: number) => `$${value.toLocaleString()}`;
-
 interface TargetCellProps {
   actual: number | undefined;
   target: number | null;
@@ -33,6 +32,8 @@ interface TargetCellProps {
 }
 
 function TargetCell({ actual, target, pct }: TargetCellProps) {
+  const { format: formatMoney } = useCurrency();
+
   if (target === null) {
     return <span className="text-muted-foreground">—</span>;
   }

@@ -20,7 +20,7 @@ import { useEffect, useState } from "react";
 import { getTransactions, type Transaction } from "@/api/transactions";
 import CardError from "@/components/dashboard/shared/CardError";
 import EmptyState from "@/components/dashboard/shared/EmptyState";
-import { formatCurrency } from "@/lib/format";
+import { useCurrency } from "@/hooks/useCurrency";
 import { ArrowLeftRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
@@ -29,9 +29,6 @@ const TYPE_STYLES: Record<Transaction["type"], string> = {
   expense: "bg-finance-danger-bg text-finance-danger",
   savings: "bg-finance-primary-bg text-finance-primary",
 };
-
-const fmt = (n: number, type: Transaction["type"]) =>
-  formatCurrency(n, type === "expense" ? "-" : "+");
 
 const AMOUNT_COLORS: Record<Transaction["type"], string> = {
   income: "text-finance-success",
@@ -47,6 +44,9 @@ const fmtDate = (date: string, locale: string) =>
 
 export default function OverviewTable() {
   const { t, i18n } = useTranslation();
+  const { format } = useCurrency();
+  const fmt = (n: number, type: Transaction["type"]) =>
+    format(n, type === "expense" ? "-" : "+");
   const [transactions, setTransactions] = useState<Transaction[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [attempt, setAttempt] = useState(0);

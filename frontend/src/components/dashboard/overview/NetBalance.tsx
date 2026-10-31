@@ -16,7 +16,7 @@ import {
   type BudgetTrendPoint,
 } from "@/api/budget";
 import CardError from "@/components/dashboard/shared/CardError";
-import { formatCurrency as fmt } from "@/lib/format";
+import { useCurrency } from "@/hooks/useCurrency";
 import type { Period } from "@/lib/periods";
 import { useTranslation } from "react-i18next";
 
@@ -91,6 +91,7 @@ function NetSparkline({
   rangeLabel: string;
 }) {
   const { t, i18n } = useTranslation();
+  const { format: fmt } = useCurrency();
 
   // The sparkline is secondary, so on error just leave it out
   if (error) return null;
@@ -177,6 +178,7 @@ function NetSparkline({
 
 export default function NetBalance({ period, totalBalance }: Props) {
   const { t } = useTranslation();
+  const { format: fmt } = useCurrency();
   const [attempt, setAttempt] = useState(0);
   const [result, setResult] = useState<{
     key: string;

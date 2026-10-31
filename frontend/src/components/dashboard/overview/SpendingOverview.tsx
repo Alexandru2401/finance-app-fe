@@ -13,7 +13,7 @@ import { useEffect, useState } from "react";
 import { getTopExpenses, type TopExpense } from "@/api/budget";
 import CardError from "@/components/dashboard/shared/CardError";
 import EmptyState from "@/components/dashboard/shared/EmptyState";
-import { formatCurrency } from "@/lib/format";
+import { useCurrency } from "@/hooks/useCurrency";
 import type { Period } from "@/lib/periods";
 import { Receipt } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -32,6 +32,7 @@ interface Props {
 
 export default function SpendingOverview({ period }: Props) {
   const { t } = useTranslation();
+  const { format: formatCurrency } = useCurrency();
   const [attempt, setAttempt] = useState(0);
   const [result, setResult] = useState<{
     key: string;

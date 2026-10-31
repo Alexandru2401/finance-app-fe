@@ -1,5 +1,6 @@
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import type { BudgetTarget } from "@/api/budget";
+import { useCurrency } from "@/hooks/useCurrency";
 import {
   ArrowDownRight,
   ArrowUpRight,
@@ -24,6 +25,7 @@ interface TargetProgressProps {
 }
 
 function TargetProgress({ target, pct, label, barClassName }: TargetProgressProps) {
+  const { format } = useCurrency();
   // Progress can be negative (net) or above 100, the bar only shows 0-100
   const width = Math.min(Math.max(pct ?? 0, 0), 100);
 
@@ -35,7 +37,7 @@ function TargetProgress({ target, pct, label, barClassName }: TargetProgressProp
         ) : (
           <>
             <span>{pct === null ? "—" : `${Math.round(pct)}% ${label}`}</span>
-            <span>${target.toLocaleString()}</span>
+            <span>{format(target)}</span>
           </>
         )}
       </div>
@@ -57,6 +59,8 @@ export default function SummaryCards({
   target,
   progress,
 }: SummaryProps) {
+  const { format } = useCurrency();
+
   return (
     <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory pb-2 md:grid md:grid-cols-2 lg:grid-cols-4 md:overflow-visible md:pb-0">
       <Card className="border min-w-[80%] snap-center shrink-0 md:min-w-0 md:shrink">
@@ -67,7 +71,7 @@ export default function SummaryCards({
         </CardHeader>
         <CardContent>
           <p className="text-xl font-semibold text-foreground">
-            ${totalIncome.toFixed(2)}
+            {format(totalIncome, "auto", true)}
           </p>
           <TargetProgress
             target={target.income}
@@ -87,7 +91,7 @@ export default function SummaryCards({
         </CardHeader>
         <CardContent>
           <p className="text-xl font-semibold text-foreground">
-            ${totalExpenses.toFixed(2)}
+            {format(totalExpenses, "auto", true)}
           </p>
           <TargetProgress
             target={target.expense}
@@ -106,7 +110,7 @@ export default function SummaryCards({
         </CardHeader>
         <CardContent>
           <p className="text-xl font-semibold text-foreground">
-            ${totalSavings.toFixed(2)}
+            {format(totalSavings, "auto", true)}
           </p>
           <TargetProgress
             target={target.savings}
@@ -125,7 +129,7 @@ export default function SummaryCards({
         </CardHeader>
         <CardContent>
           <p className="text-xl font-semibold text-foreground">
-            ${netBalance.toFixed(2)}
+            {format(netBalance, "auto", true)}
           </p>
         </CardContent>
       </Card>

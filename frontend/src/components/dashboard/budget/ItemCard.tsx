@@ -21,6 +21,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useCurrency } from "@/hooks/useCurrency";
 import { Link } from "react-router";
 import type { Section } from "../../../pages/dashboard/BudgetPage";
 import { Button } from "../../ui/button";
@@ -50,6 +51,7 @@ interface ItemCardProps {
 }
 
 export default function ItemCard({ section, onShowForm }: ItemCardProps) {
+  const { format: formatMoney } = useCurrency();
   const [editingItem, setEditingItem] = useState<BudgetItem | null>(null);
   const [deletingItem, setDeletingItem] = useState<BudgetItem | null>(null);
   const [viewingItem, setViewingItem] = useState<BudgetItem | null>(null);
@@ -144,8 +146,6 @@ export default function ItemCard({ section, onShowForm }: ItemCardProps) {
       <Minus size={16} className="shrink-0" />
     );
 
-  console.log(section);
-
   return (
     <div className="w-full">
       <Card>
@@ -163,7 +163,7 @@ export default function ItemCard({ section, onShowForm }: ItemCardProps) {
               </Link>
             </CardTitle>
             <CardDescription className="text-xs text-muted-foreground font-medium">
-              Total: ${section.total.toFixed(2)} · {section.items.length} item
+              Total: {formatMoney(section.total, "auto", true)} · {section.items.length} item
               {section.items.length === 1 ? "" : "s"}
             </CardDescription>
           </div>
@@ -214,7 +214,7 @@ export default function ItemCard({ section, onShowForm }: ItemCardProps) {
                     <p
                       className={`ml-auto shrink-0 text-sm font-semibold tabular-nums ${styles.text}`}
                     >
-                      {styles.sign} ${item.amount.toFixed(2)}
+                      {styles.sign} {formatMoney(item.amount, "auto", true)}
                     </p>
 
                     <div className="flex shrink-0">
@@ -294,7 +294,7 @@ export default function ItemCard({ section, onShowForm }: ItemCardProps) {
                     : "text-finance-success"
                 }`}
               >
-                ${viewingItem.amount.toFixed(2)}
+                {formatMoney(viewingItem.amount, "auto", true)}
               </span>
             </div>
 
@@ -487,7 +487,7 @@ export default function ItemCard({ section, onShowForm }: ItemCardProps) {
                 <span className="font-medium text-foreground">
                   {deletingItem.category}
                 </span>{" "}
-                (${deletingItem.amount.toFixed(2)})? The action cannot be
+                ({formatMoney(deletingItem.amount, "auto", true)})? The action cannot be
                 undone.
               </p>
             </div>

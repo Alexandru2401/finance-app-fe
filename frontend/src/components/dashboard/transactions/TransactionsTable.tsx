@@ -40,6 +40,7 @@ import type { Transaction } from "@/api/transactions";
 import type { PaginationInfo } from "@/pages/dashboard/TransactionsPage";
 import { Trash2 } from "lucide-react";
 import { useState, type MouseEvent } from "react";
+import { useCurrency } from "@/hooks/useCurrency";
 
 const TYPE_STYLES: Record<Transaction["type"], string> = {
   income: "bg-finance-success-bg text-finance-success",
@@ -65,9 +66,6 @@ const AMOUNT_STYLES: Record<Transaction["type"], string> = {
   expense: "text-finance-danger",
   savings: "text-finance-primary",
 };
-
-const fmtAmount = (amount: number, type: Transaction["type"]) =>
-  `${AMOUNT_SIGNS[type]}$${Math.abs(amount).toLocaleString()}`;
 
 const fmtDate = (date: string) =>
   new Date(date).toLocaleDateString("en-US", {
@@ -111,6 +109,10 @@ export default function TransactionsTable({
   onLimitChange,
   onDelete,
 }: Props) {
+  const { format } = useCurrency();
+  const fmtAmount = (amount: number, type: Transaction["type"]) =>
+    `${AMOUNT_SIGNS[type]}${format(Math.abs(amount))}`;
+
   // Transaction waiting for confirmation in the dialog
   const [deleting, setDeleting] = useState<Transaction | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -245,7 +247,7 @@ export default function TransactionsTable({
               >
                 {loading || !transactions
                   ? "—"
-                  : `${netTotal >= 0 ? "+" : "-"}$${Math.abs(netTotal).toLocaleString()}`}
+                  : format(netTotal, netTotal >= 0 ? "+" : "-")}
               </TableCell>
               <TableCell />
             </TableRow>

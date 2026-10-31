@@ -43,12 +43,19 @@ import {
   Trash2,
   UserRoundCog
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ComponentProps } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { logoutUser, getUserInfo } from "@/api/user";
+import { logoutUser, getUserInfo, addUserInfo } from "@/api/user";
 import { useAuth } from "@/hooks/useAuth";
 import type { User } from "@/context/AuthContext";
+import {
+  CURRENCIES,
+  DEFAULT_CURRENCY,
+  isCurrency,
+  type Currency,
+} from "@/lib/format";
+import { toast } from "sonner";
 
 type ActionId =
   | "currency"
@@ -112,15 +119,16 @@ const actions = [
   },
 ] as const;
 
-interface profileBtnProps {
+interface profileBtnProps extends ComponentProps<typeof Button> {
   label: string;
 }
 
-function ProfileBtn({ label }: profileBtnProps) {
+function ProfileBtn({ label, ...props }: profileBtnProps) {
   return (
     <Button
       size="sm"
       className="bg-finance-success hover:bg-finance-success/90 text-white font-semibold cursor-pointer"
+      {...props}
     >
       {label}
     </Button>
@@ -331,30 +339,7 @@ export default function ProfilePage() {
 }
 
 function ActionPanel({ id, user }: { id: ActionId; user: User }) {
-  if (id === "currency")
-    return (
-      <div className="space-y-3">
-        <Label className="text-muted-foreground text-xs">Select Currency</Label>
-        <Select defaultValue={(user.currency || "usd").toLowerCase()}>
-          <SelectTrigger className="cursor-pointer">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {[
-              ["usd", "USD – US Dollar ($)"],
-              ["eur", "EUR – Euro (€)"],
-              ["gbp", "GBP – British Pound (£)"],
-              ["ron", "RON – Romanian Leu (lei)"],
-            ].map(([val, label]) => (
-              <SelectItem key={val} value={val} className="cursor-pointer">
-                {label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <ProfileBtn label="Save currency" />
-      </div>
-    );
+  if (id === "currency") return <CurrencyPanel user={user} />;
 
   if (id === "plan")
     return (
@@ -499,4 +484,87 @@ function ActionPanel({ id, user }: { id: ActionId; user: User }) {
     );
 
   return null;
+}
+function CurrencyPanel({ user }: { user: User }) {
+  const { setUser } = useAuth();
+  const current = isCurrency(user.currency) ? user.currency : null;
+  const [currency, setCurrency] = useState<Currency>(current ?? DEFAULT_CURRENCY);
+  const [saving, setSaving] = useState(false);
+  // The backend converts the saved amounts only when a currency was already set
+  const converts = current !== null && currency !== current;
+
+  async function saveCurrency() {
+    setSaving(true);
+    try {
+      // The backend requires the username too, so the displayed one is sent
+      const res = await addUserInfo(
+        user.username || user.email.split("@")[0],
+        currency,
+      );
+      if (!res.ok || !res.data?.user) {
+        // 503 = BNR rate unavailable, nothing was saved
+        toast.error(
+          res.status === 503
+            ? "Could not change the currency, try again later."
+            : (res.data?.error ?? "Could not change the currency."),
+        );
+        return;
+      }
+      // The response only has user_id, username and currency. The other pages
+      // fetch their data on mount, so they show the converted amounts
+      setUser({ ...user, ...res.data.user });
+      toast.success(`Currency changed to ${currency}.`);
+    } catch {
+      toast.error("Could not change the currency.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <div className="space-y-3">
+      <Label className="text-muted-foreground text-xs">Select Currency</Label>
+      <Select value={currency} onValueChange={(v) => setCurrency(v as Currency)}>
+        <SelectTrigger className="cursor-pointer">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {CURRENCIES.map(({ value, label }) => (
+            <SelectItem key={value} value={value} className="cursor-pointer">
+              {label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+
+      {converts ? (
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <ProfileBtn label="Save currency" disabled={saving} />
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Change currency to {currency}?</AlertDialogTitle>
+              <AlertDialogDescription>
+                All your amounts (transactions and targets) will be converted
+                from {current} to {currency} at today's BNR exchange rate.
+                Because of rounding, converting back later may not give the
+                exact original amounts.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={saveCurrency}>Convert</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      ) : (
+        <ProfileBtn
+          label={saving ? "Saving..." : "Save currency"}
+          disabled={saving || currency === current}
+          onClick={saveCurrency}
+        />
+      )}
+    </div>
+  );
 }

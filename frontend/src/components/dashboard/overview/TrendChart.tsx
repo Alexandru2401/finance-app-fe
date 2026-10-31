@@ -12,7 +12,7 @@ import { useEffect, useState } from "react";
 import { getBudgetTrend, type BudgetTrendPoint } from "@/api/budget";
 import CardError from "@/components/dashboard/shared/CardError";
 import EmptyState from "@/components/dashboard/shared/EmptyState";
-import { formatCurrency } from "@/lib/format";
+import { useCurrency } from "@/hooks/useCurrency";
 import type { Period } from "@/lib/periods";
 import { LineChart } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -40,6 +40,7 @@ function formatMonth(month: string, locale: string) {
 
 export default function SpendingTrendingChart({ period }: Props) {
   const { t, i18n } = useTranslation();
+  const { format: formatCurrency } = useCurrency();
 
   // A one-month trend is a single point, so short periods keep the
   // default trend (last 6 months) instead
