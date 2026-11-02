@@ -1136,6 +1136,98 @@
         "pro": "Pro",
         "business": "Business"
       }
+    },
+    "profile": {
+      "loading": "Se încarcă profilul...",
+      "logout": "Deconectare",
+      "planBadge": "Plan {{plan}}",
+      "accountInfo": "Informații cont",
+      "fields": {
+        "email": "Email",
+        "plan": "Plan curent",
+        "memberSince": "Membru din",
+        "currency": "Monedă"
+      },
+      "settings": "Setări",
+      "version": "Budget Tracker · v{{version}}",
+      "actions": {
+        "currency": {
+          "label": "Schimbă moneda",
+          "description": "Actualizează moneda în care vezi sumele"
+        },
+        "plan": {
+          "label": "Schimbă planul",
+          "description": "Treci la un abonament superior sau inferior"
+        },
+        "email": {
+          "label": "Schimbă emailul",
+          "description": "Actualizează adresa de email pentru autentificare"
+        },
+        "password": {
+          "label": "Schimbă parola",
+          "description": "Păstrează-ți contul în siguranță"
+        },
+        "addAccount": {
+          "label": "Adaugă un cont",
+          "description": "Conectează un cont bancar sau un portofel nou"
+        },
+        "reset": {
+          "label": "Resetează datele",
+          "description": "Șterge definitiv toate tranzacțiile tale"
+        },
+        "delete": {
+          "label": "Șterge contul",
+          "description": "Elimină definitiv contul tău"
+        }
+      },
+      "emailPanel": {
+        "newEmail": "Adresă de email nouă",
+        "submit": "Actualizează emailul"
+      },
+      "passwordPanel": {
+        "current": "Parola curentă",
+        "new": "Parola nouă",
+        "confirm": "Confirmă parola nouă",
+        "submit": "Schimbă parola"
+      },
+      "accountPanel": {
+        "name": "Numele contului",
+        "namePlaceholder": "ex. Economii, Revolut, ING",
+        "balance": "Sold inițial (opțional)",
+        "submit": "Adaugă contul"
+      },
+      "resetPanel": {
+        "textBefore": "Această acțiune va șterge definitiv ",
+        "textHighlight": "toate tranzacțiile, bugetele și categoriile tale",
+        "textAfter": ". Contul tău va rămâne activ.",
+        "button": "Resetează toate datele",
+        "title": "Resetezi toate datele?",
+        "description": "Această acțiune nu poate fi anulată. Toate tranzacțiile, bugetele și categoriile tale vor fi șterse definitiv.",
+        "cancel": "Anulează",
+        "confirm": "Da, resetează tot"
+      },
+      "deletePanel": {
+        "textBefore": "Contul tău și ",
+        "textHighlight": "toate datele asociate",
+        "textAfter": " vor fi eliminate definitiv. Acțiunea nu poate fi anulată.",
+        "button": "Șterge contul meu",
+        "title": "Ștergi contul?",
+        "description": "Acțiunea este definitivă. Profilul, datele și abonamentul tău vor fi șterse imediat și ireversibil.",
+        "cancel": "Anulează",
+        "confirm": "Da, șterge contul"
+      },
+      "currencyPanel": {
+        "select": "Alege moneda",
+        "save": "Salvează moneda",
+        "saving": "Se salvează...",
+        "confirmTitle": "Schimbi moneda în {{currency}}?",
+        "confirmDescription": "Toate sumele tale (tranzacții și ținte) vor fi convertite din {{from}} în {{to}} la cursul BNR de azi. Din cauza rotunjirilor, o conversie înapoi s-ar putea să nu dea exact sumele inițiale.",
+        "cancel": "Anulează",
+        "convert": "Convertește",
+        "success": "Moneda a fost schimbată în {{currency}}.",
+        "error": "Moneda nu a putut fi schimbată.",
+        "unavailable": "Moneda nu a putut fi schimbată, încearcă mai târziu."
+      }
     }
   }
 }

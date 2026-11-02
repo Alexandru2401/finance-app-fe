@@ -45,6 +45,7 @@ import {
 } from "lucide-react";
 import { useEffect, useState, type ComponentProps } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 import { logoutUser, getUserInfo, addUserInfo } from "@/api/user";
 import { useAuth } from "@/hooks/useAuth";
@@ -56,6 +57,11 @@ import {
   type Currency,
 } from "@/lib/format";
 import { toast } from "sonner";
+
+const PLANS = ["free", "pro", "business"] as const;
+type Plan = (typeof PLANS)[number];
+const isPlan = (value: unknown): value is Plan =>
+  PLANS.includes(value as Plan);
 
 type ActionId =
   | "currency"
@@ -70,52 +76,52 @@ type ActionId =
 const actions = [
   {
     id: "currency",
-    label: "Change Currency",
+    // Label and description: dashboard.profile.actions.<key>
+    key: "currency",
     icon: Coins,
     danger: false,
-    description: "Update your preferred display currency",
   },
   {
     id: "plan",
-    label: "Change Plan",
+    // Label and description: dashboard.profile.actions.<key>
+    key: "plan",
     icon: Star,
     danger: false,
-    description: "Upgrade or downgrade your subscription",
   },
   {
     id: "email",
-    label: "Change Email",
+    // Label and description: dashboard.profile.actions.<key>
+    key: "email",
     icon: Mail,
     danger: false,
-    description: "Update your login email address",
   },
   {
     id: "password",
-    label: "Change Password",
+    // Label and description: dashboard.profile.actions.<key>
+    key: "password",
     icon: Lock,
     danger: false,
-    description: "Keep your account secure",
   },
   {
     id: "add-account",
-    label: "Add an Account",
+    // Label and description: dashboard.profile.actions.<key>
+    key: "addAccount",
     icon: PlusCircle,
     danger: false,
-    description: "Link a new bank or wallet account",
   },
   {
     id: "reset",
-    label: "Reset Data",
+    // Label and description: dashboard.profile.actions.<key>
+    key: "reset",
     icon: RefreshCw,
     danger: true,
-    description: "Permanently delete all your transactions",
   },
   {
     id: "delete",
-    label: "Delete Account",
+    // Label and description: dashboard.profile.actions.<key>
+    key: "delete",
     icon: Trash2,
     danger: true,
-    description: "Permanently remove your account",
   },
 ] as const;
 
@@ -135,9 +141,9 @@ function ProfileBtn({ label, ...props }: profileBtnProps) {
   );
 }
 
-function formatMemberSince(createdAt?: string) {
+function formatMemberSince(createdAt?: string, locale?: string) {
   if (!createdAt) return "—";
-  return new Date(createdAt).toLocaleDateString("en-US", {
+  return new Date(createdAt).toLocaleDateString(locale, {
     month: "long",
     year: "numeric",
   });
@@ -147,6 +153,7 @@ export default function ProfilePage() {
   const [openSection, setOpenSection] = useState<ActionId>(null);
   const { user, setUser, loading } = useAuth();
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
 
   const toggle = (id: ActionId) =>
     setOpenSection((prev) => (prev === id ? null : id));
@@ -188,7 +195,7 @@ export default function ProfilePage() {
     return (
       <section className="relative py-4 px-4 max-w-7xl mx-auto">
         <div className="mx-auto p-10 max-w-4xl text-center text-sm text-muted-foreground">
-          Loading profile...
+          {t("dashboard.profile.loading")}
         </div>
       </section>
     );
@@ -197,6 +204,11 @@ export default function ProfilePage() {
   if (!user) {
     return null;
   }
+
+  const plan = user.plan_type?.toLowerCase();
+  const planLabel = isPlan(plan)
+    ? t(`dashboard.profileBadge.plans.${plan}`)
+    : (user.plan_type ?? t("dashboard.profileBadge.plans.free"));
 
   return (
     <section className="relative py-4 px-4 max-w-7xl mx-auto">
@@ -220,7 +232,7 @@ export default function ProfilePage() {
                 variant="outline"
                 className="border-finance-warning/40 text-finance-warning bg-finance-warning-bg text-xs mt-1"
               >
-                ⭐ {user.plan_type ? user.plan_type : "Basic"} Plan
+                ⭐ {t("dashboard.profile.planBadge", { plan: planLabel })}
               </Badge>
             </div>
           </div>
@@ -229,6 +241,8 @@ export default function ProfilePage() {
             size="icon"
             className="text-muted-foreground cursor-pointer hover:text-finance-danger hover:bg-finance-danger-bg"
             onClick={handleLogout}
+            aria-label={t("dashboard.profile.logout")}
+            title={t("dashboard.profile.logout")}
           >
             <LogOut className="w-4 h-4" />
           </Button>
@@ -238,15 +252,19 @@ export default function ProfilePage() {
         <Card className="bg-card border-border shadow-none">
           <CardHeader className="pb-2">
             <CardTitle className="text-xs font-semibold uppercase text-muted-foreground flex gap-1 items-center">
-              <UserRoundCog size={14} className="shrink" /> Account Info
+              <UserRoundCog size={14} className="shrink" />{" "}
+              {t("dashboard.profile.accountInfo")}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             {[
-              { label: "Email", value: user.email },
-              { label: "Current Plan", value: user.plan_type ? user.plan_type : "Basic", highlight: true },
-              { label: "Member Since", value: formatMemberSince(user.created_at) },
-              { label: "Currency", value: user.currency || "—" },
+              { label: t("dashboard.profile.fields.email"), value: user.email },
+              { label: t("dashboard.profile.fields.plan"), value: planLabel, highlight: true },
+              {
+                label: t("dashboard.profile.fields.memberSince"),
+                value: formatMemberSince(user.created_at, i18n.language),
+              },
+              { label: t("dashboard.profile.fields.currency"), value: user.currency || "—" },
             ].map(({ label, value, highlight }, i, arr) => (
               <div key={label}>
                 <div className="flex items-center justify-between py-1">
@@ -269,10 +287,11 @@ export default function ProfilePage() {
         {/* ── Settings ── */}
         <div>
           <p className="text-xs font-semibold uppercase text-muted-foreground mb-3 flex gap-1 items-center">
-            <Settings size={14} className="shrink" />  Settings
+            <Settings size={14} className="shrink" />{" "}
+            {t("dashboard.profile.settings")}
           </p>
           <div className="space-y-2">
-            {actions.map(({ id, label, description, icon: Icon, danger }) => (
+            {actions.map(({ id, key, icon: Icon, danger }) => (
               <Collapsible
                 key={id}
                 open={openSection === id}
@@ -306,9 +325,11 @@ export default function ProfilePage() {
                             danger ? "text-finance-danger" : "text-foreground",
                           )}
                         >
-                          {label}
+                          {t(`dashboard.profile.actions.${key}.label`)}
                         </p>
-                        <p className="text-xs text-muted-foreground">{description}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {t(`dashboard.profile.actions.${key}.description`)}
+                        </p>
                       </div>
                     </div>
                     <ChevronRight
@@ -331,7 +352,7 @@ export default function ProfilePage() {
         </div>
 
         <p className="text-center text-xs text-muted-foreground pb-2">
-          Budget Tracker · v2.1.0
+          {t("dashboard.profile.version", { version: "2.1.0" })}
         </p>
       </div>
     </section>
@@ -339,22 +360,24 @@ export default function ProfilePage() {
 }
 
 function ActionPanel({ id, user }: { id: ActionId; user: User }) {
+  const { t } = useTranslation();
+
   if (id === "currency") return <CurrencyPanel user={user} />;
 
   if (id === "plan")
     return (
       <div className="grid grid-cols-3 gap-2">
-        {["Free", "Pro", "Business"].map((p) => (
+        {PLANS.map((p) => (
           <button
             key={p}
             className={cn(
               "py-2 px-3 rounded-lg border text-sm font-medium",
-              p.toLowerCase() === user.plan_type?.toLowerCase()
+              p === user.plan_type?.toLowerCase()
                 ? "border-finance-warning bg-finance-warning-bg text-finance-warning"
                 : "border-border bg-card text-foreground hover:border-muted-foreground/30 hover:bg-muted/50",
             )}
           >
-            {p}
+            {t(`dashboard.profileBadge.plans.${p}`)}
           </button>
         ))}
       </div>
@@ -364,10 +387,12 @@ function ActionPanel({ id, user }: { id: ActionId; user: User }) {
     return (
       <div className="space-y-3">
         <div className="space-y-1">
-          <Label className="text-muted-foreground text-xs">New Email Address</Label>
+          <Label className="text-muted-foreground text-xs">
+            {t("dashboard.profile.emailPanel.newEmail")}
+          </Label>
           <Input type="email" placeholder={user.email} />
         </div>
-        <ProfileBtn label="Update mail" />
+        <ProfileBtn label={t("dashboard.profile.emailPanel.submit")} />
       </div>
     );
 
@@ -375,18 +400,24 @@ function ActionPanel({ id, user }: { id: ActionId; user: User }) {
     return (
       <div className="space-y-3">
         <div className="space-y-1">
-          <Label className="text-muted-foreground text-xs">Current Password</Label>
+          <Label className="text-muted-foreground text-xs">
+            {t("dashboard.profile.passwordPanel.current")}
+          </Label>
           <Input type="password" placeholder="••••••••" />
         </div>
         <div className="space-y-1">
-          <Label className="text-muted-foreground text-xs">New Password</Label>
+          <Label className="text-muted-foreground text-xs">
+            {t("dashboard.profile.passwordPanel.new")}
+          </Label>
           <Input type="password" placeholder="••••••••" />
         </div>
         <div className="space-y-1">
-          <Label className="text-muted-foreground text-xs">Confirm New Password</Label>
+          <Label className="text-muted-foreground text-xs">
+            {t("dashboard.profile.passwordPanel.confirm")}
+          </Label>
           <Input type="password" placeholder="••••••••" />
         </div>
-        <ProfileBtn label="Change Password" />
+        <ProfileBtn label={t("dashboard.profile.passwordPanel.submit")} />
       </div>
     );
 
@@ -394,16 +425,18 @@ function ActionPanel({ id, user }: { id: ActionId; user: User }) {
     return (
       <div className="space-y-3">
         <div className="space-y-1">
-          <Label className="text-muted-foreground text-xs">Account Name</Label>
-          <Input placeholder="e.g. Savings, Revolut, ING" />
+          <Label className="text-muted-foreground text-xs">
+            {t("dashboard.profile.accountPanel.name")}
+          </Label>
+          <Input placeholder={t("dashboard.profile.accountPanel.namePlaceholder")} />
         </div>
         <div className="space-y-1">
           <Label className="text-muted-foreground text-xs">
-            Initial Balance (optional)
+            {t("dashboard.profile.accountPanel.balance")}
           </Label>
           <Input type="number" placeholder="0.00" />
         </div>
-        <ProfileBtn label="Add Account" />
+        <ProfileBtn label={t("dashboard.profile.accountPanel.submit")} />
       </div>
     );
 
@@ -411,11 +444,11 @@ function ActionPanel({ id, user }: { id: ActionId; user: User }) {
     return (
       <div className="space-y-3">
         <p className="text-xs text-muted-foreground">
-          This will permanently delete{" "}
+          {t("dashboard.profile.resetPanel.textBefore")}
           <span className="text-foreground font-medium">
-            all your transactions, budgets, and categories
+            {t("dashboard.profile.resetPanel.textHighlight")}
           </span>
-          . Your account will remain active.
+          {t("dashboard.profile.resetPanel.textAfter")}
         </p>
         <AlertDialog>
           <AlertDialogTrigger asChild>
@@ -424,21 +457,20 @@ function ActionPanel({ id, user }: { id: ActionId; user: User }) {
               variant="outline"
               className="border-finance-danger/40 text-finance-danger hover:bg-finance-danger-bg hover:text-finance-danger hover:border-finance-danger/60"
             >
-              Reset All Data
+              {t("dashboard.profile.resetPanel.button")}
             </Button>
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Reset all data?</AlertDialogTitle>
+              <AlertDialogTitle>{t("dashboard.profile.resetPanel.title")}</AlertDialogTitle>
               <AlertDialogDescription>
-                This action cannot be undone. All your transactions, budgets and
-                categories will be permanently deleted.
+                {t("dashboard.profile.resetPanel.description")}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogCancel>{t("dashboard.profile.resetPanel.cancel")}</AlertDialogCancel>
               <AlertDialogAction variant="destructive" className="bg-finance-danger hover:bg-finance-danger/90 text-white border-0">
-                Yes, Reset Everything
+                {t("dashboard.profile.resetPanel.confirm")}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
@@ -450,9 +482,11 @@ function ActionPanel({ id, user }: { id: ActionId; user: User }) {
     return (
       <div className="space-y-3">
         <p className="text-xs text-muted-foreground">
-          Your account and{" "}
-          <span className="text-foreground font-medium">all associated data</span>{" "}
-          will be permanently removed. This cannot be undone.
+          {t("dashboard.profile.deletePanel.textBefore")}
+          <span className="text-foreground font-medium">
+            {t("dashboard.profile.deletePanel.textHighlight")}
+          </span>
+          {t("dashboard.profile.deletePanel.textAfter")}
         </p>
         <AlertDialog>
           <AlertDialogTrigger asChild>
@@ -461,21 +495,20 @@ function ActionPanel({ id, user }: { id: ActionId; user: User }) {
               variant="outline"
               className="border-finance-danger/40 text-finance-danger hover:bg-finance-danger-bg hover:text-finance-danger hover:border-finance-danger/60"
             >
-              Delete My Account
+              {t("dashboard.profile.deletePanel.button")}
             </Button>
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Delete your account?</AlertDialogTitle>
+              <AlertDialogTitle>{t("dashboard.profile.deletePanel.title")}</AlertDialogTitle>
               <AlertDialogDescription>
-                This is permanent. Your profile, data and subscription will be
-                immediately and irreversibly deleted.
+                {t("dashboard.profile.deletePanel.description")}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogCancel>{t("dashboard.profile.deletePanel.cancel")}</AlertDialogCancel>
               <AlertDialogAction variant="destructive" className="bg-finance-danger hover:bg-finance-danger/90 text-white border-0">
-                Yes, Delete Account
+                {t("dashboard.profile.deletePanel.confirm")}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
@@ -487,6 +520,7 @@ function ActionPanel({ id, user }: { id: ActionId; user: User }) {
 }
 function CurrencyPanel({ user }: { user: User }) {
   const { setUser } = useAuth();
+  const { t } = useTranslation();
   const current = isCurrency(user.currency) ? user.currency : null;
   const [currency, setCurrency] = useState<Currency>(current ?? DEFAULT_CURRENCY);
   const [saving, setSaving] = useState(false);
@@ -505,17 +539,17 @@ function CurrencyPanel({ user }: { user: User }) {
         // 503 = BNR rate unavailable, nothing was saved
         toast.error(
           res.status === 503
-            ? "Could not change the currency, try again later."
-            : (res.data?.error ?? "Could not change the currency."),
+            ? t("dashboard.profile.currencyPanel.unavailable")
+            : (res.data?.error ?? t("dashboard.profile.currencyPanel.error")),
         );
         return;
       }
       // The response only has user_id, username and currency. The other pages
       // fetch their data on mount, so they show the converted amounts
       setUser({ ...user, ...res.data.user });
-      toast.success(`Currency changed to ${currency}.`);
+      toast.success(t("dashboard.profile.currencyPanel.success", { currency }));
     } catch {
-      toast.error("Could not change the currency.");
+      toast.error(t("dashboard.profile.currencyPanel.error"));
     } finally {
       setSaving(false);
     }
@@ -523,7 +557,9 @@ function CurrencyPanel({ user }: { user: User }) {
 
   return (
     <div className="space-y-3">
-      <Label className="text-muted-foreground text-xs">Select Currency</Label>
+      <Label className="text-muted-foreground text-xs">
+        {t("dashboard.profile.currencyPanel.select")}
+      </Label>
       <Select value={currency} onValueChange={(v) => setCurrency(v as Currency)}>
         <SelectTrigger className="cursor-pointer">
           <SelectValue />
@@ -540,27 +576,35 @@ function CurrencyPanel({ user }: { user: User }) {
       {converts ? (
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <ProfileBtn label="Save currency" disabled={saving} />
+            <ProfileBtn label={t("dashboard.profile.currencyPanel.save")} disabled={saving} />
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Change currency to {currency}?</AlertDialogTitle>
+              <AlertDialogTitle>
+                {t("dashboard.profile.currencyPanel.confirmTitle", { currency })}
+              </AlertDialogTitle>
               <AlertDialogDescription>
-                All your amounts (transactions and targets) will be converted
-                from {current} to {currency} at today's BNR exchange rate.
-                Because of rounding, converting back later may not give the
-                exact original amounts.
+                {t("dashboard.profile.currencyPanel.confirmDescription", {
+                  from: current,
+                  to: currency,
+                })}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={saveCurrency}>Convert</AlertDialogAction>
+              <AlertDialogCancel>{t("dashboard.profile.currencyPanel.cancel")}</AlertDialogCancel>
+              <AlertDialogAction onClick={saveCurrency}>
+                {t("dashboard.profile.currencyPanel.convert")}
+              </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
       ) : (
         <ProfileBtn
-          label={saving ? "Saving..." : "Save currency"}
+          label={
+            saving
+              ? t("dashboard.profile.currencyPanel.saving")
+              : t("dashboard.profile.currencyPanel.save")
+          }
           disabled={saving || currency === current}
           onClick={saveCurrency}
         />

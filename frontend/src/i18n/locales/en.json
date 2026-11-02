@@ -1134,6 +1134,98 @@
         "pro": "Pro",
         "business": "Business"
       }
+    },
+    "profile": {
+      "loading": "Loading profile...",
+      "logout": "Log out",
+      "planBadge": "{{plan}} Plan",
+      "accountInfo": "Account Info",
+      "fields": {
+        "email": "Email",
+        "plan": "Current Plan",
+        "memberSince": "Member Since",
+        "currency": "Currency"
+      },
+      "settings": "Settings",
+      "version": "Budget Tracker · v{{version}}",
+      "actions": {
+        "currency": {
+          "label": "Change Currency",
+          "description": "Update your preferred display currency"
+        },
+        "plan": {
+          "label": "Change Plan",
+          "description": "Upgrade or downgrade your subscription"
+        },
+        "email": {
+          "label": "Change Email",
+          "description": "Update your login email address"
+        },
+        "password": {
+          "label": "Change Password",
+          "description": "Keep your account secure"
+        },
+        "addAccount": {
+          "label": "Add an Account",
+          "description": "Link a new bank or wallet account"
+        },
+        "reset": {
+          "label": "Reset Data",
+          "description": "Permanently delete all your transactions"
+        },
+        "delete": {
+          "label": "Delete Account",
+          "description": "Permanently remove your account"
+        }
+      },
+      "emailPanel": {
+        "newEmail": "New Email Address",
+        "submit": "Update email"
+      },
+      "passwordPanel": {
+        "current": "Current Password",
+        "new": "New Password",
+        "confirm": "Confirm New Password",
+        "submit": "Change Password"
+      },
+      "accountPanel": {
+        "name": "Account Name",
+        "namePlaceholder": "e.g. Savings, Revolut, ING",
+        "balance": "Initial Balance (optional)",
+        "submit": "Add Account"
+      },
+      "resetPanel": {
+        "textBefore": "This will permanently delete ",
+        "textHighlight": "all your transactions, budgets, and categories",
+        "textAfter": ". Your account will remain active.",
+        "button": "Reset All Data",
+        "title": "Reset all data?",
+        "description": "This action cannot be undone. All your transactions, budgets and categories will be permanently deleted.",
+        "cancel": "Cancel",
+        "confirm": "Yes, Reset Everything"
+      },
+      "deletePanel": {
+        "textBefore": "Your account and ",
+        "textHighlight": "all associated data",
+        "textAfter": " will be permanently removed. This cannot be undone.",
+        "button": "Delete My Account",
+        "title": "Delete your account?",
+        "description": "This is permanent. Your profile, data and subscription will be immediately and irreversibly deleted.",
+        "cancel": "Cancel",
+        "confirm": "Yes, Delete Account"
+      },
+      "currencyPanel": {
+        "select": "Select Currency",
+        "save": "Save currency",
+        "saving": "Saving...",
+        "confirmTitle": "Change currency to {{currency}}?",
+        "confirmDescription": "All your amounts (transactions and targets) will be converted from {{from}} to {{to}} at today's BNR exchange rate. Because of rounding, converting back later may not give the exact original amounts.",
+        "cancel": "Cancel",
+        "convert": "Convert",
+        "success": "Currency changed to {{currency}}.",
+        "error": "Could not change the currency.",
+        "unavailable": "Could not change the currency, try again later."
+      }
     }
   }
 }
