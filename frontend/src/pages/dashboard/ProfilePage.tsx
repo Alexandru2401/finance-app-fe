@@ -20,43 +20,29 @@ import {
 } from "@/components/ui/collapsible";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import {
   ChevronRight,
-  Coins,
   Lock,
   LogOut,
   Mail,
   PlusCircle,
   RefreshCw,
   Settings,
+  SlidersHorizontal,
   ShieldCheck,
   Star,
   Trash2,
   UserRoundCog
 } from "lucide-react";
 import { useEffect, useState, type ComponentProps } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
-import { logoutUser, getUserInfo, addUserInfo } from "@/api/user";
+import { logoutUser, getUserInfo } from "@/api/user";
 import { useAuth } from "@/hooks/useAuth";
 import type { User } from "@/context/AuthContext";
-import {
-  CURRENCIES,
-  DEFAULT_CURRENCY,
-  isCurrency,
-  type Currency,
-} from "@/lib/format";
-import { toast } from "sonner";
 
 const PLANS = ["free", "pro", "business"] as const;
 type Plan = (typeof PLANS)[number];
@@ -64,7 +50,6 @@ const isPlan = (value: unknown): value is Plan =>
   PLANS.includes(value as Plan);
 
 type ActionId =
-  | "currency"
   | "plan"
   | "email"
   | "password"
@@ -74,13 +59,6 @@ type ActionId =
   | null;
 
 const actions = [
-  {
-    id: "currency",
-    // Label and description: dashboard.profile.actions.<key>
-    key: "currency",
-    icon: Coins,
-    danger: false,
-  },
   {
     id: "plan",
     // Label and description: dashboard.profile.actions.<key>
@@ -291,6 +269,27 @@ export default function ProfilePage() {
             {t("dashboard.profile.settings")}
           </p>
           <div className="space-y-2">
+            {/* Currency, language, theme and categories live on the settings page */}
+            <Link
+              to="/dashboard/settings"
+              className="w-full flex items-center justify-between px-2 py-3 rounded-xl border text-left bg-card border-border hover:border-finance-warning/60 hover:bg-finance-warning-bg/50"
+            >
+              <div className="flex items-center gap-2">
+                <div className="p-2 rounded-lg bg-background text-muted-foreground">
+                  <SlidersHorizontal className="w-4 h-4" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-foreground">
+                    {t("dashboard.profile.preferencesLink.label")}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {t("dashboard.profile.preferencesLink.description")}
+                  </p>
+                </div>
+              </div>
+              <ChevronRight className="w-4 h-4 text-muted-foreground" />
+            </Link>
+
             {actions.map(({ id, key, icon: Icon, danger }) => (
               <Collapsible
                 key={id}
@@ -361,8 +360,6 @@ export default function ProfilePage() {
 
 function ActionPanel({ id, user }: { id: ActionId; user: User }) {
   const { t } = useTranslation();
-
-  if (id === "currency") return <CurrencyPanel user={user} />;
 
   if (id === "plan")
     return (
@@ -517,98 +514,4 @@ function ActionPanel({ id, user }: { id: ActionId; user: User }) {
     );
 
   return null;
-}
-function CurrencyPanel({ user }: { user: User }) {
-  const { setUser } = useAuth();
-  const { t } = useTranslation();
-  const current = isCurrency(user.currency) ? user.currency : null;
-  const [currency, setCurrency] = useState<Currency>(current ?? DEFAULT_CURRENCY);
-  const [saving, setSaving] = useState(false);
-  // The backend converts the saved amounts only when a currency was already set
-  const converts = current !== null && currency !== current;
-
-  async function saveCurrency() {
-    setSaving(true);
-    try {
-      // The backend requires the username too, so the displayed one is sent
-      const res = await addUserInfo(
-        user.username || user.email.split("@")[0],
-        currency,
-      );
-      if (!res.ok || !res.data?.user) {
-        // 503 = BNR rate unavailable, nothing was saved
-        toast.error(
-          res.status === 503
-            ? t("dashboard.profile.currencyPanel.unavailable")
-            : (res.data?.error ?? t("dashboard.profile.currencyPanel.error")),
-        );
-        return;
-      }
-      // The response only has user_id, username and currency. The other pages
-      // fetch their data on mount, so they show the converted amounts
-      setUser({ ...user, ...res.data.user });
-      toast.success(t("dashboard.profile.currencyPanel.success", { currency }));
-    } catch {
-      toast.error(t("dashboard.profile.currencyPanel.error"));
-    } finally {
-      setSaving(false);
-    }
-  }
-
-  return (
-    <div className="space-y-3">
-      <Label className="text-muted-foreground text-xs">
-        {t("dashboard.profile.currencyPanel.select")}
-      </Label>
-      <Select value={currency} onValueChange={(v) => setCurrency(v as Currency)}>
-        <SelectTrigger className="cursor-pointer">
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          {CURRENCIES.map(({ value, label }) => (
-            <SelectItem key={value} value={value} className="cursor-pointer">
-              {label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-
-      {converts ? (
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <ProfileBtn label={t("dashboard.profile.currencyPanel.save")} disabled={saving} />
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>
-                {t("dashboard.profile.currencyPanel.confirmTitle", { currency })}
-              </AlertDialogTitle>
-              <AlertDialogDescription>
-                {t("dashboard.profile.currencyPanel.confirmDescription", {
-                  from: current,
-                  to: currency,
-                })}
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>{t("dashboard.profile.currencyPanel.cancel")}</AlertDialogCancel>
-              <AlertDialogAction onClick={saveCurrency}>
-                {t("dashboard.profile.currencyPanel.convert")}
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-      ) : (
-        <ProfileBtn
-          label={
-            saving
-              ? t("dashboard.profile.currencyPanel.saving")
-              : t("dashboard.profile.currencyPanel.save")
-          }
-          disabled={saving || currency === current}
-          onClick={saveCurrency}
-        />
-      )}
-    </div>
-  );
 }

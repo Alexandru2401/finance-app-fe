@@ -3,6 +3,7 @@ import {
   CircleFadingArrowUp,
   LayoutDashboard,
   PiggyBank,
+  Settings,
   UserRound,
   UserRoundPen
 } from "lucide-react";
@@ -17,7 +18,8 @@ export type DashboardNavItem = {
     | "transactions"
     | "analytics"
     | "upgrade"
-    | "profile";
+    | "profile"
+    | "settings";
   to: string;
   icon?: LucideIcon;
 };
@@ -70,6 +72,11 @@ export const dashboardNavigation: DashboardNavSection[] = [
         label: "profile",
         to: "/dashboard/profile",
         icon: UserRound,
+      },
+      {
+        label: "settings",
+        to: "/dashboard/settings",
+        icon: Settings,
       },
     ],
     title: "settings",

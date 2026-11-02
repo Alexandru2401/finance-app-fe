@@ -1116,7 +1116,8 @@
       "openMenu": "Deschide meniul",
       "closeMenu": "Închide meniul",
       "toggleSidebar": "Restrânge/extinde bara laterală",
-      "logoAlt": "Logo"
+      "logoAlt": "Logo",
+      "settings": "Setări"
     },
     "profileBadge": {
       "openMenu": "Deschide meniul de profil",
@@ -1135,7 +1136,8 @@
         "free": "Gratuit",
         "pro": "Pro",
         "business": "Business"
-      }
+      },
+      "allSettings": "Toate setările"
     },
     "profile": {
       "loading": "Se încarcă profilul...",
@@ -1151,10 +1153,6 @@
       "settings": "Setări",
       "version": "Budget Tracker · v{{version}}",
       "actions": {
-        "currency": {
-          "label": "Schimbă moneda",
-          "description": "Actualizează moneda în care vezi sumele"
-        },
         "plan": {
           "label": "Schimbă planul",
           "description": "Treci la un abonament superior sau inferior"
@@ -1216,8 +1214,32 @@
         "cancel": "Anulează",
         "confirm": "Da, șterge contul"
       },
-      "currencyPanel": {
-        "select": "Alege moneda",
+      "preferencesLink": {
+        "label": "Preferințe și categorii",
+        "description": "Monedă, limbă, temă și categoriile tale"
+      }
+    },
+    "settings": {
+      "title": "Setări",
+      "subtitle": "Preferințele aplicației și categoriile tale.",
+      "tabs": {
+        "preferences": "Preferințe",
+        "categories": "Categorii"
+      },
+      "appearance": {
+        "title": "Aspect",
+        "description": "Limba și tema aplicației. Le găsești și în meniul de profil.",
+        "languageHint": "Limba în care vezi aplicația",
+        "darkModeHint": "Folosește tema întunecată"
+      },
+      "general": {
+        "title": "General",
+        "description": "Setări legate de contul și sumele tale.",
+        "notificationsHint": "Primește notificări despre bugetul tău"
+      },
+      "currency": {
+        "title": "Monedă",
+        "description": "Moneda în care sunt afișate și salvate sumele",
         "save": "Salvează moneda",
         "saving": "Se salvează...",
         "confirmTitle": "Schimbi moneda în {{currency}}?",
@@ -1226,7 +1248,26 @@
         "convert": "Convertește",
         "success": "Moneda a fost schimbată în {{currency}}.",
         "error": "Moneda nu a putut fi schimbată.",
-        "unavailable": "Moneda nu a putut fi schimbată, încearcă mai târziu."
+        "unavailable": "Moneda nu a putut fi schimbată, încearcă mai târziu.",
+        "select": "Alege moneda"
+      },
+      "categories": {
+        "title": "Categorii",
+        "description": "Adaugă, redenumește sau șterge categoriile tale. Cele implicite nu pot fi modificate.",
+        "newPlaceholder": "Numele categoriei noi",
+        "add": "Adaugă",
+        "custom": "Categoriile tale",
+        "defaults": "Categorii implicite",
+        "emptyCustom": "Nu ai încă nicio categorie proprie.",
+        "defaultHint": "Categorie implicită, nu poate fi modificată",
+        "rename": "Redenumește",
+        "save": "Salvează",
+        "cancel": "Anulează",
+        "delete": "Șterge",
+        "deleteTitle": "Ștergi categoria „{{name}}”?",
+        "deleteDescription": "Tranzacțiile din această categorie vor rămâne fără categorie. Acțiunea nu poate fi anulată.",
+        "deleteConfirm": "Da, șterge",
+        "loadError": "Categoriile nu au putut fi încărcate."
       }
     }
   }

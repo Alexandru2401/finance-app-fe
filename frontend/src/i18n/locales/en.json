@@ -1114,7 +1114,8 @@
       "openMenu": "Open menu",
       "closeMenu": "Close menu",
       "toggleSidebar": "Toggle sidebar",
-      "logoAlt": "Logo"
+      "logoAlt": "Logo",
+      "settings": "Settings"
     },
     "profileBadge": {
       "openMenu": "Open profile menu",
@@ -1133,7 +1134,8 @@
         "free": "Free",
         "pro": "Pro",
         "business": "Business"
-      }
+      },
+      "allSettings": "All settings"
     },
     "profile": {
       "loading": "Loading profile...",
@@ -1149,10 +1151,6 @@
       "settings": "Settings",
       "version": "Budget Tracker · v{{version}}",
       "actions": {
-        "currency": {
-          "label": "Change Currency",
-          "description": "Update your preferred display currency"
-        },
         "plan": {
           "label": "Change Plan",
           "description": "Upgrade or downgrade your subscription"
@@ -1214,8 +1212,32 @@
         "cancel": "Cancel",
         "confirm": "Yes, Delete Account"
       },
-      "currencyPanel": {
-        "select": "Select Currency",
+      "preferencesLink": {
+        "label": "Preferences & categories",
+        "description": "Currency, language, theme and your categories"
+      }
+    },
+    "settings": {
+      "title": "Settings",
+      "subtitle": "App preferences and your categories.",
+      "tabs": {
+        "preferences": "Preferences",
+        "categories": "Categories"
+      },
+      "appearance": {
+        "title": "Appearance",
+        "description": "Language and theme. Also available in the profile menu.",
+        "languageHint": "The language the app is shown in",
+        "darkModeHint": "Use the dark theme"
+      },
+      "general": {
+        "title": "General",
+        "description": "Settings related to your account and amounts.",
+        "notificationsHint": "Get notified about your budget"
+      },
+      "currency": {
+        "title": "Currency",
+        "description": "The currency your amounts are shown and saved in",
         "save": "Save currency",
         "saving": "Saving...",
         "confirmTitle": "Change currency to {{currency}}?",
@@ -1224,7 +1246,26 @@
         "convert": "Convert",
         "success": "Currency changed to {{currency}}.",
         "error": "Could not change the currency.",
-        "unavailable": "Could not change the currency, try again later."
+        "unavailable": "Could not change the currency, try again later.",
+        "select": "Select Currency"
+      },
+      "categories": {
+        "title": "Categories",
+        "description": "Add, rename or delete your categories. Default ones cannot be changed.",
+        "newPlaceholder": "New category name",
+        "add": "Add",
+        "custom": "Your categories",
+        "defaults": "Default categories",
+        "emptyCustom": "You have no custom categories yet.",
+        "defaultHint": "Default category, cannot be changed",
+        "rename": "Rename",
+        "save": "Save",
+        "cancel": "Cancel",
+        "delete": "Delete",
+        "deleteTitle": "Delete the \"{{name}}\" category?",
+        "deleteDescription": "Transactions in this category will be left without a category. This cannot be undone.",
+        "deleteConfirm": "Yes, delete",
+        "loadError": "Could not load the categories."
       }
     }
   }

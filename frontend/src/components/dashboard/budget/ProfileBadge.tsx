@@ -243,6 +243,17 @@ export default function ProfileBadge() {
                 </Button>
               </Link>
 
+              <Link to="/dashboard/settings">
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start gap-3 hover:bg-muted"
+                  onClick={() => setOpenProfile(false)}
+                >
+                  <Settings className="h-4 w-4" />
+                  {t("dashboard.profileBadge.allSettings")}
+                </Button>
+              </Link>
+
               <Link to="/help">
                 <Button
                   variant="ghost"
