@@ -1099,6 +1099,43 @@
         "previousPage": "Pagina anterioară",
         "nextPage": "Pagina următoare"
       }
+    },
+    "nav": {
+      "sections": {
+        "dashboard": "Panou de control",
+        "budgetInfo": "Informații buget",
+        "settings": "Setări"
+      },
+      "overview": "Prezentare generală",
+      "budget": "Buget",
+      "transactions": "Tranzacții",
+      "analytics": "Analize",
+      "upgrade": "Treci la Pro",
+      "profile": "Profil",
+      "search": "Caută",
+      "openMenu": "Deschide meniul",
+      "closeMenu": "Închide meniul",
+      "toggleSidebar": "Restrânge/extinde bara laterală",
+      "logoAlt": "Logo"
+    },
+    "profileBadge": {
+      "openMenu": "Deschide meniul de profil",
+      "avatarAlt": "Avatar utilizator",
+      "defaultName": "Utilizator",
+      "settings": "Setări profil",
+      "darkMode": "Mod întunecat",
+      "notifications": "Notificări",
+      "currentPlan": "Plan curent",
+      "upgrade": "Upgrade",
+      "viewProfile": "Vezi profilul",
+      "help": "Ajutor",
+      "logout": "Deconectare",
+      "logoutError": "Deconectarea a eșuat. Încearcă din nou.",
+      "plans": {
+        "free": "Gratuit",
+        "pro": "Pro",
+        "business": "Business"
+      }
     }
   }
 }

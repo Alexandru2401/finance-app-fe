@@ -3,11 +3,13 @@ import { Menu, PanelLeftOpen, Search, X } from "lucide-react";
 import { useState } from "react";
 import { dashboardNavigation } from "@/components/dashboard/routes/DashboardNavigation";
 import clsx from "clsx";
+import { useTranslation } from "react-i18next";
 
 export default function DashboardMainNavigation() {
   const [open, setOpen] = useState(true);
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
+  const { t } = useTranslation();
 
   const renderNav = (showLabels: boolean, onNavigate?: () => void) => (
     <nav className="flex h-full flex-col text-sm bg-accent">
@@ -20,7 +22,7 @@ export default function DashboardMainNavigation() {
       >
         <img
           src="/logo.png"
-          alt="Logo"
+          alt={t("dashboard.nav.logoAlt")}
           className="h-18 shrink-0 rounded-lg object-cover"
         />
       </div>
@@ -35,8 +37,8 @@ export default function DashboardMainNavigation() {
             />
             <input
               type="search"
-              placeholder="Search"
-              aria-label="Search"
+              placeholder={t("dashboard.nav.search")}
+              aria-label={t("dashboard.nav.search")}
               className="h-10 w-full rounded-lg border bg-background pl-9 pr-14 text-sm outline-none transition-colors placeholder:text-muted-foreground focus-visible:border-finance-warning focus-visible:ring-2 focus-visible:ring-finance-warning/40"
             />
             <kbd className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[11px] font-medium text-muted-foreground">
@@ -46,7 +48,7 @@ export default function DashboardMainNavigation() {
         ) : (
           <button
             type="button"
-            aria-label="Search"
+            aria-label={t("dashboard.nav.search")}
             className="flex h-10 w-full cursor-pointer items-center justify-center rounded-lg border bg-background transition-colors hover:bg-accent"
           >
             <Search className="h-4 w-4 text-muted-foreground" />
@@ -60,12 +62,13 @@ export default function DashboardMainNavigation() {
           <div key={index}>
             {showLabels && section.title && (
               <p className="mb-2 px-3 text-xs font-medium text-muted-foreground">
-                {section.title}
+                {t(`dashboard.nav.sections.${section.title}`)}
               </p>
             )}
 
             <ul className="flex flex-col gap-1">
-              {section.items.map(({ label, to, icon: Icon }) => {
+              {section.items.map(({ label: labelKey, to, icon: Icon }) => {
+                const label = t(`dashboard.nav.${labelKey}`);
                 const isActive = location.pathname === to;
 
                 return (
@@ -125,7 +128,7 @@ export default function DashboardMainNavigation() {
       {/* Buton hamburger - doar pe mobile */}
       <button
         onClick={() => setMobileOpen(true)}
-        aria-label="Open menu"
+        aria-label={t("dashboard.nav.openMenu")}
         className="absolute top-6 left-6 z-30 md:hidden"
       >
         <Menu size={26} />
@@ -142,7 +145,7 @@ export default function DashboardMainNavigation() {
         <button
           onClick={() => setOpen((prev) => !prev)}
           className="absolute cursor-pointer top-4 -right-5 z-10 flex h-8 w-8 items-center justify-center rounded-full border bg-background shadow hover:bg-accent transition-colors"
-          aria-label="Toggle sidebar"
+          aria-label={t("dashboard.nav.toggleSidebar")}
         >
           <PanelLeftOpen className="h-4 w-4" />
         </button>
@@ -170,7 +173,7 @@ export default function DashboardMainNavigation() {
         {/* Close button */}
         <button
           onClick={() => setMobileOpen(false)}
-          aria-label="Close menu"
+          aria-label={t("dashboard.nav.closeMenu")}
           className={clsx(
             "absolute -right-4 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-accent transition-colors hover:bg-accent",
             !mobileOpen && "hidden",

@@ -1097,6 +1097,43 @@
         "previousPage": "Go to previous page",
         "nextPage": "Go to next page"
       }
+    },
+    "nav": {
+      "sections": {
+        "dashboard": "Dashboard",
+        "budgetInfo": "Budget info",
+        "settings": "Settings"
+      },
+      "overview": "Overview",
+      "budget": "Budget",
+      "transactions": "Transactions",
+      "analytics": "Analytics",
+      "upgrade": "Upgrade to Pro",
+      "profile": "Profile",
+      "search": "Search",
+      "openMenu": "Open menu",
+      "closeMenu": "Close menu",
+      "toggleSidebar": "Toggle sidebar",
+      "logoAlt": "Logo"
+    },
+    "profileBadge": {
+      "openMenu": "Open profile menu",
+      "avatarAlt": "User avatar",
+      "defaultName": "User",
+      "settings": "Profile settings",
+      "darkMode": "Dark mode",
+      "notifications": "Notifications",
+      "currentPlan": "Current plan",
+      "upgrade": "Upgrade",
+      "viewProfile": "View profile",
+      "help": "Get help",
+      "logout": "Log out",
+      "logoutError": "Could not log out. Please try again.",
+      "plans": {
+        "free": "Free",
+        "pro": "Pro",
+        "business": "Business"
+      }
     }
   }
 }

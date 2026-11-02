@@ -9,61 +9,69 @@ import {
 
 import type { LucideIcon } from "lucide-react";
 
+// Labels are translation keys under dashboard.nav, translated when rendered
 export type DashboardNavItem = {
-  label: string;
+  label:
+    | "overview"
+    | "budget"
+    | "transactions"
+    | "analytics"
+    | "upgrade"
+    | "profile";
   to: string;
   icon?: LucideIcon;
 };
 
 export type DashboardNavSection = {
   items: DashboardNavItem[];
-  title?: string;
+  // Key under dashboard.nav.sections
+  title?: "dashboard" | "budgetInfo" | "settings";
 };
 
 export const dashboardNavigation: DashboardNavSection[] = [
   {
     items: [
       {
-        label: "Overview",
+        label: "overview",
         to: "/dashboard",
         icon: LayoutDashboard,
       },
       {
-        label: "Budget",
+        label: "budget",
         to: "/dashboard/budget",
         icon: PiggyBank,
       },
     ],
-    title: "Dashobard",
+    title: "dashboard",
   },
   {
     items: [
       {
-        label: "Transactions",
+        label: "transactions",
         to: "/dashboard/transactions",
         icon: UserRoundPen,
       },
       {
-        label: "Analytics",
+        label: "analytics",
         to: "/dashboard/analytics",
         icon: ChartNoAxesCombined,
       },
     ],
-    title: "Budget info",
+    title: "budgetInfo",
   },
   {
     items: [
       {
-        label: "Upgrade to pro",
+        label: "upgrade",
         to: "/dashboard/upgrade-plans",
         icon: CircleFadingArrowUp,
       },
       {
-        label: "Profile",
+        label: "profile",
         to: "/dashboard/profile",
         icon: UserRound,
       },
     ],
-    title: "Settings",
+    title: "settings",
   },
 ];

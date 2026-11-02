@@ -26,6 +26,12 @@ import { cn } from "@/lib/utils";
 import { logoutUser } from "@/api/user";
 import { useAuth } from "@/hooks/useAuth";
 import { useChangeLanguage } from "@/hooks/useChangeLanguage";
+import { toast } from "sonner";
+
+const PLANS = ["free", "pro", "business"] as const;
+type Plan = (typeof PLANS)[number];
+const isPlan = (value: unknown): value is Plan =>
+  PLANS.includes(value as Plan);
 
 export default function ProfileBadge() {
   const [openProfile, setOpenProfile] = useState(false);
@@ -62,25 +68,31 @@ export default function ProfileBadge() {
     try {
       const res = await logoutUser();
 
-      console.log("logout response:", res);
       if (!res.ok) {
-        console.error("Logout failed:", res.data.message);
+        toast.error(t("dashboard.profileBadge.logoutError"));
         return;
       }
       setUser(null); // curata userul din context, altfel ramai "logat" in frontend
       navigate("/login", { replace: true });
-    } catch (err) {
-      console.log(err);
+    } catch {
+      toast.error(t("dashboard.profileBadge.logoutError"));
     }
   }
+
+  const plan = user?.plan_type?.toLowerCase();
+  const planLabel = isPlan(plan)
+    ? t(`dashboard.profileBadge.plans.${plan}`)
+    : (user?.plan_type ?? t("dashboard.profileBadge.plans.free"));
 
   return (
     <div className="flex justify-end px-2 md:px-5 relative" ref={dropdownRef}>
       <Avatar
         className="cursor-pointer ring-2 ring-offset-2 ring-transparent hover:ring-primary transition-all h-8 w-8 md:w-12 md:h-12"
         onClick={() => setOpenProfile(!openProfile)}
+        role="button"
+        aria-label={t("dashboard.profileBadge.openMenu")}
       >
-        <AvatarImage src="https://github.com/shadcn.png" alt="User avatar" />
+        <AvatarImage src="https://github.com/shadcn.png" alt={t("dashboard.profileBadge.avatarAlt")} />
         <AvatarFallback>CN</AvatarFallback>
       </Avatar>
 
@@ -91,16 +103,16 @@ export default function ProfileBadge() {
               <Avatar className="h-8 w-8 md:w-12 md:h-12">
                 <AvatarImage
                   src="https://github.com/shadcn.png"
-                  alt="User avatar"
+                  alt={t("dashboard.profileBadge.avatarAlt")}
                 />
                 <AvatarFallback>CN</AvatarFallback>
               </Avatar>
               <div className="flex-1">
                 <h3 className="font-semibold text-base">
-                  {user?.username || "John Doe"}
+                  {user?.username || t("dashboard.profileBadge.defaultName")}
                 </h3>
                 <p className="text-sm text-muted-foreground">
-                  {user?.email || "john.doe@example.com"}
+                  {user?.email}
                 </p>
               </div>
             </div>
@@ -113,7 +125,7 @@ export default function ProfileBadge() {
               <div className="flex items-center justify-between">
                 <h4 className="text-sm font-semibold flex items-center gap-2 px-3">
                   <Settings className="h-4 w-4" />
-                  Profile Settings
+                  {t("dashboard.profileBadge.settings")}
                 </h4>
               </div>
 
@@ -128,7 +140,7 @@ export default function ProfileBadge() {
                     htmlFor="dark-mode"
                     className="cursor-pointer font-normal"
                   >
-                    Dark mode
+                    {t("dashboard.profileBadge.darkMode")}
                   </Label>
                 </div>
                 <Switch
@@ -181,7 +193,7 @@ export default function ProfileBadge() {
                     htmlFor="notifications"
                     className="cursor-pointer font-normal"
                   >
-                    Notifications
+                    {t("dashboard.profileBadge.notifications")}
                   </Label>
                 </div>
                 <Switch
@@ -199,14 +211,19 @@ export default function ProfileBadge() {
                 <div className="flex items-start gap-3">
                   <Crown className="h-4 w-4 text-primary" />
                   <div>
-                    <p className="text-sm font-medium">Current Plan</p>
-                    <p className="text-xs text-muted-foreground">Basic</p>
+                    <p className="text-sm font-medium">
+                      {t("dashboard.profileBadge.currentPlan")}
+                    </p>
+                    <p className="text-xs text-muted-foreground">{planLabel}</p>
                   </div>
                 </div>
-                <Link to="/change-plans">
+                <Link
+                  to="/dashboard/upgrade-plans"
+                  onClick={() => setOpenProfile(false)}
+                >
                   <Button variant="outline" size="sm" className="text-xs">
                     <CreditCard className="h-3 w-3 mr-1" />
-                    Upgrade
+                    {t("dashboard.profileBadge.upgrade")}
                   </Button>
                 </Link>
               </div>
@@ -222,7 +239,7 @@ export default function ProfileBadge() {
                   onClick={() => setOpenProfile(false)}
                 >
                   <User className="h-4 w-4" />
-                  View Profile
+                  {t("dashboard.profileBadge.viewProfile")}
                 </Button>
               </Link>
 
@@ -233,7 +250,7 @@ export default function ProfileBadge() {
                   onClick={() => setOpenProfile(false)}
                 >
                   <HelpCircle className="h-4 w-4" />
-                  Get Help
+                  {t("dashboard.profileBadge.help")}
                 </Button>
               </Link>
 
@@ -245,7 +262,7 @@ export default function ProfileBadge() {
                 onClick={handleLogout}
               >
                 <LogOut className="h-4 w-4" />
-                Log out
+                {t("dashboard.profileBadge.logout")}
               </Button>
             </div>
           </CardContent>
