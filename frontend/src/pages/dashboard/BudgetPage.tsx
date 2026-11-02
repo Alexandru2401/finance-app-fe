@@ -1,7 +1,17 @@
 import BudgetForm from "@/components/dashboard/budget/BudgetForm";
 import ItemCard from "@/components/dashboard/budget/ItemCard";
 import { Button } from "@/components/ui/button";
-import { CalendarDays, Plus, Target } from "lucide-react";
+import { CalendarDays, ExternalLink, Plus, Tags, Target } from "lucide-react";
+import { Link } from "react-router-dom";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import { CategoriesManager } from "@/components/dashboard/settings/CategoriesSettings";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -143,6 +153,8 @@ export default function BudgetPage() {
   const [showForm, setShowForm] = useState(false);
 
   const [openTargets, setOpenTargets] = useState(false);
+
+  const [openCategories, setOpenCategories] = useState(false);
 
   // Month the whole page shows (YYYY-MM-01); starts on the overview's default
   const currentMonth = periodMonth(DEFAULT_PERIOD);
@@ -313,6 +325,16 @@ export default function BudgetPage() {
             </Button>
 
             <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setOpenCategories(true)}
+              className="cursor-pointer gap-2"
+            >
+              <Tags size={16} />
+              {t("dashboard.budget.categories.button")}
+            </Button>
+
+            <Button
               variant="default"
               onClick={() => setShowForm((prev) => !prev)}
               className="cursor-pointer max-w-34 md:w-auto"
@@ -419,6 +441,29 @@ export default function BudgetPage() {
           </aside>
         </>
       )}
+
+      <Sheet open={openCategories} onOpenChange={setOpenCategories}>
+        <SheetContent className="w-full overflow-y-auto sm:max-w-lg">
+          <SheetHeader>
+            <SheetTitle>{t("dashboard.settings.categories.title")}</SheetTitle>
+            <SheetDescription>
+              {t("dashboard.settings.categories.description")}
+            </SheetDescription>
+          </SheetHeader>
+          <div className="px-4">
+            {/* Opens on the active tab; a delete can change the list names */}
+            <CategoriesManager initialType={activeTab} onChange={refresh} />
+          </div>
+          <SheetFooter>
+            <Button variant="link" size="sm" asChild className="gap-1.5">
+              <Link to="/dashboard/settings?tab=categories">
+                <ExternalLink size={14} />
+                {t("dashboard.budget.categories.openSettings")}
+              </Link>
+            </Button>
+          </SheetFooter>
+        </SheetContent>
+      </Sheet>
 
       {openTargets && (
         <TargetsPanel

@@ -30,6 +30,7 @@ import BudgetItemSchema, {
 } from "@/schemas/budget-item.schema";
 import {
   addNewTransaction,
+  ApiRequestError,
   createCategory,
   getCategories,
   type Category,
@@ -164,8 +165,13 @@ export default function BudgetForm({ onCreated }: BudgetFormProps) {
       toast.success(
         t("dashboard.budget.form.toasts.categoryAdded", { name: category.name }),
       );
-    } catch {
-      setNewCategoryError(t("dashboard.budget.form.toasts.categoryError"));
+    } catch (err) {
+      // 409 = same name already exists (e.g. a default category of this type)
+      setNewCategoryError(
+        err instanceof ApiRequestError && err.status === 409
+          ? t("dashboard.budget.form.errors.categoryExists")
+          : t("dashboard.budget.form.toasts.categoryError"),
+      );
     } finally {
       setCreatingCategory(false);
     }

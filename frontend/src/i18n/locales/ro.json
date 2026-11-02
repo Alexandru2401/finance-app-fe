@@ -1024,6 +1024,10 @@
         "daysLeftValue_one": "{{count}} zi",
         "daysLeftValue_few": "{{count}} zile",
         "daysLeftValue_other": "{{count}} de zile"
+      },
+      "categories": {
+        "button": "Categorii",
+        "openSettings": "Deschide în Setări"
       }
     },
     "transactions": {
@@ -1267,7 +1271,19 @@
         "deleteTitle": "Ștergi categoria „{{name}}”?",
         "deleteDescription": "Tranzacțiile din această categorie vor rămâne fără categorie. Acțiunea nu poate fi anulată.",
         "deleteConfirm": "Da, șterge",
-        "loadError": "Categoriile nu au putut fi încărcate."
+        "loadError": "Categoriile nu au putut fi încărcate.",
+        "errors": {
+          "length": "Numele trebuie să aibă între {{min}} și {{max}} de caractere.",
+          "exists": "Există deja o categorie cu acest nume.",
+          "add": "Categoria nu a putut fi adăugată.",
+          "delete": "Categoria nu a putut fi ștearsă.",
+          "rename": "Categoria nu a putut fi redenumită."
+        },
+        "toasts": {
+          "added": "Categoria „{{name}}” a fost adăugată.",
+          "deleted": "Categoria „{{name}}” a fost ștearsă.",
+          "renamed": "Categoria a fost redenumită în „{{name}}”."
+        }
       }
     }
   }

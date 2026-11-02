@@ -51,21 +51,68 @@ export type NewBudgetItem = Omit<BudgetItem, "id">;
 
 async function getCategories(type?: BudgetType): Promise<Category[]> {
   const query = type ? `?type=${toApiType(type)}` : "";
-  const response = await get<CategoriesResponse>(`/budget/categories${query}`);
+  const response = await get<CategoriesResponse>(`/categories${query}`);
   if (!response.ok) throw new Error("Could not load categories");
   return response.data.categories.map(fromApiCategory);
 }
 
+// Keeps the HTTP status, so callers can tell e.g. 409 (duplicate) from other errors
+export class ApiRequestError extends Error {
+  status: number;
+
+  constructor(message: string, status: number) {
+    super(message);
+    this.name = "ApiRequestError";
+    this.status = status;
+  }
+}
+
+// POST /categories → 201 { category }; 409 if a category with the same name and
+// type already exists (custom or default, case-insensitive); 400 if invalid
 async function createCategory(payload: {
   type: BudgetType;
   name: string;
 }): Promise<Category> {
-  const response = await post<CategoryResponse>("/budget/categories", {
+  const response = await post<CategoryResponse | ApiError>("/categories", {
     ...payload,
     type: toApiType(payload.type),
   });
-  if (!response.ok) {
-    throw new Error(response.data?.message ?? "Could not create category");
+  if (!response.ok || !response.data || !("category" in response.data)) {
+    throw new ApiRequestError(
+      response.data?.message ?? "Could not create category",
+      response.status,
+    );
+  }
+  return fromApiCategory(response.data.category);
+}
+
+// PATCH /categories/:id { name } → 200 { category }. Only the name of a custom
+// category can change (not its type); 409 if the name is taken, 404 if it is
+// not the user's own category
+async function renameCategory(id: string, name: string): Promise<Category> {
+  const response = await patch<CategoryResponse | ApiError>(
+    `/categories/${id}`,
+    { name },
+  );
+  if (!response.ok || !response.data || !("category" in response.data)) {
+    throw new ApiRequestError(
+      response.data?.message ?? "Could not rename category",
+      response.status,
+    );
+  }
+  return fromApiCategory(response.data.category);
+}
+
+// DELETE /categories/:id → 200 { category } with the deleted category.
+// Only custom categories of the user can be deleted (404 otherwise); their
+// transactions are kept, without a category
+async function deleteCategory(id: string): Promise<Category> {
+  const response = await del<CategoryResponse | ApiError>(`/categories/${id}`);
+  if (!response.ok || !response.data || !("category" in response.data)) {
+    throw new ApiRequestError(
+      response.data?.message ?? "Could not delete category",
+      response.status,
+    );
   }
   return fromApiCategory(response.data.category);
 }
@@ -122,6 +169,8 @@ async function deleteTransaction(id: string): Promise<void> {
 export {
   getCategories,
   createCategory,
+  renameCategory,
+  deleteCategory,
   addNewTransaction,
   updateTransaction,
   deleteTransaction,

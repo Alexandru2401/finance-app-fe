@@ -1022,6 +1022,10 @@
         "daysLeft": "Days left in period",
         "daysLeftValue_one": "{{count}} day",
         "daysLeftValue_other": "{{count}} days"
+      },
+      "categories": {
+        "button": "Categories",
+        "openSettings": "Open in Settings"
       }
     },
     "transactions": {
@@ -1265,7 +1269,19 @@
         "deleteTitle": "Delete the \"{{name}}\" category?",
         "deleteDescription": "Transactions in this category will be left without a category. This cannot be undone.",
         "deleteConfirm": "Yes, delete",
-        "loadError": "Could not load the categories."
+        "loadError": "Could not load the categories.",
+        "errors": {
+          "length": "The name must be between {{min}} and {{max}} characters.",
+          "exists": "A category with this name already exists.",
+          "add": "Could not add the category.",
+          "delete": "Could not delete the category.",
+          "rename": "Could not rename the category."
+        },
+        "toasts": {
+          "added": "Category \"{{name}}\" was added.",
+          "deleted": "Category \"{{name}}\" was deleted.",
+          "renamed": "Category renamed to \"{{name}}\"."
+        }
       }
     }
   }
