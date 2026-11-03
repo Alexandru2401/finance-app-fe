@@ -8,7 +8,6 @@ React 19 · TypeScript · Vite 7 · Tailwind CSS 4 · shadcn/ui (Radix) · React
 
 ## Getting started
 ```bash
-cd frontend
 npm install
 cp .env.example .env
 npm run dev            # http://localhost:5173
@@ -16,7 +15,7 @@ npm run dev            # http://localhost:5173
 
 The backend has to run separately (by default on `http://localhost:3000`).
 
-### Environment variables (`frontend/.env`)
+### Environment variables (`.env`)
 | Variable | Example | Description |
 |---|---|---|
 | `VITE_API_URL` | `http://localhost:3000/api/v1` | API base URL |
@@ -29,7 +28,7 @@ The backend has to run separately (by default on `http://localhost:3000`).
 | `npm run lint` | ESLint |
 | `npm run preview` | Serve the production build locally |
 
-## Structure (`frontend/src`)
+## Structure (`src`)
 ```
 api/          backend calls (client.ts handles cookies + refresh token)
 components/   ui/ (shadcn), dashboard/ per page, public/
