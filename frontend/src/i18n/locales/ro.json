@@ -1123,6 +1123,29 @@
       "logoAlt": "Logo",
       "settings": "Setări"
     },
+    "search": {
+      "title": "Căutare",
+      "hint": "Caută tranzacții, categorii sau pagini",
+      "placeholder": "Caută tranzacții, categorii sau pagini...",
+      "empty": "Niciun rezultat pentru „{{query}}”",
+      "error": "Căutarea a eșuat. Încearcă din nou.",
+      "custom": "Personalizată",
+      "groups": {
+        "pages": "Pagini",
+        "transactions": "Tranzacții",
+        "categories": "Categorii"
+      },
+      "types": {
+        "income": "Venituri",
+        "expenses": "Cheltuieli",
+        "savings": "Economii"
+      },
+      "shortcuts": {
+        "navigate": "navighează",
+        "select": "selectează",
+        "close": "închide"
+      }
+    },
     "profileBadge": {
       "openMenu": "Deschide meniul de profil",
       "avatarAlt": "Avatar utilizator",

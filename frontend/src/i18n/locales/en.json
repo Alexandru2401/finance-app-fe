@@ -1121,6 +1121,29 @@
       "logoAlt": "Logo",
       "settings": "Settings"
     },
+    "search": {
+      "title": "Search",
+      "hint": "Search transactions, categories or pages",
+      "placeholder": "Search transactions, categories or pages...",
+      "empty": "No results for “{{query}}”",
+      "error": "Search failed. Please try again.",
+      "custom": "Custom",
+      "groups": {
+        "pages": "Pages",
+        "transactions": "Transactions",
+        "categories": "Categories"
+      },
+      "types": {
+        "income": "Income",
+        "expenses": "Expenses",
+        "savings": "Savings"
+      },
+      "shortcuts": {
+        "navigate": "to navigate",
+        "select": "to select",
+        "close": "to close"
+      }
+    },
     "profileBadge": {
       "openMenu": "Open profile menu",
       "avatarAlt": "User avatar",
