@@ -1031,8 +1031,33 @@
     "transactions": {
       "title": "Transactions",
       "subtitle": "Take a look over all your transactions.",
+      "add": "Add transaction",
       "deleted": "Transaction deleted.",
       "deleteError": "Could not delete transaction.",
+      "updated": "Transaction updated.",
+      "updateError": "Could not update transaction.",
+      "details": {
+        "title": "Transaction details",
+        "subtitle": "Everything about this transaction.",
+        "noNotes": "No notes added.",
+        "addNotes": "Add note",
+        "editNotes": "Edit note",
+        "saveNotes": "Save note",
+        "uncategorizedHint": "The category of this transaction was deleted. Pick a new category from Edit to be able to change it.",
+        "close": "Close"
+      },
+      "edit": {
+        "title": "Edit transaction",
+        "subtitle": "Change the type, amount, category, date or note.",
+        "selectCategory": "Select a category",
+        "categoryRequired": "Select a category.",
+        "invalidAmount": "The amount must be a number greater than 0.",
+        "pickDate": "Pick a date",
+        "notesPlaceholder": "Add a note for this transaction...",
+        "cancel": "Cancel",
+        "save": "Save changes",
+        "saving": "Saving..."
+      },
       "filters": {
         "searchPlaceholder": "Search category...",
         "exportCsv": "Export CSV",
@@ -1096,6 +1121,9 @@
         "cancel": "Cancel",
         "deleting": "Deleting...",
         "confirmDelete": "Delete",
+        "notes": "Notes",
+        "view": "View details",
+        "edit": "Edit",
         "previous": "Previous",
         "next": "Next",
         "previousPage": "Go to previous page",

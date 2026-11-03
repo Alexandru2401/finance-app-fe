@@ -37,30 +37,21 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Transaction } from "@/api/transactions";
+import type { Category, UpdateTransactionPayload } from "@/api/budget";
+import {
+  TransactionEditDialog,
+  TransactionNotesDialog,
+} from "@/components/dashboard/transactions/TransactionDialogs";
+import {
+  AMOUNT_SIGNS,
+  AMOUNT_STYLES,
+  TYPE_STYLES,
+} from "@/components/dashboard/transactions/styles";
 import type { PaginationInfo } from "@/pages/dashboard/TransactionsPage";
-import { Trash2 } from "lucide-react";
+import { FileText, Pencil, Trash2 } from "lucide-react";
 import { useState, type MouseEvent } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import { useCurrency } from "@/hooks/useCurrency";
-
-const TYPE_STYLES: Record<Transaction["type"], string> = {
-  income: "bg-finance-success-bg text-finance-success",
-  expense: "bg-finance-danger-bg text-finance-danger",
-  savings: "bg-finance-primary-bg text-finance-primary",
-};
-
-// Savings are money kept, not spent, so they get no sign
-const AMOUNT_SIGNS: Record<Transaction["type"], string> = {
-  income: "+",
-  expense: "-",
-  savings: "",
-};
-
-const AMOUNT_STYLES: Record<Transaction["type"], string> = {
-  income: "text-finance-success",
-  expense: "text-finance-danger",
-  savings: "text-finance-primary",
-};
 
 const fmtDate = (date: string, locale: string) =>
   new Date(date).toLocaleDateString(locale, {
@@ -96,6 +87,13 @@ interface Props {
   onLimitChange: (limit: number) => void;
   // Resolves to false if the delete failed, so the dialog stays open
   onDelete: (id: string) => Promise<boolean>;
+  // For the edit dialog (only the categories of the transaction's type are shown)
+  categories: Category[];
+  // Resolves to false if the update failed, so the dialog stays open
+  onUpdate: (
+    tx: Transaction,
+    payload: UpdateTransactionPayload,
+  ) => Promise<boolean>;
 }
 
 export default function TransactionsTable({
@@ -105,6 +103,8 @@ export default function TransactionsTable({
   onPageChange,
   onLimitChange,
   onDelete,
+  categories,
+  onUpdate,
 }: Props) {
   const { t, i18n } = useTranslation();
   const { format } = useCurrency();
@@ -116,6 +116,14 @@ export default function TransactionsTable({
   // Transaction waiting for confirmation in the dialog
   const [deleting, setDeleting] = useState<Transaction | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  // Ids instead of objects, so the dialogs always show the latest data of the row
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [notesId, setNotesId] = useState<string | null>(null);
+  const findTx = (id: string | null | undefined) =>
+    (id && transactions?.find((tx) => tx.item_id === id)) || null;
+  const editingTx = findTx(editingId);
+  const notesTx = findTx(notesId);
 
   async function confirmDelete() {
     if (!deleting) return;
@@ -166,7 +174,7 @@ export default function TransactionsTable({
               <TableHead className="min-w-40 text-right">
                 {t("dashboard.transactions.table.amount")}
               </TableHead>
-              <TableHead className="w-16 text-right">
+              <TableHead className="w-32 text-right">
                 {t("dashboard.transactions.table.actions")}
               </TableHead>
             </TableRow>
@@ -192,7 +200,7 @@ export default function TransactionsTable({
                     <Skeleton className="ml-auto h-4 w-16" />
                   </TableCell>
                   <TableCell>
-                    <Skeleton className="ml-auto size-8 rounded-md" />
+                    <Skeleton className="ml-auto h-8 w-24 rounded-md" />
                   </TableCell>
                 </TableRow>
               ))
@@ -232,15 +240,38 @@ export default function TransactionsTable({
                     {fmtAmount(tx.amount, tx.type)}
                   </TableCell>
                   <TableCell className="text-right">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="size-8 cursor-pointer text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
-                      aria-label={t("dashboard.transactions.table.delete")}
-                      onClick={() => setDeleting(tx)}
-                    >
-                      <Trash2 size={16} />
-                    </Button>
+                    <div className="flex justify-end gap-0.5">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="size-8 cursor-pointer text-muted-foreground hover:bg-finance-warning-bg hover:text-finance-warning"
+                        aria-label={t("dashboard.transactions.table.notes")}
+                        title={t("dashboard.transactions.table.notes")}
+                        onClick={() => setNotesId(tx.item_id)}
+                      >
+                        <FileText size={16} />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="size-8 cursor-pointer text-muted-foreground hover:bg-finance-primary-bg hover:text-finance-primary"
+                        aria-label={t("dashboard.transactions.table.edit")}
+                        title={t("dashboard.transactions.table.edit")}
+                        onClick={() => setEditingId(tx.item_id)}
+                      >
+                        <Pencil size={16} />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="size-8 cursor-pointer text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                        aria-label={t("dashboard.transactions.table.delete")}
+                        title={t("dashboard.transactions.table.delete")}
+                        onClick={() => setDeleting(tx)}
+                      >
+                        <Trash2 size={16} />
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))
@@ -357,6 +388,19 @@ export default function TransactionsTable({
           </Pagination>
         )}
       </div>
+
+      <TransactionNotesDialog
+        transaction={notesTx}
+        onClose={() => setNotesId(null)}
+        onSave={onUpdate}
+      />
+
+      <TransactionEditDialog
+        transaction={editingTx}
+        categories={categories}
+        onClose={() => setEditingId(null)}
+        onSave={onUpdate}
+      />
 
       <AlertDialog
         open={deleting !== null}

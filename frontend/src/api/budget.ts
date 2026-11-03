@@ -131,6 +131,8 @@ async function addNewTransaction(item: BudgetItemPayload): Promise<void> {
 }
 
 export interface UpdateTransactionPayload {
+  // Backend type; the category must belong to it (400 otherwise)
+  type?: ApiBudgetType;
   amount?: number;
   date?: string;
   category_id?: string;

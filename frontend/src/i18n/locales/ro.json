@@ -1033,8 +1033,33 @@
     "transactions": {
       "title": "Tranzacții",
       "subtitle": "Vezi toate tranzacțiile tale.",
+      "add": "Adaugă tranzacție",
       "deleted": "Tranzacția a fost ștearsă.",
       "deleteError": "Tranzacția nu a putut fi ștearsă.",
+      "updated": "Tranzacția a fost actualizată.",
+      "updateError": "Tranzacția nu a putut fi actualizată.",
+      "details": {
+        "title": "Detalii tranzacție",
+        "subtitle": "Toate informațiile despre această tranzacție.",
+        "noNotes": "Nicio notiță adăugată.",
+        "addNotes": "Adaugă notiță",
+        "editNotes": "Editează notița",
+        "saveNotes": "Salvează notița",
+        "uncategorizedHint": "Categoria acestei tranzacții a fost ștearsă. Alege o categorie nouă din Editează ca să poți modifica tranzacția.",
+        "close": "Închide"
+      },
+      "edit": {
+        "title": "Editează tranzacția",
+        "subtitle": "Modifică tipul, suma, categoria, data sau notița.",
+        "selectCategory": "Alege categoria",
+        "categoryRequired": "Alege o categorie.",
+        "invalidAmount": "Suma trebuie să fie un număr mai mare decât 0.",
+        "pickDate": "Alege o dată",
+        "notesPlaceholder": "Adaugă o notiță pentru această tranzacție...",
+        "cancel": "Anulează",
+        "save": "Salvează modificările",
+        "saving": "Se salvează..."
+      },
       "filters": {
         "searchPlaceholder": "Caută categoria...",
         "exportCsv": "Exportă CSV",
@@ -1098,6 +1123,9 @@
         "cancel": "Anulează",
         "deleting": "Se șterge...",
         "confirmDelete": "Șterge",
+        "notes": "Notițe",
+        "view": "Vezi detalii",
+        "edit": "Editează",
         "previous": "Înapoi",
         "next": "Înainte",
         "previousPage": "Pagina anterioară",

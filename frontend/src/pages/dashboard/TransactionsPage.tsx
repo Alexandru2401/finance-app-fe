@@ -1,6 +1,16 @@
 import TransactionsFilters from "@/components/dashboard/transactions/TransactionsFilters";
 import TransactionsTable from "@/components/dashboard/transactions/TransactionsTable";
 import PageHeader from "@/components/dashboard/shared/PageHeader";
+import BudgetForm from "@/components/dashboard/budget/BudgetForm";
+import { Button } from "@/components/ui/button";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import { Plus } from "lucide-react";
 import {
   DEFAULT_FILTERS,
   type TransactionFilters,
@@ -13,7 +23,13 @@ import {
   type Transaction,
   type TransactionsParams,
 } from "@/api/transactions";
-import { deleteTransaction, getCategories, type Category } from "@/api/budget";
+import {
+  deleteTransaction,
+  getCategories,
+  updateTransaction,
+  type Category,
+  type UpdateTransactionPayload,
+} from "@/api/budget";
 import { toast } from "sonner";
 
 export interface PaginationInfo {
@@ -59,6 +75,7 @@ export default function TransactionsPage() {
   const [loadedKey, setLoadedKey] = useState<string | null>(null);
   // Bumped after a delete so the current page is fetched again
   const [refreshKey, setRefreshKey] = useState(0);
+  const [showAddForm, setShowAddForm] = useState(false);
 
   useEffect(() => {
     getCategories()
@@ -149,6 +166,49 @@ export default function TransactionsPage() {
     }
   }
 
+  async function handleUpdate(
+    tx: Transaction,
+    payload: UpdateTransactionPayload,
+  ): Promise<boolean> {
+    try {
+      await updateTransaction(tx.item_id, payload);
+    } catch (err) {
+      // The backend message explains e.g. a category of another type
+      toast.error(t("dashboard.transactions.updateError"), {
+        description: err instanceof Error ? err.message : undefined,
+      });
+      return false;
+    }
+
+    // Shown right away (the open dialog reads the row), then the page is
+    // fetched again, since the row may no longer match the filters / sort
+    const category = payload.category_id
+      ? categories.find((c) => c.category_id === payload.category_id)
+      : undefined;
+    setTransactions((prev) =>
+      prev?.map((row) =>
+        row.item_id === tx.item_id
+          ? {
+              ...row,
+              ...(payload.type && { type: payload.type }),
+              ...(payload.amount !== undefined && { amount: payload.amount }),
+              ...(payload.date && { date: payload.date }),
+              ...(payload.notes !== undefined && {
+                notes: payload.notes?.trim() || null,
+              }),
+              ...(category && {
+                category_id: category.category_id,
+                category_name: category.name,
+              }),
+            }
+          : row,
+      ) ?? prev,
+    );
+    toast.success(t("dashboard.transactions.updated"));
+    setRefreshKey((k) => k + 1);
+    return true;
+  }
+
   function changeLimit(newLimit: number) {
     setLimit(newLimit);
     // The current page may not exist with the new size
@@ -173,7 +233,33 @@ export default function TransactionsPage() {
       <PageHeader
         title={t("dashboard.transactions.title")}
         subtitle={t("dashboard.transactions.subtitle")}
-      />
+      >
+        <Button
+          size="sm"
+          onClick={() => setShowAddForm(true)}
+          className="cursor-pointer gap-1.5"
+        >
+          <Plus size={16} />
+          {t("dashboard.transactions.add")}
+        </Button>
+      </PageHeader>
+
+      {/* Same form as on the Budget page; it stays open to add more in a row */}
+      <Sheet open={showAddForm} onOpenChange={setShowAddForm}>
+        <SheetContent className="w-full overflow-y-auto sm:max-w-xl">
+          <SheetHeader>
+            <SheetTitle>{t("dashboard.budget.form.title")}</SheetTitle>
+            <SheetDescription>
+              {t("dashboard.budget.form.subtitle")}
+            </SheetDescription>
+          </SheetHeader>
+          <div className="px-4 pb-6">
+            {/* The list is fetched again, so the new transaction shows up
+                if it matches the current filters */}
+            <BudgetForm onCreated={() => setRefreshKey((k) => k + 1)} />
+          </div>
+        </SheetContent>
+      </Sheet>
       <TransactionsFilters
         filters={filters}
         onChange={changeFilters}
@@ -188,6 +274,8 @@ export default function TransactionsPage() {
         onPageChange={setPage}
         onLimitChange={changeLimit}
         onDelete={handleDelete}
+        categories={categories}
+        onUpdate={handleUpdate}
       />
     </section>
   );
