@@ -21,7 +21,10 @@ export default function UserAvatar({ className }: { className?: string }) {
 
   return (
     <Avatar className={cn("h-9 w-9", className)}>
-      <AvatarImage src={AVATAR_SRC} alt={t("dashboard.profileBadge.avatarAlt")} />
+      <AvatarImage
+        src={AVATAR_SRC}
+        alt={t("dashboard.profileBadge.avatarAlt")}
+      />
       <AvatarFallback className="font-semibold">
         {initials(user?.username, user?.email)}
       </AvatarFallback>

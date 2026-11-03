@@ -8,7 +8,9 @@ export function useCurrency() {
   const { user } = useAuth();
   const { i18n } = useTranslation();
   const locale = i18n.language;
-  const currency = isCurrency(user?.currency) ? user.currency : DEFAULT_CURRENCY;
+  const currency = isCurrency(user?.currency)
+    ? user.currency
+    : DEFAULT_CURRENCY;
 
   const format = useCallback(
     (amount: number, sign?: "auto" | "+" | "-", fixed?: boolean) =>

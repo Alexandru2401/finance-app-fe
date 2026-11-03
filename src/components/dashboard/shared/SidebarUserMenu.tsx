@@ -40,8 +40,7 @@ import { cn } from "@/lib/utils";
 
 const PLANS = ["free", "pro", "business"] as const;
 type Plan = (typeof PLANS)[number];
-const isPlan = (value: unknown): value is Plan =>
-  PLANS.includes(value as Plan);
+const isPlan = (value: unknown): value is Plan => PLANS.includes(value as Plan);
 
 interface SidebarUserMenuProps {
   /** false = collapsed sidebar: only the avatar, with a tooltip */
@@ -143,10 +142,7 @@ export default function SidebarUserMenu({
         align={mobile ? "start" : "end"}
         alignOffset={mobile ? -12 : 0}
         sideOffset={12}
-        className={cn(
-          "max-w-[calc(100vw-2rem)] p-0",
-          mobile ? "w-64" : "w-72",
-        )}
+        className={cn("max-w-[calc(100vw-2rem)] p-0", mobile ? "w-64" : "w-72")}
       >
         {/* ===== HEADER ===== */}
         <div className="flex items-center gap-2.5 p-3">
@@ -179,7 +175,11 @@ export default function SidebarUserMenu({
                 {t("dashboard.profileBadge.darkMode")}
               </Label>
             </div>
-            <Switch id="dark-mode" checked={dark} onCheckedChange={toggleTheme} />
+            <Switch
+              id="dark-mode"
+              checked={dark}
+              onCheckedChange={toggleTheme}
+            />
           </div>
 
           <div className="flex items-center justify-between rounded-lg px-2 py-2">
@@ -221,7 +221,10 @@ export default function SidebarUserMenu({
           <div className="flex items-center justify-between rounded-lg bg-muted/50 px-2 py-2 transition-colors hover:bg-muted">
             <div className="flex items-center gap-2">
               <Bell className="h-4 w-4 text-primary" />
-              <Label htmlFor="notifications" className="cursor-pointer font-normal">
+              <Label
+                htmlFor="notifications"
+                className="cursor-pointer font-normal"
+              >
                 {t("dashboard.profileBadge.notifications")}
               </Label>
             </div>
@@ -261,9 +264,21 @@ export default function SidebarUserMenu({
         {/* ===== LINK-URI ===== */}
         <div className="p-2">
           {[
-            { to: "/dashboard/profile", icon: User, label: t("dashboard.profileBadge.viewProfile") },
-            { to: "/dashboard/settings", icon: Settings, label: t("dashboard.profileBadge.allSettings") },
-            { to: "/help", icon: HelpCircle, label: t("dashboard.profileBadge.help") },
+            {
+              to: "/dashboard/profile",
+              icon: User,
+              label: t("dashboard.profileBadge.viewProfile"),
+            },
+            {
+              to: "/dashboard/settings",
+              icon: Settings,
+              label: t("dashboard.profileBadge.allSettings"),
+            },
+            {
+              to: "/help",
+              icon: HelpCircle,
+              label: t("dashboard.profileBadge.help"),
+            },
           ].map(({ to, icon: Icon, label }) => (
             <Button
               key={to}

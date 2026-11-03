@@ -32,7 +32,7 @@ export default function AnalyticsPage() {
           size="sm"
           className="cursor-pointer gap-2"
           data-active="true"
-        // onClick={() => setOpenFilters((prev) => !prev)}
+          // onClick={() => setOpenFilters((prev) => !prev)}
         >
           <SlidersHorizontal size={16} />
           Filters

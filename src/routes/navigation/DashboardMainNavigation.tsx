@@ -13,7 +13,8 @@ import clsx from "clsx";
 import { useTranslation } from "react-i18next";
 
 const isMac =
-  typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigator.platform);
+  typeof navigator !== "undefined" &&
+  /Mac|iPhone|iPad/.test(navigator.platform);
 const shortcutLabel = isMac ? "⌘ K" : "Ctrl K";
 
 export default function DashboardMainNavigation() {
@@ -117,33 +118,33 @@ export default function DashboardMainNavigation() {
                 const isActive = location.pathname === to;
 
                 const link = (
-                    <Link
-                      to={to}
-                      onClick={onNavigate}
-                      aria-label={!showLabels ? label : undefined}
-                      aria-current={isActive ? "page" : undefined}
-                      className={clsx(
-                        "group relative flex items-center gap-3 rounded-lg py-2.5 transition-colors",
-                        showLabels ? "px-3" : "justify-center px-0",
-                        isActive
-                          ? "bg-card font-semibold text-finance-warning"
-                          : "text-muted-foreground hover:bg-card hover:text-accent-foreground",
-                      )}
-                    >
-                      {Icon && (
-                        <Icon
-                          className={clsx(
-                            "h-5 w-5 shrink-0 transition-colors",
-                            isActive
-                              ? "text-finance-warning"
-                              : "text-muted-foreground group-hover:text-accent-foreground",
-                          )}
-                        />
-                      )}
+                  <Link
+                    to={to}
+                    onClick={onNavigate}
+                    aria-label={!showLabels ? label : undefined}
+                    aria-current={isActive ? "page" : undefined}
+                    className={clsx(
+                      "group relative flex items-center gap-3 rounded-lg py-2.5 transition-colors",
+                      showLabels ? "px-3" : "justify-center px-0",
+                      isActive
+                        ? "bg-card font-semibold text-finance-warning"
+                        : "text-muted-foreground hover:bg-card hover:text-accent-foreground",
+                    )}
+                  >
+                    {Icon && (
+                      <Icon
+                        className={clsx(
+                          "h-5 w-5 shrink-0 transition-colors",
+                          isActive
+                            ? "text-finance-warning"
+                            : "text-muted-foreground group-hover:text-accent-foreground",
+                        )}
+                      />
+                    )}
 
-                      {showLabels && <span className="truncate">{label}</span>}
+                    {showLabels && <span className="truncate">{label}</span>}
 
-                      {/* Badge "New" — necesita camp optional `badge` in date
+                    {/* Badge "New" — necesita camp optional `badge` in date
                       {showLabels && badge && (
                         <span className="ml-auto rounded-full bg-finance-warning px-2 py-0.5 text-[11px] font-semibold text-black">
                           {badge}
@@ -151,12 +152,12 @@ export default function DashboardMainNavigation() {
                       )}
                       */}
 
-                      {/* Chevron pentru submeniu — necesita camp `children`
+                    {/* Chevron pentru submeniu — necesita camp `children`
                       {showLabels && hasChildren && (
                         <ChevronRight className="ml-auto h-4 w-4 text-muted-foreground" />
                       )}
                       */}
-                    </Link>
+                  </Link>
                 );
 
                 return (

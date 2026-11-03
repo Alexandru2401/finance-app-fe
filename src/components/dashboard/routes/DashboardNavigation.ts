@@ -5,7 +5,7 @@ import {
   PiggyBank,
   Settings,
   UserRound,
-  UserRoundPen
+  UserRoundPen,
 } from "lucide-react";
 
 import type { LucideIcon } from "lucide-react";

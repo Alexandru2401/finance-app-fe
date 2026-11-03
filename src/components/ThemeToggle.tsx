@@ -22,7 +22,8 @@ export default function ThemeToggle({ className }: { className?: string }) {
     }
 
     // Tema nouă se extinde în cerc pornind de la buton
-    const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
+    const { left, top, width, height } =
+      e.currentTarget.getBoundingClientRect();
     const x = left + width / 2;
     const y = top + height / 2;
     const radius = Math.hypot(

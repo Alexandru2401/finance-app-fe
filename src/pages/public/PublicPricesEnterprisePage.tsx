@@ -79,9 +79,7 @@ export default function PublicPricesEnterprisePage() {
     <section className="py-6 px-4 md:px-8 max-w-7xl mx-auto">
       {/* Billing toggle */}
       <div className="flex items-center justify-center gap-3 mb-16">
-        <span
-          className={annual ? "text-muted-foreground" : "font-semibold"}
-        >
+        <span className={annual ? "text-muted-foreground" : "font-semibold"}>
           {t("pricesEnterprise.monthly")}
         </span>
         <Switch
@@ -90,9 +88,7 @@ export default function PublicPricesEnterprisePage() {
           className="cursor-pointer"
           aria-label={t("pricesEnterprise.annual")}
         />
-        <span
-          className={annual ? "font-semibold" : "text-muted-foreground"}
-        >
+        <span className={annual ? "font-semibold" : "text-muted-foreground"}>
           {t("pricesEnterprise.annual")}
         </span>
         <Badge className="bg-emerald-400">
@@ -167,7 +163,9 @@ export default function PublicPricesEnterprisePage() {
                       <Check className="h-5 w-5 text-primary shrink-0 mt-0.5" />
                       <span className="font-semibold">
                         {t("pricesEnterprise.everythingIn", {
-                          plan: t(`pricesEnterprise.plans.${plan.includes}.name`),
+                          plan: t(
+                            `pricesEnterprise.plans.${plan.includes}.name`,
+                          ),
                         })}
                       </span>
                     </li>

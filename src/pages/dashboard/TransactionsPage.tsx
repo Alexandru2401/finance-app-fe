@@ -185,24 +185,25 @@ export default function TransactionsPage() {
     const category = payload.category_id
       ? categories.find((c) => c.category_id === payload.category_id)
       : undefined;
-    setTransactions((prev) =>
-      prev?.map((row) =>
-        row.item_id === tx.item_id
-          ? {
-              ...row,
-              ...(payload.type && { type: payload.type }),
-              ...(payload.amount !== undefined && { amount: payload.amount }),
-              ...(payload.date && { date: payload.date }),
-              ...(payload.notes !== undefined && {
-                notes: payload.notes?.trim() || null,
-              }),
-              ...(category && {
-                category_id: category.category_id,
-                category_name: category.name,
-              }),
-            }
-          : row,
-      ) ?? prev,
+    setTransactions(
+      (prev) =>
+        prev?.map((row) =>
+          row.item_id === tx.item_id
+            ? {
+                ...row,
+                ...(payload.type && { type: payload.type }),
+                ...(payload.amount !== undefined && { amount: payload.amount }),
+                ...(payload.date && { date: payload.date }),
+                ...(payload.notes !== undefined && {
+                  notes: payload.notes?.trim() || null,
+                }),
+                ...(category && {
+                  category_id: category.category_id,
+                  category_name: category.name,
+                }),
+              }
+            : row,
+        ) ?? prev,
     );
     toast.success(t("dashboard.transactions.updated"));
     setRefreshKey((k) => k + 1);

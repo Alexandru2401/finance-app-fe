@@ -148,8 +148,12 @@ export default function PublicPricesPersonalPage() {
         <Accordion type="single" collapsible className="max-w-3xl mx-auto">
           {faqs.map((key) => (
             <AccordionItem key={key} value={key}>
-              <AccordionTrigger>{t(`prices.faq.items.${key}.q`)}</AccordionTrigger>
-              <AccordionContent>{t(`prices.faq.items.${key}.a`)}</AccordionContent>
+              <AccordionTrigger>
+                {t(`prices.faq.items.${key}.q`)}
+              </AccordionTrigger>
+              <AccordionContent>
+                {t(`prices.faq.items.${key}.a`)}
+              </AccordionContent>
             </AccordionItem>
           ))}
         </Accordion>

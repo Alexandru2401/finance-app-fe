@@ -23,7 +23,10 @@ const toMonth = (year: number, monthIndex: number) => {
 // First day of the month a single-month period covers
 export function periodMonth(period: "this-month" | "last-month"): string {
   const now = new Date();
-  return toMonth(now.getFullYear(), now.getMonth() - (period === "last-month" ? 1 : 0));
+  return toMonth(
+    now.getFullYear(),
+    now.getMonth() - (period === "last-month" ? 1 : 0),
+  );
 }
 
 // Moves a month by `delta` months (negative = back)

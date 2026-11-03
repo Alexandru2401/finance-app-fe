@@ -143,7 +143,9 @@ export default function BudgetForm({ onCreated }: BudgetFormProps) {
     const name = newCategoryName.trim();
 
     if (!name) {
-      setNewCategoryError(t("dashboard.budget.form.errors.categoryNameRequired"));
+      setNewCategoryError(
+        t("dashboard.budget.form.errors.categoryNameRequired"),
+      );
       return;
     }
 
@@ -163,7 +165,9 @@ export default function BudgetForm({ onCreated }: BudgetFormProps) {
       setFormData((prev) => ({ ...prev, category: category.category_id }));
       handleNewCategoryOpenChange(false);
       toast.success(
-        t("dashboard.budget.form.toasts.categoryAdded", { name: category.name }),
+        t("dashboard.budget.form.toasts.categoryAdded", {
+          name: category.name,
+        }),
       );
     } catch (err) {
       // 409 = same name already exists (e.g. a default category of this type)
@@ -234,7 +238,9 @@ export default function BudgetForm({ onCreated }: BudgetFormProps) {
             onValueChange={(v) => handleTypeChange(v as BudgetType)}
           >
             <SelectTrigger id="type" className="w-full">
-              <SelectValue placeholder={t("dashboard.budget.form.selectType")} />
+              <SelectValue
+                placeholder={t("dashboard.budget.form.selectType")}
+              />
             </SelectTrigger>
             <SelectContent>
               {(["income", "expenses", "savings"] as const).map((type) => (
@@ -289,7 +295,9 @@ export default function BudgetForm({ onCreated }: BudgetFormProps) {
                         handleAddCategory();
                       }
                     }}
-                    placeholder={t("dashboard.budget.form.newCategoryPlaceholder")}
+                    placeholder={t(
+                      "dashboard.budget.form.newCategoryPlaceholder",
+                    )}
                     aria-invalid={!!newCategoryError}
                     aria-describedby={
                       newCategoryError ? "new-category-error" : undefined

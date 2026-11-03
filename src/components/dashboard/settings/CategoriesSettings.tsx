@@ -120,43 +120,43 @@ export function CategoriesManager({
   }
 
   return (
-        <Tabs
-          value={activeType}
-          onValueChange={(v) => setActiveType(v as CategoryType)}
-        >
-          <TabsList>
-            {TYPES.map((type) => (
-              <TabsTrigger key={type} value={type} className="cursor-pointer">
-                {t(`dashboard.common.${type}`)}
-              </TabsTrigger>
-            ))}
-          </TabsList>
+    <Tabs
+      value={activeType}
+      onValueChange={(v) => setActiveType(v as CategoryType)}
+    >
+      <TabsList>
+        {TYPES.map((type) => (
+          <TabsTrigger key={type} value={type} className="cursor-pointer">
+            {t(`dashboard.common.${type}`)}
+          </TabsTrigger>
+        ))}
+      </TabsList>
 
-          {TYPES.map((type) => (
-            <TabsContent key={type} value={type} className="mt-4">
-              <AddCategoryForm
-                type={type}
-                existing={categories?.filter((c) => c.type === type) ?? []}
-                onCreated={addToList}
-              />
+      {TYPES.map((type) => (
+        <TabsContent key={type} value={type} className="mt-4">
+          <AddCategoryForm
+            type={type}
+            existing={categories?.filter((c) => c.type === type) ?? []}
+            onCreated={addToList}
+          />
 
-              {categories === undefined ? (
-                <CategoryListSkeleton />
-              ) : categories === null ? (
-                <CardError
-                  message={t("dashboard.settings.categories.loadError")}
-                  onRetry={retry}
-                />
-              ) : (
-                <CategoryList
-                  categories={categories.filter((c) => c.type === type)}
-                  onRenamed={replaceInList}
-                  onDeleted={removeFromList}
-                />
-              )}
-            </TabsContent>
-          ))}
-        </Tabs>
+          {categories === undefined ? (
+            <CategoryListSkeleton />
+          ) : categories === null ? (
+            <CardError
+              message={t("dashboard.settings.categories.loadError")}
+              onRetry={retry}
+            />
+          ) : (
+            <CategoryList
+              categories={categories.filter((c) => c.type === type)}
+              onRenamed={replaceInList}
+              onDeleted={removeFromList}
+            />
+          )}
+        </TabsContent>
+      ))}
+    </Tabs>
   );
 }
 

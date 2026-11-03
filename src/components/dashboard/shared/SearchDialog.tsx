@@ -21,11 +21,7 @@ import {
 } from "@/components/ui/dialog";
 import { Spinner } from "@/components/ui/spinner";
 import { dashboardNavigation } from "@/components/dashboard/routes/DashboardNavigation";
-import {
-  normalize,
-  searchAll,
-  type SearchResults,
-} from "@/api/search";
+import { normalize, searchAll, type SearchResults } from "@/api/search";
 import { useCurrency } from "@/hooks/useCurrency";
 
 interface SearchDialogProps {
@@ -51,12 +47,24 @@ const EMPTY_RESULTS: SearchResults = { transactions: [], categories: [] };
 const DEBOUNCE_MS = 250;
 
 const TYPE_ICON = {
-  income: { icon: ArrowDownLeft, tone: "text-finance-success bg-finance-success-bg" },
-  expenses: { icon: ArrowUpRight, tone: "text-finance-danger bg-finance-danger-bg" },
-  savings: { icon: PiggyBank, tone: "text-finance-primary bg-finance-primary-bg" },
+  income: {
+    icon: ArrowDownLeft,
+    tone: "text-finance-success bg-finance-success-bg",
+  },
+  expenses: {
+    icon: ArrowUpRight,
+    tone: "text-finance-danger bg-finance-danger-bg",
+  },
+  savings: {
+    icon: PiggyBank,
+    tone: "text-finance-primary bg-finance-primary-bg",
+  },
 } as const;
 
-export default function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
+export default function SearchDialog({
+  open,
+  onOpenChange,
+}: SearchDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
@@ -153,7 +161,9 @@ function SearchPanel({ onClose }: { onClose: () => void }) {
         <span
           className={clsx(
             "text-sm font-semibold tabular-nums",
-            tr.type === "expenses" ? "text-finance-danger" : "text-finance-success",
+            tr.type === "expenses"
+              ? "text-finance-danger"
+              : "text-finance-success",
           )}
         >
           {format(tr.amount, tr.type === "expenses" ? "-" : "+")}
@@ -211,137 +221,143 @@ function SearchPanel({ onClose }: { onClose: () => void }) {
   }
 
   const groups: GroupKey[] = ["pages", "transactions", "categories"];
-  const noResults = Boolean(trimmed) && !loading && !error && items.length === 0;
+  const noResults =
+    Boolean(trimmed) && !loading && !error && items.length === 0;
 
   return (
     <>
-        <DialogTitle className="sr-only">{t("dashboard.search.title")}</DialogTitle>
-        <DialogDescription className="sr-only">
-          {t("dashboard.search.hint")}
-        </DialogDescription>
+      <DialogTitle className="sr-only">
+        {t("dashboard.search.title")}
+      </DialogTitle>
+      <DialogDescription className="sr-only">
+        {t("dashboard.search.hint")}
+      </DialogDescription>
 
-        {/* ===== INPUT ===== */}
-        <div className="flex items-center gap-3 border-b px-4">
-          <Search className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden="true" />
-          <input
-            autoFocus
-            type="text"
-            value={query}
-            onChange={(e) => {
-              setQuery(e.target.value);
-              setActiveIndex(0);
-            }}
-            onKeyDown={handleKeyDown}
-            placeholder={t("dashboard.search.placeholder")}
-            aria-label={t("dashboard.search.placeholder")}
-            aria-controls="search-results"
-            aria-activedescendant={items[active]?.id}
-            className="h-14 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-          />
-          {loading && <Spinner className="h-4 w-4 text-muted-foreground" />}
-          <kbd className="rounded border bg-muted px-1.5 py-0.5 text-[11px] font-medium text-muted-foreground">
-            Esc
-          </kbd>
-        </div>
+      {/* ===== INPUT ===== */}
+      <div className="flex items-center gap-3 border-b px-4">
+        <Search
+          className="h-4 w-4 shrink-0 text-muted-foreground"
+          aria-hidden="true"
+        />
+        <input
+          autoFocus
+          type="text"
+          value={query}
+          onChange={(e) => {
+            setQuery(e.target.value);
+            setActiveIndex(0);
+          }}
+          onKeyDown={handleKeyDown}
+          placeholder={t("dashboard.search.placeholder")}
+          aria-label={t("dashboard.search.placeholder")}
+          aria-controls="search-results"
+          aria-activedescendant={items[active]?.id}
+          className="h-14 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+        />
+        {loading && <Spinner className="h-4 w-4 text-muted-foreground" />}
+        <kbd className="rounded border bg-muted px-1.5 py-0.5 text-[11px] font-medium text-muted-foreground">
+          Esc
+        </kbd>
+      </div>
 
-        {/* ===== RESULTS ===== */}
-        <div
-          ref={listRef}
-          id="search-results"
-          role="listbox"
-          className="max-h-[min(60vh,420px)] overflow-y-auto p-2"
-        >
-          {error && (
-            <p className="px-3 py-8 text-center text-sm text-finance-danger">
-              {t("dashboard.search.error")}
+      {/* ===== RESULTS ===== */}
+      <div
+        ref={listRef}
+        id="search-results"
+        role="listbox"
+        className="max-h-[min(60vh,420px)] overflow-y-auto p-2"
+      >
+        {error && (
+          <p className="px-3 py-8 text-center text-sm text-finance-danger">
+            {t("dashboard.search.error")}
+          </p>
+        )}
+
+        {noResults && (
+          <div className="flex flex-col items-center gap-2 px-3 py-10 text-center">
+            <FileSearch className="h-8 w-8 text-muted-foreground" />
+            <p className="text-sm text-muted-foreground">
+              {t("dashboard.search.empty", { query: trimmed })}
             </p>
-          )}
+          </div>
+        )}
 
-          {noResults && (
-            <div className="flex flex-col items-center gap-2 px-3 py-10 text-center">
-              <FileSearch className="h-8 w-8 text-muted-foreground" />
-              <p className="text-sm text-muted-foreground">
-                {t("dashboard.search.empty", { query: trimmed })}
-              </p>
-            </div>
-          )}
+        {!error &&
+          groups.map((group) => {
+            const groupItems = items.filter((item) => item.group === group);
+            if (!groupItems.length) return null;
 
-          {!error &&
-            groups.map((group) => {
-              const groupItems = items.filter((item) => item.group === group);
-              if (!groupItems.length) return null;
+            return (
+              <div key={group} className="mb-2 last:mb-0">
+                <p className="px-3 pb-1 pt-2 text-xs font-medium text-muted-foreground">
+                  {t(`dashboard.search.groups.${group}`)}
+                </p>
+                {groupItems.map((item) => {
+                  const index = items.indexOf(item);
+                  const isActive = index === active;
+                  const Icon = item.icon;
 
-              return (
-                <div key={group} className="mb-2 last:mb-0">
-                  <p className="px-3 pb-1 pt-2 text-xs font-medium text-muted-foreground">
-                    {t(`dashboard.search.groups.${group}`)}
-                  </p>
-                  {groupItems.map((item) => {
-                    const index = items.indexOf(item);
-                    const isActive = index === active;
-                    const Icon = item.icon;
-
-                    return (
-                      <button
-                        key={item.id}
-                        id={item.id}
-                        type="button"
-                        role="option"
-                        aria-selected={isActive}
-                        data-index={index}
-                        onMouseMove={() => setActiveIndex(index)}
-                        onClick={() => select(item)}
+                  return (
+                    <button
+                      key={item.id}
+                      id={item.id}
+                      type="button"
+                      role="option"
+                      aria-selected={isActive}
+                      data-index={index}
+                      onMouseMove={() => setActiveIndex(index)}
+                      onClick={() => select(item)}
+                      className={clsx(
+                        "flex w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-left transition-colors",
+                        isActive ? "bg-accent" : "hover:bg-accent/60",
+                      )}
+                    >
+                      <span
                         className={clsx(
-                          "flex w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-left transition-colors",
-                          isActive ? "bg-accent" : "hover:bg-accent/60",
+                          "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg",
+                          item.iconTone,
                         )}
                       >
-                        <span
-                          className={clsx(
-                            "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg",
-                            item.iconTone,
-                          )}
-                        >
-                          <Icon className="h-4 w-4" />
+                        <Icon className="h-4 w-4" />
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate text-sm font-medium text-foreground">
+                          {item.title}
                         </span>
-                        <span className="min-w-0 flex-1">
-                          <span className="block truncate text-sm font-medium text-foreground">
-                            {item.title}
+                        {item.subtitle && (
+                          <span className="block truncate text-xs text-muted-foreground">
+                            {item.subtitle}
                           </span>
-                          {item.subtitle && (
-                            <span className="block truncate text-xs text-muted-foreground">
-                              {item.subtitle}
-                            </span>
-                          )}
-                        </span>
-                        {item.meta}
-                        {isActive && (
-                          <CornerDownLeft className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
                         )}
-                      </button>
-                    );
-                  })}
-                </div>
-              );
-            })}
-        </div>
+                      </span>
+                      {item.meta}
+                      {isActive && (
+                        <CornerDownLeft className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            );
+          })}
+      </div>
 
-        {/* ===== FOOTER ===== */}
-        <div className="hidden items-center gap-4 border-t px-4 py-2 text-[11px] text-muted-foreground sm:flex">
-          <span className="flex items-center gap-1">
-            <kbd className="rounded border bg-muted px-1">↑</kbd>
-            <kbd className="rounded border bg-muted px-1">↓</kbd>
-            {t("dashboard.search.shortcuts.navigate")}
-          </span>
-          <span className="flex items-center gap-1">
-            <kbd className="rounded border bg-muted px-1">Enter</kbd>
-            {t("dashboard.search.shortcuts.select")}
-          </span>
-          <span className="flex items-center gap-1">
-            <kbd className="rounded border bg-muted px-1">Esc</kbd>
-            {t("dashboard.search.shortcuts.close")}
-          </span>
-        </div>
+      {/* ===== FOOTER ===== */}
+      <div className="hidden items-center gap-4 border-t px-4 py-2 text-[11px] text-muted-foreground sm:flex">
+        <span className="flex items-center gap-1">
+          <kbd className="rounded border bg-muted px-1">↑</kbd>
+          <kbd className="rounded border bg-muted px-1">↓</kbd>
+          {t("dashboard.search.shortcuts.navigate")}
+        </span>
+        <span className="flex items-center gap-1">
+          <kbd className="rounded border bg-muted px-1">Enter</kbd>
+          {t("dashboard.search.shortcuts.select")}
+        </span>
+        <span className="flex items-center gap-1">
+          <kbd className="rounded border bg-muted px-1">Esc</kbd>
+          {t("dashboard.search.shortcuts.close")}
+        </span>
+      </div>
     </>
   );
 }
