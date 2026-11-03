@@ -130,7 +130,9 @@ export default function OverviewTable() {
                       <span
                         className={`rounded-full px-2.5 py-1 text-xs font-medium ${TYPE_STYLES[tx.type]}`}
                       >
-                        {t(`dashboard.overview.recentTransactions.types.${tx.type}`)}
+                        {t(
+                          `dashboard.overview.recentTransactions.types.${tx.type}`,
+                        )}
                       </span>
                     </TableCell>
                     <TableCell className="font-medium">

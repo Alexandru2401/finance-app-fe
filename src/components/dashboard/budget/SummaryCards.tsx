@@ -26,7 +26,12 @@ interface TargetProgressProps {
   barClassName: string;
 }
 
-function TargetProgress({ target, pct, label, barClassName }: TargetProgressProps) {
+function TargetProgress({
+  target,
+  pct,
+  label,
+  barClassName,
+}: TargetProgressProps) {
   const { t } = useTranslation();
   const { format } = useCurrency();
   // Progress can be negative (net) or above 100, the bar only shows 0-100

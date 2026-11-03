@@ -225,7 +225,9 @@ export default function TransactionsTable({
                     <span
                       className={`text-xs font-medium px-2.5 py-1 rounded-full ${TYPE_STYLES[tx.type]}`}
                     >
-                      {t(`dashboard.overview.recentTransactions.types.${tx.type}`)}
+                      {t(
+                        `dashboard.overview.recentTransactions.types.${tx.type}`,
+                      )}
                     </span>
                   </TableCell>
                   <TableCell className="font-medium">

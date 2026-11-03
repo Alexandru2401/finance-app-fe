@@ -275,9 +275,10 @@ async function saveBudgetTarget(
   const body = Object.fromEntries(
     Object.entries(values).filter(([, value]) => value !== null),
   );
-  const response = await post<
-    (BudgetTargetResponse & ApiError) | null
-  >("/target", { month, ...body });
+  const response = await post<(BudgetTargetResponse & ApiError) | null>(
+    "/target",
+    { month, ...body },
+  );
 
   if (!response.ok || !response.data?.target) {
     throw new Error(

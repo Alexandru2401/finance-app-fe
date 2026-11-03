@@ -364,7 +364,9 @@ export default function TransactionsFilters({
           >
             <SelectTrigger id="filter-sort" className="w-45">
               <SelectValue
-                placeholder={t("dashboard.transactions.filters.sorts.date-desc")}
+                placeholder={t(
+                  "dashboard.transactions.filters.sorts.date-desc",
+                )}
               />
             </SelectTrigger>
             <SelectContent>

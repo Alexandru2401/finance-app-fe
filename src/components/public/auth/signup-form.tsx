@@ -74,9 +74,7 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
     <Card {...props}>
       <CardHeader>
         <CardTitle>{t("auth.signup.title")}</CardTitle>
-        <CardDescription>
-          {t("auth.signup.description")}
-        </CardDescription>
+        <CardDescription>{t("auth.signup.description")}</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmitForm}>
@@ -92,9 +90,7 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
                 onChange={(e) => handleChange("email", e)}
                 // className={errors.email ? "border-red-500" : ""}
               />
-              <FieldDescription>
-                {t("auth.signup.emailHint")}
-              </FieldDescription>
+              <FieldDescription>{t("auth.signup.emailHint")}</FieldDescription>
             </Field>
             <Field>
               <FieldLabel htmlFor="password">{t("auth.password")}</FieldLabel>
@@ -129,7 +125,9 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
             <FieldGroup>
               <Field>
                 <Button type="submit">
-                  {loading ? t("auth.signup.submitting") : t("auth.signup.submit")}
+                  {loading
+                    ? t("auth.signup.submitting")
+                    : t("auth.signup.submit")}
                 </Button>
                 <Button variant="outline" type="button">
                   {t("auth.signup.google")}

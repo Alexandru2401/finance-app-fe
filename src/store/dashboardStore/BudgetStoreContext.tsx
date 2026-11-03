@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useState } from "react";
 import { toast } from "sonner";
 
 export interface BudgetItem {
@@ -215,13 +215,6 @@ export function BudgetStoreProvider({
       {children}
     </BudgetStoreContext.Provider>
   );
-}
-
-export function useBudgetStore() {
-  const context = useContext(BudgetStoreContext);
-  if (!context)
-    throw new Error("useBudgetStore must be used within BudgetStoreProvider");
-  return context;
 }
 
 export { BudgetStoreContext };

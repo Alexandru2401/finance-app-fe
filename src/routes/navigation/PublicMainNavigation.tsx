@@ -23,7 +23,7 @@ import { cn } from "@/lib/utils";
 export default function PublicMainNavigation() {
   const [openMenu, setOpenMenu] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const { theme } = useTheme()
+  const { theme } = useTheme();
 
   // Fundal + umbră doar după ce pagina a fost derulată
   useEffect(() => {
@@ -63,7 +63,9 @@ export default function PublicMainNavigation() {
       )}
     >
       <div className="h-20 w-36">
-        <img src={theme === "dark" ? "/logo-no-bg-dark.png" : "/logo-no-bg.png"} />
+        <img
+          src={theme === "dark" ? "/logo-no-bg-dark.png" : "/logo-no-bg.png"}
+        />
       </div>
 
       {/* Desktop Navigation */}
@@ -117,16 +119,10 @@ export default function PublicMainNavigation() {
             <NavigationMenuTrigger>{t("nav.info")}</NavigationMenuTrigger>
             <NavigationMenuContent>
               <ul className="w-96 p-4">
-                <ListItem
-                  href="/terms-and-services"
-                  title={t("nav.readTerms")}
-                >
+                <ListItem href="/terms-and-services" title={t("nav.readTerms")}>
                   {t("nav.terms")}
                 </ListItem>
-                <ListItem
-                  href="/privacy-policy"
-                  title={t("nav.readPrivacy")}
-                >
+                <ListItem href="/privacy-policy" title={t("nav.readPrivacy")}>
                   {t("nav.privacy")}
                 </ListItem>
               </ul>

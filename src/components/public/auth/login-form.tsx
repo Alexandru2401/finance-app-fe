@@ -107,9 +107,7 @@ export function LoginForm({
       <Card>
         <CardHeader>
           <CardTitle>{t("auth.login.title")}</CardTitle>
-          <CardDescription>
-            {t("auth.login.description")}
-          </CardDescription>
+          <CardDescription>{t("auth.login.description")}</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit}>
@@ -135,7 +133,9 @@ export function LoginForm({
               {/* Password Field */}
               <Field className="mt-2 max-h-16">
                 <div className="flex items-center">
-                  <FieldLabel htmlFor="password">{t("auth.password")}</FieldLabel>
+                  <FieldLabel htmlFor="password">
+                    {t("auth.password")}
+                  </FieldLabel>
 
                   <a
                     href="#"
@@ -160,7 +160,9 @@ export function LoginForm({
 
               <Field className="mt-3">
                 <Button type="submit" className="cursor-pointer w-full">
-                  {isSubmiting ? t("auth.login.submitting") : t("auth.login.submit")}
+                  {isSubmiting
+                    ? t("auth.login.submitting")
+                    : t("auth.login.submit")}
                 </Button>
                 <FieldDescription className="text-center">
                   {t("auth.login.noAccount")}{" "}

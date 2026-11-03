@@ -51,11 +51,7 @@ export default function ExtraInfo({ activeTab }: { activeTab: Tab }) {
       <CardHeader>
         <div className="flex items-center gap-2">
           <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-accent">
-            <Pin
-              size={14}
-              className="text-foreground"
-              aria-hidden="true"
-            />
+            <Pin size={14} className="text-foreground" aria-hidden="true" />
           </span>
           <CardTitle className="text-sm">
             {t(`dashboard.budget.extraInfo.${activeTab}.title`)}

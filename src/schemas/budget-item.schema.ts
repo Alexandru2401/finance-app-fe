@@ -21,9 +21,12 @@ const BudgetItemSchema = z.object({
         .positive({ message: `${ERRORS}.amountPositive` }),
     ),
 
-  notes: z.string().trim().max(NOTES_MAX_LENGTH, {
-    message: `${ERRORS}.notesTooLong`,
-  }),
+  notes: z
+    .string()
+    .trim()
+    .max(NOTES_MAX_LENGTH, {
+      message: `${ERRORS}.notesTooLong`,
+    }),
 
   date: z.string(),
 });

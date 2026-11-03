@@ -34,7 +34,7 @@ import {
   ShieldCheck,
   Star,
   Trash2,
-  UserRoundCog
+  UserRoundCog,
 } from "lucide-react";
 import { useEffect, useState, type ComponentProps } from "react";
 import { Link, useNavigate } from "react-router-dom";
@@ -46,17 +46,10 @@ import type { User } from "@/context/AuthContext";
 
 const PLANS = ["free", "pro", "business"] as const;
 type Plan = (typeof PLANS)[number];
-const isPlan = (value: unknown): value is Plan =>
-  PLANS.includes(value as Plan);
+const isPlan = (value: unknown): value is Plan => PLANS.includes(value as Plan);
 
 type ActionId =
-  | "plan"
-  | "email"
-  | "password"
-  | "add-account"
-  | "reset"
-  | "delete"
-  | null;
+  "plan" | "email" | "password" | "add-account" | "reset" | "delete" | null;
 
 const actions = [
   {
@@ -235,12 +228,19 @@ export default function ProfilePage() {
           <CardContent className="space-y-3">
             {[
               { label: t("dashboard.profile.fields.email"), value: user.email },
-              { label: t("dashboard.profile.fields.plan"), value: planLabel, highlight: true },
+              {
+                label: t("dashboard.profile.fields.plan"),
+                value: planLabel,
+                highlight: true,
+              },
               {
                 label: t("dashboard.profile.fields.memberSince"),
                 value: formatMemberSince(user.created_at, i18n.language),
               },
-              { label: t("dashboard.profile.fields.currency"), value: user.currency || "—" },
+              {
+                label: t("dashboard.profile.fields.currency"),
+                value: user.currency || "—",
+              },
             ].map(({ label, value, highlight }, i, arr) => (
               <div key={label}>
                 <div className="flex items-center justify-between py-1">
@@ -423,7 +423,9 @@ function ActionPanel({ id, user }: { id: ActionId; user: User }) {
           <Label className="text-muted-foreground text-xs">
             {t("dashboard.profile.accountPanel.name")}
           </Label>
-          <Input placeholder={t("dashboard.profile.accountPanel.namePlaceholder")} />
+          <Input
+            placeholder={t("dashboard.profile.accountPanel.namePlaceholder")}
+          />
         </div>
         <div className="space-y-1">
           <Label className="text-muted-foreground text-xs">
@@ -457,14 +459,21 @@ function ActionPanel({ id, user }: { id: ActionId; user: User }) {
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>{t("dashboard.profile.resetPanel.title")}</AlertDialogTitle>
+              <AlertDialogTitle>
+                {t("dashboard.profile.resetPanel.title")}
+              </AlertDialogTitle>
               <AlertDialogDescription>
                 {t("dashboard.profile.resetPanel.description")}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>{t("dashboard.profile.resetPanel.cancel")}</AlertDialogCancel>
-              <AlertDialogAction variant="destructive" className="bg-finance-danger hover:bg-finance-danger/90 text-white border-0">
+              <AlertDialogCancel>
+                {t("dashboard.profile.resetPanel.cancel")}
+              </AlertDialogCancel>
+              <AlertDialogAction
+                variant="destructive"
+                className="bg-finance-danger hover:bg-finance-danger/90 text-white border-0"
+              >
                 {t("dashboard.profile.resetPanel.confirm")}
               </AlertDialogAction>
             </AlertDialogFooter>
@@ -495,14 +504,21 @@ function ActionPanel({ id, user }: { id: ActionId; user: User }) {
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>{t("dashboard.profile.deletePanel.title")}</AlertDialogTitle>
+              <AlertDialogTitle>
+                {t("dashboard.profile.deletePanel.title")}
+              </AlertDialogTitle>
               <AlertDialogDescription>
                 {t("dashboard.profile.deletePanel.description")}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>{t("dashboard.profile.deletePanel.cancel")}</AlertDialogCancel>
-              <AlertDialogAction variant="destructive" className="bg-finance-danger hover:bg-finance-danger/90 text-white border-0">
+              <AlertDialogCancel>
+                {t("dashboard.profile.deletePanel.cancel")}
+              </AlertDialogCancel>
+              <AlertDialogAction
+                variant="destructive"
+                className="bg-finance-danger hover:bg-finance-danger/90 text-white border-0"
+              >
                 {t("dashboard.profile.deletePanel.confirm")}
               </AlertDialogAction>
             </AlertDialogFooter>

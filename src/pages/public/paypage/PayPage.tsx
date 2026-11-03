@@ -33,12 +33,7 @@ import {
   Plus,
 } from "lucide-react";
 import { Trans, useTranslation } from "react-i18next";
-import {
-  Link,
-  Navigate,
-  useParams,
-  useSearchParams,
-} from "react-router-dom";
+import { Link, Navigate, useParams, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 
 const TRIAL_DAYS = 14;
@@ -62,13 +57,7 @@ type FormFields = {
 };
 
 type ErrorKey =
-  | "required"
-  | "email"
-  | "cui"
-  | "cardNumber"
-  | "expiry"
-  | "cvc"
-  | "terms";
+  "required" | "email" | "cui" | "cardNumber" | "expiry" | "cvc" | "terms";
 
 type FormErrors = Partial<Record<keyof FormFields | "terms", ErrorKey>>;
 
@@ -131,7 +120,9 @@ const formatCardNumber = (value: string) =>
 
 const formatExpiry = (value: string) => {
   const digits = value.replace(/\D/g, "").slice(0, 4);
-  return digits.length > 2 ? `${digits.slice(0, 2)}/${digits.slice(2)}` : digits;
+  return digits.length > 2
+    ? `${digits.slice(0, 2)}/${digits.slice(2)}`
+    : digits;
 };
 
 export default function PayPage() {
@@ -150,7 +141,10 @@ export default function PayPage() {
   const minSeats = plan?.minSeats ?? 1;
   const seatsParam = Number(searchParams.get("seats"));
   const seats = isEnterprise
-    ? Math.min(Math.max(Number.isFinite(seatsParam) ? seatsParam : 0, minSeats), MAX_SEATS)
+    ? Math.min(
+        Math.max(Number.isFinite(seatsParam) ? seatsParam : 0, minSeats),
+        MAX_SEATS,
+      )
     : 1;
 
   const [form, setForm] = useState<FormFields>({
@@ -227,9 +221,7 @@ export default function PayPage() {
       "cardNumber",
       "expiry",
       "cvc",
-      ...(isEnterprise
-        ? (["companyName", "cui", "address"] as const)
-        : []),
+      ...(isEnterprise ? (["companyName", "cui", "address"] as const) : []),
     ];
     for (const field of required) {
       if (!form[field].trim()) result[field] = "required";
@@ -237,7 +229,11 @@ export default function PayPage() {
 
     if (!result.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email))
       result.email = "email";
-    if (isEnterprise && !result.cui && !/^(RO)?\d{2,10}$/i.test(form.cui.replace(/\s/g, "")))
+    if (
+      isEnterprise &&
+      !result.cui &&
+      !/^(RO)?\d{2,10}$/i.test(form.cui.replace(/\s/g, ""))
+    )
       result.cui = "cui";
     if (!result.cardNumber && !isValidCardNumber(form.cardNumber))
       result.cardNumber = "cardNumber";
@@ -415,7 +411,10 @@ export default function PayPage() {
                     autoComplete: "cc-number",
                     placeholder: "1234 5678 9012 3456",
                     onChange: (e) =>
-                      handleChange("cardNumber", formatCardNumber(e.target.value)),
+                      handleChange(
+                        "cardNumber",
+                        formatCardNumber(e.target.value),
+                      ),
                   })}
                 </div>
                 {renderInput("expiry", {
@@ -430,7 +429,10 @@ export default function PayPage() {
                   autoComplete: "cc-csc",
                   placeholder: "123",
                   onChange: (e) =>
-                    handleChange("cvc", e.target.value.replace(/\D/g, "").slice(0, 4)),
+                    handleChange(
+                      "cvc",
+                      e.target.value.replace(/\D/g, "").slice(0, 4),
+                    ),
                 })}
               </FieldGroup>
               <p className="mt-6 flex items-start gap-2 text-sm text-muted-foreground">
@@ -446,7 +448,8 @@ export default function PayPage() {
               checked={acceptedTerms}
               onCheckedChange={(checked) => {
                 setAcceptedTerms(checked === true);
-                if (errors.terms) setErrors((prev) => ({ ...prev, terms: undefined }));
+                if (errors.terms)
+                  setErrors((prev) => ({ ...prev, terms: undefined }));
               }}
               aria-invalid={!!errors.terms}
             />
@@ -514,7 +517,9 @@ export default function PayPage() {
 
             {/* Billing toggle */}
             <div className="flex flex-wrap items-center gap-3">
-              <span className={annual ? "text-muted-foreground" : "font-semibold"}>
+              <span
+                className={annual ? "text-muted-foreground" : "font-semibold"}
+              >
                 {t("pay.summary.monthly")}
               </span>
               <Switch
@@ -525,7 +530,9 @@ export default function PayPage() {
                 className="cursor-pointer"
                 aria-label={t("pay.summary.annual")}
               />
-              <span className={annual ? "font-semibold" : "text-muted-foreground"}>
+              <span
+                className={annual ? "font-semibold" : "text-muted-foreground"}
+              >
                 {t("pay.summary.annual")}
               </span>
               <Badge className="bg-emerald-400">
@@ -537,7 +544,9 @@ export default function PayPage() {
             {isEnterprise && (
               <div className="flex items-center justify-between gap-4">
                 <div>
-                  <p className="text-sm font-medium">{t("pay.summary.seats")}</p>
+                  <p className="text-sm font-medium">
+                    {t("pay.summary.seats")}
+                  </p>
                   <p className="text-xs text-muted-foreground">
                     {t("pay.summary.minSeats", { n: minSeats })}
                   </p>
@@ -576,15 +585,21 @@ export default function PayPage() {
 
             <dl className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <dt className="text-muted-foreground">{t("pay.summary.unitPrice")}</dt>
+                <dt className="text-muted-foreground">
+                  {t("pay.summary.unitPrice")}
+                </dt>
                 <dd className="tabular-nums">
                   {currency.format(unitPrice)}
-                  {isEnterprise ? t("pay.summary.perSeat") : t("pay.summary.perMonth")}
+                  {isEnterprise
+                    ? t("pay.summary.perSeat")
+                    : t("pay.summary.perMonth")}
                   {isEnterprise && ` × ${seats}`}
                 </dd>
               </div>
               <div className="flex justify-between">
-                <dt className="text-muted-foreground">{t("pay.summary.subtotal")}</dt>
+                <dt className="text-muted-foreground">
+                  {t("pay.summary.subtotal")}
+                </dt>
                 <dd className="tabular-nums">{currency.format(subtotal)}</dd>
               </div>
               <div className="flex justify-between">
