@@ -24,109 +24,275 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
+import type { Transaction } from "@/api/transactions";
+import type { Category, UpdateTransactionPayload } from "@/api/budget";
+import {
+  TransactionEditDialog,
+  TransactionNotesDialog,
+} from "@/components/dashboard/transactions/TransactionDialogs";
+import {
+  AMOUNT_SIGNS,
+  AMOUNT_STYLES,
+  TYPE_STYLES,
+} from "@/components/dashboard/transactions/styles";
+import type { PaginationInfo } from "@/pages/dashboard/TransactionsPage";
+import { FileText, Pencil, Trash2 } from "lucide-react";
+import { useState, type MouseEvent } from "react";
+import { Trans, useTranslation } from "react-i18next";
+import { useCurrency } from "@/hooks/useCurrency";
 
-const CATEGORY_STYLES: Record<string, string> = {
-  Sales: "bg-finance-success-bg text-finance-success",
-  Rent: "bg-finance-warning-bg text-finance-warning",
-  SaaS: "bg-finance-danger-bg text-finance-danger",
-};
+const fmtDate = (date: string, locale: string) =>
+  new Date(date).toLocaleDateString(locale, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
 
-const ROWS = [
-  {
-    desc: "Stripe Payment",
-    cat: "Sales",
-    date: "Jan 24, 2026",
-    amount: "+$1,250",
-    positive: true,
-  },
-  {
-    desc: "Office Rent",
-    cat: "Rent",
-    date: "Jan 23, 2026",
-    amount: "-$2,000",
-    positive: false,
-  },
-  {
-    desc: "Software Tools",
-    cat: "SaaS",
-    date: "Jan 22, 2026",
-    amount: "-$320",
-    positive: false,
-  },
-  {
-    desc: "Client Invoice",
-    cat: "Sales",
-    date: "Jan 21, 2026",
-    amount: "+$4,500",
-    positive: true,
-  },
-  {
-    desc: "Stripe Payment",
-    cat: "Sales",
-    date: "Jan 24, 2026",
-    amount: "+$1,250",
-    positive: true,
-  },
-];
+// The backend allows at most 15 per page
+const PAGE_SIZES = [5, 10, 15];
 
-export default function TransactionsTable() {
+// First, last and the pages around the current one; gaps become an ellipsis
+function getPageItems(page: number, totalPages: number) {
+  const items: (number | "ellipsis")[] = [];
+  for (let p = 1; p <= totalPages; p++) {
+    if (p === 1 || p === totalPages || Math.abs(p - page) <= 1) {
+      items.push(p);
+    } else if (items[items.length - 1] !== "ellipsis") {
+      items.push("ellipsis");
+    }
+  }
+  return items;
+}
+
+const BOLD = { bold: <span className="font-medium text-foreground" /> };
+
+interface Props {
+  transactions: Transaction[] | null;
+  loading: boolean;
+  // null until the first page is loaded
+  pagination: PaginationInfo | null;
+  onPageChange: (page: number) => void;
+  onLimitChange: (limit: number) => void;
+  // Resolves to false if the delete failed, so the dialog stays open
+  onDelete: (id: string) => Promise<boolean>;
+  // For the edit dialog (only the categories of the transaction's type are shown)
+  categories: Category[];
+  // Resolves to false if the update failed, so the dialog stays open
+  onUpdate: (
+    tx: Transaction,
+    payload: UpdateTransactionPayload,
+  ) => Promise<boolean>;
+}
+
+export default function TransactionsTable({
+  transactions,
+  loading,
+  pagination,
+  onPageChange,
+  onLimitChange,
+  onDelete,
+  categories,
+  onUpdate,
+}: Props) {
+  const { t, i18n } = useTranslation();
+  const { format } = useCurrency();
+  const fmtAmount = (amount: number, type: Transaction["type"]) =>
+    `${AMOUNT_SIGNS[type]}${format(Math.abs(amount))}`;
+  const categoryName = (tx: Transaction) =>
+    tx.category_name ?? t("dashboard.common.uncategorized");
+
+  // Transaction waiting for confirmation in the dialog
+  const [deleting, setDeleting] = useState<Transaction | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  // Ids instead of objects, so the dialogs always show the latest data of the row
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [notesId, setNotesId] = useState<string | null>(null);
+  const findTx = (id: string | null | undefined) =>
+    (id && transactions?.find((tx) => tx.item_id === id)) || null;
+  const editingTx = findTx(editingId);
+  const notesTx = findTx(notesId);
+
+  async function confirmDelete() {
+    if (!deleting) return;
+    setIsDeleting(true);
+    const deleted = await onDelete(deleting.item_id);
+    setIsDeleting(false);
+    if (deleted) setDeleting(null);
+  }
+
+  // From the backend: all filtered transactions, not just this page
+  const netTotal = pagination?.net ?? 0;
+  const page = pagination?.page ?? 1;
+  const limit = pagination?.limit ?? 15;
+  const total = pagination?.total ?? 0;
+  const totalPages = pagination?.totalPages ?? 1;
+  // Index of the first row of this page, for the # column and "Showing x-y"
+  const offset = (page - 1) * limit;
+  const isFirst = page <= 1;
+  const isLast = page >= totalPages;
+
+  // The links are anchors, so stop them from jumping to "#"
+  const goTo = (target: number) => (e: MouseEvent) => {
+    e.preventDefault();
+    if (target >= 1 && target <= totalPages && target !== page) {
+      onPageChange(target);
+    }
+  };
+
   return (
     <>
       <div className="w-full overflow-x-auto rounded-md border bg-card">
         <Table>
           <TableCaption className="sr-only">
-            A list of your recent transactions.
+            {t("dashboard.transactions.table.caption")}
           </TableCaption>
           <TableHeader className="sticky top-0 z-10 bg-card">
             <TableRow>
-              <TableHead className="min-w-40">Category</TableHead>
-              <TableHead className="min-w-40">Type</TableHead>
-              <TableHead className="min-w-40">Date</TableHead>
-              <TableHead className="min-w-40 text-right">Amount</TableHead>
+              <TableHead className="w-12 text-muted-foreground">#</TableHead>
+              <TableHead className="min-w-40">
+                {t("dashboard.transactions.table.type")}
+              </TableHead>
+              <TableHead className="min-w-40">
+                {t("dashboard.transactions.table.category")}
+              </TableHead>
+              <TableHead className="min-w-40">
+                {t("dashboard.transactions.table.date")}
+              </TableHead>
+              <TableHead className="min-w-40 text-right">
+                {t("dashboard.transactions.table.amount")}
+              </TableHead>
+              <TableHead className="w-32 text-right">
+                {t("dashboard.transactions.table.actions")}
+              </TableHead>
             </TableRow>
           </TableHeader>
 
           <TableBody>
-            {ROWS.map((r, i) => (
-              <TableRow key={i} className="cursor-pointer">
-                <TableCell className="font-medium">{r.desc}</TableCell>
-                <TableCell>
-                  <span
-                    className={`text-xs font-medium px-2.5 py-1 rounded-full ${CATEGORY_STYLES[r.cat] ?? "bg-muted text-muted-foreground"}`}
-                  >
-                    {r.cat}
-                  </span>
-                </TableCell>
-                <TableCell className="text-muted-foreground whitespace-nowrap">
-                  {r.date}
-                </TableCell>
-                <TableCell
-                  className={`text-right font-medium whitespace-nowrap ${r.positive ? "text-finance-success" : "text-finance-danger"}`}
-                >
-                  {r.amount}
+            {loading || !transactions ? (
+              [0, 1, 2, 3, 4].map((i) => (
+                <TableRow key={i}>
+                  <TableCell>
+                    <Skeleton className="h-4 w-5" />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton className="h-4 w-28" />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton className="h-5 w-20 rounded-full" />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton className="h-4 w-20" />
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <Skeleton className="ml-auto h-4 w-16" />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton className="ml-auto h-8 w-24 rounded-md" />
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : transactions.length === 0 ? (
+              <TableRow className="hover:bg-transparent">
+                <TableCell colSpan={6} className="h-32 text-center">
+                  <p className="text-sm font-medium">
+                    {t("dashboard.transactions.table.emptyTitle")}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {t("dashboard.transactions.table.emptyHint")}
+                  </p>
                 </TableCell>
               </TableRow>
-            ))}
-
-            <TableRow className="hover:bg-transparent">
-              <TableCell colSpan={4} className="h-32 text-center">
-                <p className="text-sm font-medium">No transactions found</p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Try adjusting your filters or search term.
-                </p>
-              </TableCell>
-            </TableRow>
+            ) : (
+              transactions.map((tx, index) => (
+                <TableRow key={tx.item_id}>
+                  <TableCell className="text-muted-foreground tabular-nums">
+                    {offset + index + 1}
+                  </TableCell>
+                  <TableCell>
+                    <span
+                      className={`text-xs font-medium px-2.5 py-1 rounded-full ${TYPE_STYLES[tx.type]}`}
+                    >
+                      {t(`dashboard.overview.recentTransactions.types.${tx.type}`)}
+                    </span>
+                  </TableCell>
+                  <TableCell className="font-medium">
+                    {categoryName(tx)}
+                  </TableCell>
+                  <TableCell className="text-muted-foreground whitespace-nowrap">
+                    {fmtDate(tx.date, i18n.language)}
+                  </TableCell>
+                  <TableCell
+                    className={`text-right font-medium whitespace-nowrap ${AMOUNT_STYLES[tx.type]}`}
+                  >
+                    {fmtAmount(tx.amount, tx.type)}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex justify-end gap-0.5">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="size-8 cursor-pointer text-muted-foreground hover:bg-finance-warning-bg hover:text-finance-warning"
+                        aria-label={t("dashboard.transactions.table.notes")}
+                        title={t("dashboard.transactions.table.notes")}
+                        onClick={() => setNotesId(tx.item_id)}
+                      >
+                        <FileText size={16} />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="size-8 cursor-pointer text-muted-foreground hover:bg-finance-primary-bg hover:text-finance-primary"
+                        aria-label={t("dashboard.transactions.table.edit")}
+                        title={t("dashboard.transactions.table.edit")}
+                        onClick={() => setEditingId(tx.item_id)}
+                      >
+                        <Pencil size={16} />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="size-8 cursor-pointer text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                        aria-label={t("dashboard.transactions.table.delete")}
+                        title={t("dashboard.transactions.table.delete")}
+                        onClick={() => setDeleting(tx)}
+                      >
+                        <Trash2 size={16} />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
           </TableBody>
 
           <TableFooter>
             <TableRow className="hover:bg-transparent">
-              <TableCell colSpan={3} className="font-medium">
-                Net total
+              <TableCell colSpan={4} className="font-medium">
+                {t("dashboard.transactions.table.netTotal")}
               </TableCell>
-              <TableCell className="text-right font-semibold whitespace-nowrap text-finance-success">
-                +$4,680
+              <TableCell
+                className={`text-right font-semibold whitespace-nowrap ${
+                  netTotal >= 0 ? "text-finance-success" : "text-finance-danger"
+                }`}
+              >
+                {loading || !transactions
+                  ? "—"
+                  : format(netTotal, netTotal >= 0 ? "+" : "-")}
               </TableCell>
+              <TableCell />
             </TableRow>
           </TableFooter>
         </Table>
@@ -136,58 +302,149 @@ export default function TransactionsTable() {
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6">
         <div className="flex items-center gap-4">
           <p className="text-sm text-muted-foreground">
-            Showing <span className="font-medium text-foreground">1–5</span> of{" "}
-            <span className="font-medium text-foreground">47</span> transactions
+            <Trans
+              i18nKey="dashboard.transactions.table.showing"
+              values={{
+                from: total === 0 ? 0 : offset + 1,
+                to: Math.min(offset + limit, total),
+                total,
+              }}
+              components={BOLD}
+            />
           </p>
           <div className="flex items-center gap-2">
             <Label
               htmlFor="page-size"
               className="text-xs text-muted-foreground"
             >
-              Per page
+              {t("dashboard.transactions.table.perPage")}
             </Label>
-            <Select>
+            <Select
+              value={String(limit)}
+              onValueChange={(value) => onLimitChange(Number(value))}
+            >
               <SelectTrigger id="page-size" className="w-20 h-8">
-                <SelectValue placeholder="10" />
+                <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="10">10</SelectItem>
-                <SelectItem value="25">25</SelectItem>
-                <SelectItem value="50">50</SelectItem>
+                {PAGE_SIZES.map((size) => (
+                  <SelectItem key={size} value={String(size)}>
+                    {size}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
         </div>
 
-        <Pagination className="mx-0 w-auto justify-end">
-          <PaginationContent>
-            <PaginationItem>
-              <PaginationPrevious
-                href="#"
-                aria-disabled="true"
-                className="pointer-events-none opacity-50"
-              />
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationLink href="#" isActive>
-                1
-              </PaginationLink>
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationLink href="#">2</PaginationLink>
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationLink href="#">3</PaginationLink>
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationEllipsis />
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationNext href="#" />
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
+        {totalPages > 1 && (
+          <Pagination className="mx-0 w-auto justify-end">
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  href="#"
+                  text={t("dashboard.transactions.table.previous")}
+                  aria-label={t("dashboard.transactions.table.previousPage")}
+                  onClick={goTo(page - 1)}
+                  aria-disabled={isFirst}
+                  className={
+                    isFirst
+                      ? "pointer-events-none opacity-50"
+                      : "cursor-pointer"
+                  }
+                />
+              </PaginationItem>
+              {getPageItems(page, totalPages).map((item, i) =>
+                item === "ellipsis" ? (
+                  <PaginationItem key={`ellipsis-${i}`}>
+                    <PaginationEllipsis />
+                  </PaginationItem>
+                ) : (
+                  <PaginationItem key={item}>
+                    <PaginationLink
+                      href="#"
+                      isActive={item === page}
+                      onClick={goTo(item)}
+                      className="cursor-pointer"
+                    >
+                      {item}
+                    </PaginationLink>
+                  </PaginationItem>
+                ),
+              )}
+              <PaginationItem>
+                <PaginationNext
+                  href="#"
+                  text={t("dashboard.transactions.table.next")}
+                  aria-label={t("dashboard.transactions.table.nextPage")}
+                  onClick={goTo(page + 1)}
+                  aria-disabled={isLast}
+                  className={
+                    isLast ? "pointer-events-none opacity-50" : "cursor-pointer"
+                  }
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        )}
       </div>
+
+      <TransactionNotesDialog
+        transaction={notesTx}
+        onClose={() => setNotesId(null)}
+        onSave={onUpdate}
+      />
+
+      <TransactionEditDialog
+        transaction={editingTx}
+        categories={categories}
+        onClose={() => setEditingId(null)}
+        onSave={onUpdate}
+      />
+
+      <AlertDialog
+        open={deleting !== null}
+        // Closing is blocked while the request runs
+        onOpenChange={(open) => !open && !isDeleting && setDeleting(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <Trash2 size={18} className="text-finance-danger" />
+              {t("dashboard.transactions.table.deleteTitle")}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {deleting && (
+                <Trans
+                  i18nKey="dashboard.transactions.table.deleteConfirm"
+                  values={{
+                    category: categoryName(deleting),
+                    amount: fmtAmount(deleting.amount, deleting.type),
+                    date: fmtDate(deleting.date, i18n.language),
+                  }}
+                  components={BOLD}
+                />
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting} className="cursor-pointer">
+              {t("dashboard.transactions.table.cancel")}
+            </AlertDialogCancel>
+            {/* A plain button, so the dialog stays open until the delete finishes */}
+            <Button
+              variant="destructive"
+              onClick={confirmDelete}
+              disabled={isDeleting}
+              className="cursor-pointer"
+            >
+              {isDeleting
+                ? t("dashboard.transactions.table.deleting")
+                : t("dashboard.transactions.table.confirmDelete")}
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }

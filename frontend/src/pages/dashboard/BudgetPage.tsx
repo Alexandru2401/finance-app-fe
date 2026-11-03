@@ -1,70 +1,129 @@
 import BudgetForm from "@/components/dashboard/budget/BudgetForm";
 import ItemCard from "@/components/dashboard/budget/ItemCard";
 import { Button } from "@/components/ui/button";
-import { ChevronDown, Plus, SlidersHorizontal, Target } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { CalendarDays, ExternalLink, Plus, Tags, Target } from "lucide-react";
+import { Link } from "react-router-dom";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import { CategoriesManager } from "@/components/dashboard/settings/CategoriesSettings";
+import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
-import BudgetFilters from "@/components/dashboard/budget/BudgetFilters";
 import ExtraInfo from "@/components/dashboard/budget/ExtraInfo";
 import Insights from "@/components/dashboard/budget/Insights";
 import SummaryCards from "@/components/dashboard/budget/SummaryCards";
-import { Spinner } from "@/components/ui/spinner";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import TargetsPanel from "@/components/dashboard/budget/TargetsPanel";
 import {
-  getBudgetData,
-  addIncomeItem as apiAddIncome,
-  addExpenseItem as apiAddExpense,
-  addSavingsItem as apiAddSavings,
-  editIncomeItem as apiEditIncome,
-  editExpenseItem as apiEditExpense,
-  editSavingsItem as apiEditSavings,
-  deleteIncomeItem as apiDeleteIncome,
-  deleteExpenseItem as apiDeleteExpense,
-  deleteSavingsItem as apiDeleteSavings,
+  deleteTransaction,
+  getBudgetSummary,
   type BudgetItem,
-  type NewBudgetItem,
+  type BudgetSummary,
+  type BudgetTarget,
+  type BudgetTargetValues,
+  type UpdateTransactionPayload,
+  saveBudgetTarget,
+  updateTransaction,
 } from "@/api/budget";
+import { getTransactions, type Transaction } from "@/api/transactions";
 import PageHeader from "@/components/dashboard/shared/PageHeader";
+import { toast } from "sonner";
+import {
+  DEFAULT_PERIOD,
+  formatMonth,
+  monthPeriod,
+  periodMonth,
+  shiftMonth,
+} from "@/lib/periods";
 
-type BudgetType = "income" | "expenses" | "savings";
+function toBudgetItem(t: Transaction): BudgetItem {
+  return {
+    id: t.item_id,
+    type: t.type === "expense" ? "expenses" : t.type,
+    // Empty = no category; ItemCard shows the translated "Uncategorized"
+    category: t.category_name ?? "",
+    categoryId: t.category_id ?? undefined,
+    amount: Number(t.amount),
+    date: t.date,
+    notes: t.notes ?? undefined,
+  };
+}
 
-const CATEGORIES_BY_TYPE: Record<
-  BudgetType,
-  { value: string; label: string }[]
-> = {
-  income: [
-    { value: "salary", label: "Salary" },
-    { value: "freelance", label: "Freelance" },
-    { value: "investments", label: "Investments" },
-    { value: "bonus", label: "Bonus" },
-    { value: "rental", label: "Rental Income" },
-    { value: "dividends", label: "Dividends" },
-    { value: "other", label: "Other" },
-  ],
-  expenses: [
-    { value: "groceries", label: "Groceries" },
-    { value: "rent", label: "Rent / Mortgage" },
-    { value: "utilities", label: "Utilities" },
-    { value: "transport", label: "Transport" },
-    { value: "healthcare", label: "Healthcare" },
-    { value: "entertainment", label: "Entertainment" },
-    { value: "invoice", label: "Invoice" },
-    { value: "subscriptions", label: "Subscriptions" },
-    { value: "dining", label: "Dining Out" },
-    { value: "other", label: "Other" },
-  ],
-  savings: [
-    { value: "emergency", label: "Emergency Fund" },
-    { value: "retirement", label: "Retirement" },
-    { value: "vacation", label: "Vacation" },
-    { value: "education", label: "Education" },
-    { value: "investment", label: "Investment Fund" },
-    { value: "house", label: "House / Property" },
-    { value: "other", label: "Other" },
-  ],
+const EMPTY_TARGET: BudgetTarget = {
+  income: null,
+  expense: null,
+  savings: null,
+  net: null,
 };
+
+function SummaryCardsSkeleton() {
+  return (
+    <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory pb-2 md:grid md:grid-cols-2 lg:grid-cols-4 md:overflow-visible md:pb-0">
+      {[0, 1, 2, 3].map((i) => (
+        <Card
+          key={i}
+          className="border min-w-[80%] snap-center shrink-0 md:min-w-0 md:shrink"
+        >
+          <CardHeader>
+            <Skeleton className="h-5 w-24" />
+          </CardHeader>
+          <CardContent>
+            <Skeleton className="h-6 w-20" />
+            <div className="mt-3 space-y-1">
+              <div className="flex justify-between">
+                <Skeleton className="h-3 w-20" />
+                <Skeleton className="h-3 w-14" />
+              </div>
+              <Skeleton className="h-1.5 w-full rounded-full" />
+            </div>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  );
+}
+
+function ItemListSkeleton() {
+  return (
+    <Card>
+      <CardHeader>
+        <Skeleton className="h-5 w-28" />
+        <Skeleton className="mt-1 h-3 w-40" />
+      </CardHeader>
+      <CardContent className="space-y-1">
+        {[0, 1, 2, 3, 4].map((i) => (
+          <div
+            key={i}
+            className="flex items-center gap-3 rounded-lg border border-border/50 px-3 py-1.5"
+          >
+            <Skeleton className="size-9 shrink-0 rounded-lg" />
+            <div className="flex min-w-0 flex-col gap-1">
+              <Skeleton className="h-4 w-24" />
+              <Skeleton className="h-3 w-16" />
+            </div>
+            <Skeleton className="ml-auto h-4 w-14 shrink-0" />
+          </div>
+        ))}
+      </CardContent>
+    </Card>
+  );
+}
 
 export interface Section {
   title: string;
@@ -72,189 +131,188 @@ export interface Section {
   total: number;
   section: "income" | "expenses" | "savings";
   onDelete: (id: string) => void;
-  onEdit: (id: string, payload: Partial<NewBudgetItem>) => void;
+  onEdit: (id: string, payload: UpdateTransactionPayload) => void;
 }
 
 export default function BudgetPage() {
-  const [incomeItems, setIncomeItems] = useState<BudgetItem[]>([]);
-  const [expenseItems, setExpenseItems] = useState<BudgetItem[]>([]);
-  const [savingsItems, setSavingsItems] = useState<BudgetItem[]>([]);
+  const { t, i18n } = useTranslation();
+  // Cached per tab so refetches and tab switches keep showing the last data
+  // instead of flashing a skeleton; undefined = not loaded yet
+  const [itemsByTab, setItemsByTab] = useState<
+    Partial<Record<"income" | "expenses" | "savings", BudgetItem[]>>
+  >({});
+  const [itemsError, setItemsError] = useState<string | null>(null);
+  const [summary, setSummary] = useState<BudgetSummary | null>(null);
+  const [summaryLoaded, setSummaryLoaded] = useState(false);
+  // Bumped after any change so the list and the totals are fetched again
+  const [refreshKey, setRefreshKey] = useState(0);
   const [activeTab, setActiveTab] = useState<"income" | "expenses" | "savings">(
     "income",
   );
-  const [loading, setLoading] = useState(true);
 
   const [showForm, setShowForm] = useState(false);
-  const [openFilters, setOpenFilters] = useState(false);
 
   const [openTargets, setOpenTargets] = useState(false);
-  const [budgetTargets, setBudgetTargets] = useState({
-    income: 8000,
-    expenses: 4000,
-    savings: 1500,
-  });
 
-  const [formData, setFormData] = useState({
-    type: "expenses" as BudgetType,
-    category: "groceries",
-    amount: "",
-    notes: "",
-    date: new Date().toISOString().split("T")[0],
-  });
+  const [openCategories, setOpenCategories] = useState(false);
 
+  // Month the whole page shows (YYYY-MM-01); starts on the overview's default
+  const currentMonth = periodMonth(DEFAULT_PERIOD);
+  const [selectedMonth, setSelectedMonth] = useState(currentMonth);
+  // Current month first, then the 11 before it; later months have no data yet
+  const monthOptions = Array.from({ length: 12 }, (_, i) =>
+    shiftMonth(currentMonth, -i),
+  );
+
+  function changeMonth(month: string) {
+    setSelectedMonth(month);
+    // The cached lists belong to the previous month
+    setItemsByTab({});
+  }
+
+  const refresh = () => setRefreshKey((k) => k + 1);
+
+  // Jump to the tab of the new transaction so it shows up in the list
+  function handleCreated(type: typeof activeTab) {
+    setActiveTab(type);
+    refresh();
+  }
+
+  // Latest 5 transactions of the selected month for the active tab
   useEffect(() => {
-    getBudgetData()
-      .then((res) => {
-        if (res.ok) {
-          setIncomeItems(res.data.income);
-          setExpenseItems(res.data.expenses);
-          setSavingsItems(res.data.savings);
-        }
-      })
-      .finally(() => setLoading(false));
-  }, []);
+    let ignore = false;
 
-  const totalIncome = useMemo(
-    () => incomeItems.reduce((s, i) => s + i.amount, 0),
-    [incomeItems],
-  );
-  const totalExpenses = useMemo(
-    () => expenseItems.reduce((s, i) => s + i.amount, 0),
-    [expenseItems],
-  );
-  const totalSavings = useMemo(
-    () => savingsItems.reduce((s, i) => s + i.amount, 0),
-    [savingsItems],
-  );
-  const netBalance = useMemo(
-    () => totalIncome - totalExpenses,
-    [totalIncome, totalExpenses],
-  );
+    async function fetchTransactions() {
+      const [year, month] = selectedMonth.split("-").map(Number);
+      const res = await getTransactions({
+        type: activeTab,
+        limit: 5,
+        sort: "newest",
+        year,
+        month,
+      });
+      if (ignore) return;
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    const amount = Number(formData.amount);
-    if (!amount || Number.isNaN(amount)) return;
-
-    const payload: NewBudgetItem = {
-      category: formData.category,
-      amount,
-      notes: formData.notes.trim(),
-      date: formData.date,
-    };
-
-    if (formData.type === "income") {
-      const res = await apiAddIncome(payload);
-      if (res.ok) setIncomeItems((prev) => [...prev, res.data]);
-    } else if (formData.type === "expenses") {
-      const res = await apiAddExpense(payload);
-      if (res.ok) setExpenseItems((prev) => [...prev, res.data]);
-    } else {
-      const res = await apiAddSavings(payload);
-      if (res.ok) setSavingsItems((prev) => [...prev, res.data]);
+      if (res.ok) {
+        setItemsByTab((prev) => ({
+          ...prev,
+          [activeTab]: res.data.transactions.map(toBudgetItem),
+        }));
+        setItemsError(null);
+      } else {
+        setItemsError(res.error);
+      }
     }
 
-    setFormData((prev) => ({
-      ...prev,
-      category: CATEGORIES_BY_TYPE[prev.type][0].value,
-      amount: "",
-      notes: "",
-      date: new Date().toISOString().split("T")[0],
-    }));
+    fetchTransactions();
+    return () => {
+      ignore = true;
+    };
+  }, [activeTab, refreshKey, selectedMonth]);
+
+  // Totals come from the summary endpoint, not from the 5 items shown
+  useEffect(() => {
+    let ignore = false;
+
+    async function fetchSummary() {
+      const res = await getBudgetSummary(monthPeriod(selectedMonth));
+      if (ignore) return;
+
+      // Keep the previous totals if a refetch fails
+      if (res.ok) setSummary(res.data);
+      setSummaryLoaded(true);
+    }
+
+    fetchSummary();
+    return () => {
+      ignore = true;
+    };
+  }, [refreshKey, selectedMonth]);
+
+  const totalIncome = summary?.income ?? 0;
+  const totalExpenses = summary?.expense ?? 0;
+  const totalSavings = summary?.savings ?? 0;
+  const netBalance = summary?.net ?? totalIncome - totalExpenses;
+  const target = summary?.target ?? EMPTY_TARGET;
+  const progress = summary?.progress ?? EMPTY_TARGET;
+
+  // The summary is fetched again so target and progress come from the backend
+  async function saveTargets(values: BudgetTargetValues): Promise<boolean> {
+    try {
+      await saveBudgetTarget(selectedMonth, values);
+      toast.success(t("dashboard.budget.targets.saved"));
+      refresh();
+      return true;
+    } catch {
+      toast.error(t("dashboard.budget.targets.saveError"));
+      return false;
+    }
   }
 
-  async function deleteIncomeItem(id: string) {
-    const res = await apiDeleteIncome(id);
-    if (res.ok) setIncomeItems((prev) => prev.filter((i) => i.id !== id));
-  }
-  async function deleteExpenseItem(id: string) {
-    const res = await apiDeleteExpense(id);
-    if (res.ok) setExpenseItems((prev) => prev.filter((i) => i.id !== id));
-  }
-  async function deleteSavingsItem(id: string) {
-    const res = await apiDeleteSavings(id);
-    if (res.ok) setSavingsItems((prev) => prev.filter((i) => i.id !== id));
+  async function deleteItem(id: string) {
+    try {
+      await deleteTransaction(id);
+      toast.success(t("dashboard.budget.toasts.deleted"));
+      refresh();
+    } catch {
+      toast.error(t("dashboard.budget.toasts.deleteError"));
+    }
   }
 
-  async function editIncomeItem(id: string, payload: Partial<NewBudgetItem>) {
-    const res = await apiEditIncome(id, payload);
-    if (res.ok)
-      setIncomeItems((prev) => prev.map((i) => (i.id === id ? res.data : i)));
-  }
-  async function editExpenseItem(id: string, payload: Partial<NewBudgetItem>) {
-    const res = await apiEditExpense(id, payload);
-    if (res.ok)
-      setExpenseItems((prev) => prev.map((i) => (i.id === id ? res.data : i)));
-  }
-  async function editSavingsItem(id: string, payload: Partial<NewBudgetItem>) {
-    const res = await apiEditSavings(id, payload);
-    if (res.ok)
-      setSavingsItems((prev) => prev.map((i) => (i.id === id ? res.data : i)));
+  async function editItem(id: string, payload: UpdateTransactionPayload) {
+    try {
+      await updateTransaction(id, payload);
+      toast.success(t("dashboard.budget.toasts.updated"));
+      refresh();
+    } catch {
+      toast.error(t("dashboard.budget.toasts.updateError"));
+    }
   }
 
-  const sections = [
-    {
-      title: "Income",
-      items: incomeItems,
-      total: totalIncome,
-      section: "income" as const,
-      onDelete: deleteIncomeItem,
-      onEdit: editIncomeItem,
-    },
-    {
-      title: "Expenses",
-      items: expenseItems,
-      total: totalExpenses,
-      section: "expenses" as const,
-      onDelete: deleteExpenseItem,
-      onEdit: editExpenseItem,
-    },
-    {
-      title: "Savings",
-      items: savingsItems,
-      total: totalSavings,
-      section: "savings" as const,
-      onDelete: deleteSavingsItem,
-      onEdit: editSavingsItem,
-    },
-  ];
+  const totalsByType = {
+    income: totalIncome,
+    expenses: totalExpenses,
+    savings: totalSavings,
+  };
 
-  const incomePct = Math.min((totalIncome / budgetTargets.income) * 100, 100);
-  const expensesPct = Math.min(
-    (totalExpenses / budgetTargets.expenses) * 100,
-    100,
+  const sections: Section[] = (["income", "expenses", "savings"] as const).map(
+    (section) => ({
+      title: t(`dashboard.common.${section}`),
+      section,
+      // Only the active tab is rendered, so it is the only one that needs items
+      items: itemsByTab[section] ?? [],
+      total: totalsByType[section],
+      onDelete: deleteItem,
+      onEdit: editItem,
+    }),
   );
-  const savingsPct = Math.min(
-    (totalSavings / budgetTargets.savings) * 100,
-    100,
-  );
-  const savingsRate =
-    totalIncome > 0 ? Math.min((netBalance / totalIncome) * 100, 100) : 0;
-
-  if (loading) {
-    return <Spinner />;
-  }
 
   return (
     <section className="relative py-4 px-4 max-w-7xl mx-auto">
       <PageHeader
-        title="Budget Overview"
-        subtitle="Track income, expenses, savings and add new budget items quickly."
+        title={t("dashboard.budget.title")}
+        subtitle={t("dashboard.budget.subtitle")}
       >
         {" "}
         <div className="flex flex-col md:items-end">
           <div className="flex flex-wrap md:flex-row md:items-center gap-2 mt-4">
-            <Button
-              variant="outline"
-              size="sm"
-              className="cursor-pointer gap-2"
-              data-active="true"
-              onClick={() => setOpenFilters((prev) => !prev)}
-            >
-              <SlidersHorizontal size={16} />
-              Filters
-              <ChevronDown size={14} className="opacity-60" />
-            </Button>
+            <Select value={selectedMonth} onValueChange={changeMonth}>
+              <SelectTrigger
+                size="sm"
+                className="w-44 cursor-pointer"
+                aria-label={t("dashboard.budget.selectMonth")}
+              >
+                <CalendarDays size={16} className="text-muted-foreground" />
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {monthOptions.map((month) => (
+                  <SelectItem key={month} value={month}>
+                    {formatMonth(month, i18n.language)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
 
             <Button
               variant="outline"
@@ -263,7 +321,17 @@ export default function BudgetPage() {
               className="cursor-pointer gap-2"
             >
               <Target size={16} />
-              Your Target
+              {t("dashboard.budget.yourTarget")}
+            </Button>
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setOpenCategories(true)}
+              className="cursor-pointer gap-2"
+            >
+              <Tags size={16} />
+              {t("dashboard.budget.categories.button")}
             </Button>
 
             <Button
@@ -273,7 +341,9 @@ export default function BudgetPage() {
               size="sm"
             >
               <Plus size={16} />
-              {showForm ? "Close" : "Add new entry"}
+              {showForm
+                ? t("dashboard.budget.close")
+                : t("dashboard.budget.addEntry")}
             </Button>
           </div>
         </div>
@@ -281,17 +351,18 @@ export default function BudgetPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="col-span-2 space-y-3">
-          <SummaryCards
-            totalIncome={totalIncome}
-            incomePct={incomePct}
-            budgetTargets={budgetTargets}
-            totalExpenses={totalExpenses}
-            expensesPct={expensesPct}
-            totalSavings={totalSavings}
-            savingsPct={savingsPct}
-            netBalance={netBalance}
-            savingsRate={savingsRate}
-          />
+          {!summaryLoaded ? (
+            <SummaryCardsSkeleton />
+          ) : (
+            <SummaryCards
+              totalIncome={totalIncome}
+              totalExpenses={totalExpenses}
+              totalSavings={totalSavings}
+              netBalance={netBalance}
+              target={target}
+              progress={progress}
+            />
+          )}
 
           <div className="grid items-start gap-6">
             <Tabs
@@ -313,10 +384,20 @@ export default function BudgetPage() {
 
               {sections.map((section) => (
                 <TabsContent key={section.section} value={section.section}>
-                  <ItemCard
-                    section={section}
-                    onShowForm={() => setShowForm(true)}
-                  />
+                  {itemsByTab[section.section] ? (
+                    <ItemCard
+                      section={section}
+                      onShowForm={() => setShowForm(true)}
+                    />
+                  ) : itemsError ? (
+                    <Card>
+                      <CardContent className="py-6 text-sm text-destructive">
+                        {t("dashboard.budget.loadError")}
+                      </CardContent>
+                    </Card>
+                  ) : (
+                    <ItemListSkeleton />
+                  )}
                 </TabsContent>
               ))}
             </Tabs>
@@ -338,9 +419,11 @@ export default function BudgetPage() {
           <aside className="fixed inset-y-0 right-0 z-50 max-w-md overflow-y-auto bg-background shadow-2xl border-l border-muted/30 md:max-w-xl lg:max-w-2xl">
             <div className="flex items-center justify-between border-b border-muted/20 px-6 py-4">
               <div>
-                <h2 className="text-xl font-semibold">Add a budget item</h2>
+                <h2 className="text-xl font-semibold">
+                  {t("dashboard.budget.form.title")}
+                </h2>
                 <p className="text-sm text-muted-foreground">
-                  Choose whether it's income, expense or savings.
+                  {t("dashboard.budget.form.subtitle")}
                 </p>
               </div>
               <Button
@@ -348,35 +431,45 @@ export default function BudgetPage() {
                 onClick={() => setShowForm(false)}
                 className="cursor-pointer"
               >
-                Close
+                {t("dashboard.budget.close")}
               </Button>
             </div>
 
             <div className="p-6">
-              <BudgetForm
-                formData={formData}
-                setFormData={setFormData}
-                handleSubmit={handleSubmit}
-              />
+              <BudgetForm onCreated={handleCreated} />
             </div>
           </aside>
         </>
       )}
 
-      {openFilters && (
-        <>
-          <div
-            className="fixed inset-0 z-30"
-            onClick={() => setOpenFilters(false)}
-          />
-          <BudgetFilters />
-        </>
-      )}
+      <Sheet open={openCategories} onOpenChange={setOpenCategories}>
+        <SheetContent className="w-full overflow-y-auto sm:max-w-lg">
+          <SheetHeader>
+            <SheetTitle>{t("dashboard.settings.categories.title")}</SheetTitle>
+            <SheetDescription>
+              {t("dashboard.settings.categories.description")}
+            </SheetDescription>
+          </SheetHeader>
+          <div className="px-4">
+            {/* Opens on the active tab; a delete can change the list names */}
+            <CategoriesManager initialType={activeTab} onChange={refresh} />
+          </div>
+          <SheetFooter>
+            <Button variant="link" size="sm" asChild className="gap-1.5">
+              <Link to="/dashboard/settings?tab=categories">
+                <ExternalLink size={14} />
+                {t("dashboard.budget.categories.openSettings")}
+              </Link>
+            </Button>
+          </SheetFooter>
+        </SheetContent>
+      </Sheet>
 
       {openTargets && (
         <TargetsPanel
-          targets={budgetTargets}
-          onSave={setBudgetTargets}
+          targets={target}
+          month={selectedMonth}
+          onSave={saveTargets}
           onClose={() => setOpenTargets(false)}
         />
       )}

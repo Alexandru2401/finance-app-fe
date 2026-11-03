@@ -1,14 +1,12 @@
+import { useEffect, useState } from "react";
+import { getBudgetSummary, type BudgetSummary } from "@/api/budget";
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Spinner } from "@/components/ui/spinner";
-import { TrendingUp } from "lucide-react";
-import { Pie, PieChart } from "recharts";
 import {
   ChartContainer,
   ChartLegend,
@@ -17,24 +15,106 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart";
-import type { BudgetSummary } from "@/api/budget";
+import { Skeleton } from "@/components/ui/skeleton";
+import CardError from "@/components/dashboard/shared/CardError";
+import EmptyState from "@/components/dashboard/shared/EmptyState";
+import type { Period } from "@/lib/periods";
+import { PieChart as PieChartIcon } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { Pie, PieChart } from "recharts";
 
 interface Props {
-  summary: BudgetSummary | null;
-  loading: boolean;
+  period: Period;
 }
 
-const chartConfig = {
-  income: { label: "Income", color: "var(--chart-2)" },
-  spendings: { label: "Spendings", color: "var(--chart-5)" },
-  savings: { label: "Savings", color: "var(--chart-1)" },
-} satisfies ChartConfig;
+function BalanceCardHeader({ period }: { period: Period }) {
+  const { t } = useTranslation();
 
-export default function BalanceOverview({ summary, loading }: Props) {
+  return (
+    <CardHeader>
+      <CardTitle className="text-base">
+        {t("dashboard.overview.breakdown.title")}
+      </CardTitle>
+      <CardDescription className="text-muted-foreground">
+        {t("dashboard.overview.breakdown.description")} ·{" "}
+        {t(`dashboard.periods.${period}`)}
+      </CardDescription>
+    </CardHeader>
+  );
+}
+
+export default function BalanceOverview({ period }: Props) {
+  const { t } = useTranslation();
+
+  const chartConfig = {
+    income: { label: t("dashboard.common.income"), color: "var(--chart-2)" },
+    spendings: {
+      label: t("dashboard.common.expenses"),
+      color: "var(--chart-5)",
+    },
+    savings: { label: t("dashboard.common.savings"), color: "var(--chart-1)" },
+  } satisfies ChartConfig;
+
+  const [attempt, setAttempt] = useState(0);
+  const [result, setResult] = useState<{
+    key: string;
+    summary: BudgetSummary | null;
+  } | null>(null);
+  // Changes on every new request; results from older requests are ignored
+  const key = `${period}-${attempt}`;
+
+  useEffect(() => {
+    let cancelled = false;
+    getBudgetSummary(period)
+      .then((res) => res.data)
+      .catch(() => null)
+      .then((data) => !cancelled && setResult({ key, summary: data }));
+    return () => {
+      cancelled = true;
+    };
+  }, [key, period]);
+
+  const loading = result?.key !== key;
+  const summary = loading ? null : (result?.summary ?? null);
+  const error = !loading && !summary;
+  const onRetry = () => setAttempt((n) => n + 1);
+
+  if (!loading && error) {
+    return (
+      <Card className="flex flex-col">
+        <BalanceCardHeader period={period} />
+        <CardError
+          message={t("dashboard.overview.breakdown.error")}
+          onRetry={onRetry}
+        />
+      </Card>
+    );
+  }
+
   if (loading || !summary) {
     return (
-      <Card className="flex flex-col items-center justify-center min-h-80">
-        <Spinner />
+      <Card className="flex flex-col">
+        <CardHeader>
+          <Skeleton className="h-4 w-32" />
+          <Skeleton className="mt-2 h-3 w-40" />
+        </CardHeader>
+        <CardContent className="flex flex-1 items-center justify-center pb-0">
+          <Skeleton className="mx-auto aspect-square max-h-62.5 w-full rounded-full" />
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (summary.income === 0 && summary.expense === 0 && summary.savings === 0) {
+    return (
+      <Card className="flex flex-col">
+        <BalanceCardHeader period={period} />
+        <CardContent className="flex flex-1">
+          <EmptyState
+            icon={PieChartIcon}
+            message={t("dashboard.overview.breakdown.empty")}
+          />
+        </CardContent>
       </Card>
     );
   }
@@ -42,35 +122,30 @@ export default function BalanceOverview({ summary, loading }: Props) {
   const chartData = [
     {
       budgetType: "income",
-      money: summary.totalIncome,
+      money: summary.income,
       fill: "var(--chart-2)",
     },
     {
       budgetType: "spendings",
-      money: summary.totalExpenses,
+      money: summary.expense,
       fill: "var(--chart-5)",
     },
     {
       budgetType: "savings",
-      money: summary.totalSavings,
+      money: summary.savings,
       fill: "var(--chart-1)",
     },
   ];
 
   return (
     <Card className="flex flex-col">
-      <CardHeader>
-        <CardTitle className="text-base">Balance breakdown</CardTitle>
-        <CardDescription className="text-muted-foreground">
-          Income, spendings and savings
-        </CardDescription>
-      </CardHeader>
+      <BalanceCardHeader period={period} />
       <CardContent className="flex-1 pb-0">
         <ChartContainer
           config={chartConfig}
           className="mx-auto aspect-square max-h-62.5"
           role="img"
-          aria-label="Breakdown of income, spendings and savings"
+          aria-label={t("dashboard.overview.breakdown.chartLabel")}
         >
           <PieChart>
             <ChartTooltip
@@ -85,15 +160,6 @@ export default function BalanceOverview({ summary, loading }: Props) {
           </PieChart>
         </ChartContainer>
       </CardContent>
-      <CardFooter className="flex-col items-start gap-1 text-sm">
-        <p className="flex items-center gap-1 font-medium">
-          Net margin {summary.savingsRate}%
-          <TrendingUp className="h-4 w-4" aria-hidden="true" />
-        </p>
-        <p className="text-muted-foreground">
-          Total net balance: ${summary.netBalance.toLocaleString()}
-        </p>
-      </CardFooter>
     </Card>
   );
 }

@@ -80,11 +80,6 @@ export function LoginForm({
     setIsSubmiting(true);
 
     try {
-      await new Promise<void>((resolve) => {
-        setTimeout(() => {
-          resolve();
-        }, 2000);
-      });
       const response = await loginUser(formData.email, formData.password);
 
       console.log("Raspuns request din form:", response);

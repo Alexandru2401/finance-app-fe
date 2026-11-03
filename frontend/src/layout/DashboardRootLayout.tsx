@@ -1,4 +1,3 @@
-import ProfileBadge from "@/components/dashboard/budget/ProfileBadge";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { BudgetStoreProvider } from "@/store/dashboardStore/BudgetStoreContext";
 import { Outlet } from "react-router";
@@ -14,9 +13,8 @@ export default function DashboardRootLayout() {
           <DashboardMainNavigation />
 
           <main className="flex-1 overflow-y-auto md:px-4 py-6 bg-accent">
-            <div className="text-right mb-2">
-              <ProfileBadge />
-            </div>
+            {/* Mobile: room for the fixed top bar (h-14) from DashboardMainNavigation */}
+            <div className="h-14 md:hidden" aria-hidden="true" />
             <Suspense fallback={<Spinner />}>
               <Outlet />
             </Suspense>

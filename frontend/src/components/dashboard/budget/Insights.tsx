@@ -6,45 +6,52 @@ import {
   Target,
   TrendingUp,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { useCurrency } from "@/hooks/useCurrency";
 
-const insights = [
-  {
-    icon: <Target className="h-4 w-4" />,
-    tone: "text-finance-success",
-    label: "You're doing great!",
-    value: `You've saved 222% of your goal this month.`,
-  },
-  {
-    icon: <Home className="h-4 w-4" />,
-    tone: "text-finance-danger",
-    label: "Top expense",
-    value: "1000",
-  },
-  {
-    icon: <TrendingUp className="h-4 w-4" />,
-    tone: "text-finance-success",
-    label: "Income trend",
-    value: "50% vs last month",
-  },
-  {
-    icon: <PiggyBank className="h-4 w-4" />,
-    tone: "text-finance-primary",
-    label: "Savings rate",
-    value: `15% of income`,
-  },
-  {
-    icon: <Calendar className="h-4 w-4" />,
-    tone: "text-finance-purple",
-    label: "Days left in period",
-    value: `2 days`,
-  },
-];
 export default function Insights() {
+  const { t } = useTranslation();
+  const { format } = useCurrency();
+
+  // Static values for now
+  const insights = [
+    {
+      icon: <Target className="h-4 w-4" />,
+      tone: "text-finance-success",
+      label: t("dashboard.budget.insights.doingGreat"),
+      value: t("dashboard.budget.insights.doingGreatValue", { pct: 222 }),
+    },
+    {
+      icon: <Home className="h-4 w-4" />,
+      tone: "text-finance-danger",
+      label: t("dashboard.budget.insights.topExpense"),
+      value: format(1000),
+    },
+    {
+      icon: <TrendingUp className="h-4 w-4" />,
+      tone: "text-finance-success",
+      label: t("dashboard.budget.insights.incomeTrend"),
+      value: t("dashboard.budget.insights.incomeTrendValue", { pct: 50 }),
+    },
+    {
+      icon: <PiggyBank className="h-4 w-4" />,
+      tone: "text-finance-primary",
+      label: t("dashboard.budget.insights.savingsRate"),
+      value: t("dashboard.budget.insights.savingsRateValue", { pct: 15 }),
+    },
+    {
+      icon: <Calendar className="h-4 w-4" />,
+      tone: "text-finance-purple",
+      label: t("dashboard.budget.insights.daysLeft"),
+      value: t("dashboard.budget.insights.daysLeftValue", { count: 2 }),
+    },
+  ];
+
   return (
     <div className="rounded-xl border bg-card p-4">
       <div className="mb-3 flex items-center gap-2 text-sm font-medium text-foreground">
         <Lightbulb className="h-4 w-4 text-finance-warning" />
-        Insights
+        {t("dashboard.budget.insights.title")}
       </div>
       <div className="flex flex-col gap-2">
         {insights.map((i) => (

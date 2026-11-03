@@ -23,7 +23,8 @@
     "ro": "Română",
     "roHint": "Romanian",
     "en": "English",
-    "enHint": "English"
+    "enHint": "English",
+    "saveError": "Could not save the language on your account."
   },
   "home": {
     "hero": {
@@ -796,6 +797,542 @@
           "Each keeps a personal allowance, and everything else goes into common categories and one savings goal: the down payment for an apartment.",
           "Two years later, they moved into their first home. \"Seeing the goal grow together every month kept us motivated.\""
         ]
+      }
+    }
+  },
+  "dashboard": {
+    "periods": {
+      "this-month": "This month",
+      "last-month": "Last month",
+      "last-3": "Last 3 months",
+      "last-6": "Last 6 months",
+      "last-12": "Last 12 months"
+    },
+    "common": {
+      "seeAll": "See all",
+      "seeDetails": "See details",
+      "tryAgain": "Try again",
+      "loadError": "Could not load data.",
+      "uncategorized": "Uncategorized",
+      "income": "Income",
+      "expenses": "Expenses",
+      "savings": "Savings"
+    },
+    "overview": {
+      "welcome": "Welcome back, {{name}}!",
+      "defaultUser": "User",
+      "subtitle": "Take a look over your financial dashboard.",
+      "selectPeriod": "Select period",
+      "onboarding": {
+        "title": "Let's get your finances organized",
+        "description": "Add your first transaction to see your financial insights.",
+        "addTransaction": "Add transaction"
+      },
+      "netBalance": {
+        "title": "Net balance · {{period}}",
+        "definition": "Income minus expenses for the selected period",
+        "margin": "{{value}}% of income",
+        "allTime": "All-time balance: {{amount}}",
+        "cashFlow": "Cash flow",
+        "sparklineCaption": "Cash flow · {{period}}",
+        "sparklineLabel": "Monthly cash flow (income minus expenses): {{values}}",
+        "error": "Could not load your balance."
+      },
+      "breakdown": {
+        "title": "Balance breakdown",
+        "description": "Income, spendings and savings",
+        "chartLabel": "Breakdown of income, spendings and savings",
+        "empty": "No transactions recorded for this period.",
+        "error": "Could not load the breakdown."
+      },
+      "topSpendings": {
+        "title": "Top Spendings",
+        "description": "Your biggest expenses",
+        "empty": "No expenses recorded for this period.",
+        "error": "Could not load your top spendings."
+      },
+      "trend": {
+        "title": "Budget Trend",
+        "description": "Income vs Expenses",
+        "chartLabel": "Area chart of income and expenses, {{period}}",
+        "notEnoughData": "The trend needs at least 2 months of data.",
+        "pickLongerPeriod": "Pick a longer period to see it.",
+        "error": "Could not load the budget trend.",
+        "empty": "Your financial trends will appear here once you add transactions."
+      },
+      "recentTransactions": {
+        "title": "Recent Transactions",
+        "description": "Your latest financial transactions.",
+        "empty": "No transactions recorded yet.",
+        "error": "Could not load your transactions.",
+        "type": "Type",
+        "category": "Category",
+        "date": "Date",
+        "amount": "Amount",
+        "types": {
+          "income": "Income",
+          "expense": "Expense",
+          "savings": "Savings"
+        }
+      }
+    },
+    "budget": {
+      "title": "Budget Overview",
+      "subtitle": "Track income, expenses, savings and add new budget items quickly.",
+      "selectMonth": "Select month",
+      "yourTarget": "Your Target",
+      "addEntry": "Add new entry",
+      "close": "Close",
+      "loadError": "Could not load transactions.",
+      "form": {
+        "title": "Add a budget item",
+        "subtitle": "Choose whether it's income, expense or savings.",
+        "type": "Type",
+        "selectType": "Select type",
+        "types": {
+          "income": "Income",
+          "expenses": "Expense",
+          "savings": "Savings"
+        },
+        "category": "Category",
+        "addCategory": "Add new category",
+        "newCategory": "New category",
+        "newCategoryPlaceholder": "e.g. Gym",
+        "add": "Add",
+        "loadingCategories": "Loading categories...",
+        "selectCategory": "Select category",
+        "amount": "Amount",
+        "date": "Date",
+        "pickDate": "Pick a date",
+        "notes": "Notes",
+        "notesPlaceholder": "Optional notes about this entry...",
+        "saving": "Saving...",
+        "save": "Save item",
+        "errors": {
+          "categoryNameRequired": "Please enter a category name.",
+          "categoryExists": "This category already exists.",
+          "categoryRequired": "Category is required.",
+          "amountRequired": "Amount is required.",
+          "amountInvalid": "Please enter a valid amount.",
+          "amountPositive": "Amount must be greater than 0.",
+          "notesTooLong": "Notes can't be longer than {{max}} characters."
+        },
+        "toasts": {
+          "categoryAdded": "Category \"{{name}}\" added.",
+          "categoryError": "Could not create category.",
+          "categoriesError": "Could not load categories.",
+          "added": "Budget item added successfully!",
+          "addError": "Could not save the item. Please try again."
+        }
+      },
+      "items": {
+        "summary_one": "Total: {{total}} · {{count}} item",
+        "summary_other": "Total: {{total}} · {{count}} items",
+        "empty": "No entries yet.",
+        "addEntry": "Add entry",
+        "addMore": "Add more items",
+        "viewDetails": "View details",
+        "edit": "Edit",
+        "delete": "Delete",
+        "detailsTitle": "Item details",
+        "entryOf": "{{type}} entry",
+        "category": "Category",
+        "date": "Date",
+        "notes": "Notes",
+        "noNotes": "No notes added.",
+        "close": "Close",
+        "editTitle": "Edit item",
+        "editSubtitle": "Update the details for this {{type}} entry.",
+        "amount": "Amount",
+        "selectCategory": "Select category",
+        "pickDate": "Pick a date",
+        "notesPlaceholder": "Add a note for this item...",
+        "cancel": "Cancel",
+        "saveChanges": "Save changes",
+        "deleteTitle": "Delete item",
+        "deleteConfirm": "Are you sure you want to delete <bold>{{category}}</bold> ({{amount}})? The action cannot be undone."
+      },
+      "summary": {
+        "netBalance": "Net balance",
+        "noTarget": "No target set",
+        "ofTarget": "{{pct}}% of target",
+        "ofLimit": "{{pct}}% of limit",
+        "ofGoal": "{{pct}}% of goal"
+      },
+      "targets": {
+        "title": "Set your targets for {{month}}",
+        "income": "Income target",
+        "expense": "Expenses limit",
+        "savings": "Savings goal",
+        "showHistory": "View target history",
+        "hideHistory": "Hide target history",
+        "cancel": "Cancel",
+        "saving": "Saving...",
+        "save": "Save targets",
+        "saved": "Targets saved.",
+        "saveError": "Could not save targets."
+      },
+      "history": {
+        "title": "Target history",
+        "loadError": "Could not load target history.",
+        "empty": "No targets saved yet.",
+        "download": "Download",
+        "month": "Month",
+        "net": "Net"
+      },
+      "toasts": {
+        "deleted": "Transaction deleted.",
+        "deleteError": "Could not delete transaction.",
+        "updated": "Transaction updated.",
+        "updateError": "Could not update transaction."
+      },
+      "extraInfo": {
+        "income": {
+          "title": "Recurring income sources",
+          "badge": "Recurring"
+        },
+        "expenses": {
+          "title": "Fixed monthly expenses",
+          "badge": "Recurring"
+        },
+        "savings": {
+          "title": "Savings goals",
+          "badge": "Goals"
+        },
+        "monthlyTotal": "Monthly total:",
+        "items": {
+          "salary": "Salary",
+          "investments": "Investments",
+          "internet": "Internet",
+          "rent": "Rent",
+          "utilities": "Utilities",
+          "emergency": "Emergency fund",
+          "vacation": "Vacation"
+        }
+      },
+      "insights": {
+        "title": "Insights",
+        "doingGreat": "You're doing great!",
+        "doingGreatValue": "You've saved {{pct}}% of your goal this month.",
+        "topExpense": "Top expense",
+        "incomeTrend": "Income trend",
+        "incomeTrendValue": "{{pct}}% vs last month",
+        "savingsRate": "Savings rate",
+        "savingsRateValue": "{{pct}}% of income",
+        "daysLeft": "Days left in period",
+        "daysLeftValue_one": "{{count}} day",
+        "daysLeftValue_other": "{{count}} days"
+      },
+      "categories": {
+        "button": "Categories",
+        "openSettings": "Open in Settings"
+      }
+    },
+    "transactions": {
+      "title": "Transactions",
+      "subtitle": "Take a look over all your transactions.",
+      "add": "Add transaction",
+      "deleted": "Transaction deleted.",
+      "deleteError": "Could not delete transaction.",
+      "updated": "Transaction updated.",
+      "updateError": "Could not update transaction.",
+      "details": {
+        "title": "Transaction details",
+        "subtitle": "Everything about this transaction.",
+        "noNotes": "No notes added.",
+        "addNotes": "Add note",
+        "editNotes": "Edit note",
+        "saveNotes": "Save note",
+        "uncategorizedHint": "The category of this transaction was deleted. Pick a new category from Edit to be able to change it.",
+        "close": "Close"
+      },
+      "edit": {
+        "title": "Edit transaction",
+        "subtitle": "Change the type, amount, category, date or note.",
+        "selectCategory": "Select a category",
+        "categoryRequired": "Select a category.",
+        "invalidAmount": "The amount must be a number greater than 0.",
+        "pickDate": "Pick a date",
+        "notesPlaceholder": "Add a note for this transaction...",
+        "cancel": "Cancel",
+        "save": "Save changes",
+        "saving": "Saving..."
+      },
+      "filters": {
+        "searchPlaceholder": "Search category...",
+        "exportCsv": "Export CSV",
+        "year": "Year",
+        "allYears": "All years",
+        "month": "Month",
+        "allMonths": "All months",
+        "day": "Day",
+        "allDays": "All days",
+        "type": "Type",
+        "allTypes": "All types",
+        "category": "Category",
+        "allCategories": "All categories",
+        "amount": "Amount",
+        "min": "Min",
+        "max": "Max",
+        "maxAmount": "Maximum amount",
+        "clear": "Clear filters",
+        "sort": "Sort",
+        "sorts": {
+          "date-desc": "Date: newest first",
+          "date-asc": "Date: oldest first",
+          "amount-desc": "Amount: high to low",
+          "amount-asc": "Amount: low to high"
+        },
+        "active": "Active:",
+        "chips": {
+          "search": "Search: {{value}}",
+          "year": "Year: {{value}}",
+          "month": "Month: {{value}}",
+          "day": "Day: {{value}}",
+          "type": "Type: {{value}}",
+          "category": "Category: {{value}}",
+          "amount": "Amount: {{value}}"
+        },
+        "remove": {
+          "search": "Remove search filter",
+          "year": "Remove year filter",
+          "month": "Remove month filter",
+          "day": "Remove day filter",
+          "type": "Remove type filter",
+          "category": "Remove category filter",
+          "amount": "Remove amount filter"
+        }
+      },
+      "table": {
+        "caption": "A list of your recent transactions.",
+        "type": "Type",
+        "category": "Category",
+        "date": "Date",
+        "amount": "Amount",
+        "actions": "Actions",
+        "emptyTitle": "No transactions found",
+        "emptyHint": "Try adjusting your filters or search term.",
+        "delete": "Delete transaction",
+        "netTotal": "Net total",
+        "showing": "Showing <bold>{{from}}–{{to}}</bold> of <bold>{{total}}</bold> transactions",
+        "perPage": "Per page",
+        "deleteTitle": "Delete transaction",
+        "deleteConfirm": "Are you sure you want to delete <bold>{{category}}</bold> ({{amount}}, {{date}})? This action cannot be undone.",
+        "cancel": "Cancel",
+        "deleting": "Deleting...",
+        "confirmDelete": "Delete",
+        "notes": "Notes",
+        "view": "View details",
+        "edit": "Edit",
+        "previous": "Previous",
+        "next": "Next",
+        "previousPage": "Go to previous page",
+        "nextPage": "Go to next page"
+      }
+    },
+    "nav": {
+      "sections": {
+        "dashboard": "Dashboard",
+        "budgetInfo": "Budget info",
+        "settings": "Settings"
+      },
+      "overview": "Overview",
+      "budget": "Budget",
+      "transactions": "Transactions",
+      "analytics": "Analytics",
+      "upgrade": "Upgrade to Pro",
+      "profile": "Profile",
+      "search": "Search",
+      "openMenu": "Open menu",
+      "closeMenu": "Close menu",
+      "toggleSidebar": "Toggle sidebar",
+      "logoAlt": "Logo",
+      "settings": "Settings"
+    },
+    "search": {
+      "title": "Search",
+      "hint": "Search transactions, categories or pages",
+      "placeholder": "Search transactions, categories or pages...",
+      "empty": "No results for “{{query}}”",
+      "error": "Search failed. Please try again.",
+      "custom": "Custom",
+      "groups": {
+        "pages": "Pages",
+        "transactions": "Transactions",
+        "categories": "Categories"
+      },
+      "types": {
+        "income": "Income",
+        "expenses": "Expenses",
+        "savings": "Savings"
+      },
+      "shortcuts": {
+        "navigate": "to navigate",
+        "select": "to select",
+        "close": "to close"
+      }
+    },
+    "profileBadge": {
+      "openMenu": "Open profile menu",
+      "avatarAlt": "User avatar",
+      "defaultName": "User",
+      "settings": "Profile settings",
+      "darkMode": "Dark mode",
+      "notifications": "Notifications",
+      "currentPlan": "Current plan",
+      "upgrade": "Upgrade",
+      "viewProfile": "View profile",
+      "help": "Get help",
+      "logout": "Log out",
+      "logoutError": "Could not log out. Please try again.",
+      "plans": {
+        "free": "Free",
+        "pro": "Pro",
+        "business": "Business"
+      },
+      "allSettings": "All settings"
+    },
+    "profile": {
+      "loading": "Loading profile...",
+      "logout": "Log out",
+      "planBadge": "{{plan}} Plan",
+      "accountInfo": "Account Info",
+      "fields": {
+        "email": "Email",
+        "plan": "Current Plan",
+        "memberSince": "Member Since",
+        "currency": "Currency"
+      },
+      "settings": "Settings",
+      "version": "Budget Tracker · v{{version}}",
+      "actions": {
+        "plan": {
+          "label": "Change Plan",
+          "description": "Upgrade or downgrade your subscription"
+        },
+        "email": {
+          "label": "Change Email",
+          "description": "Update your login email address"
+        },
+        "password": {
+          "label": "Change Password",
+          "description": "Keep your account secure"
+        },
+        "addAccount": {
+          "label": "Add an Account",
+          "description": "Link a new bank or wallet account"
+        },
+        "reset": {
+          "label": "Reset Data",
+          "description": "Permanently delete all your transactions"
+        },
+        "delete": {
+          "label": "Delete Account",
+          "description": "Permanently remove your account"
+        }
+      },
+      "emailPanel": {
+        "newEmail": "New Email Address",
+        "submit": "Update email"
+      },
+      "passwordPanel": {
+        "current": "Current Password",
+        "new": "New Password",
+        "confirm": "Confirm New Password",
+        "submit": "Change Password"
+      },
+      "accountPanel": {
+        "name": "Account Name",
+        "namePlaceholder": "e.g. Savings, Revolut, ING",
+        "balance": "Initial Balance (optional)",
+        "submit": "Add Account"
+      },
+      "resetPanel": {
+        "textBefore": "This will permanently delete ",
+        "textHighlight": "all your transactions, budgets, and categories",
+        "textAfter": ". Your account will remain active.",
+        "button": "Reset All Data",
+        "title": "Reset all data?",
+        "description": "This action cannot be undone. All your transactions, budgets and categories will be permanently deleted.",
+        "cancel": "Cancel",
+        "confirm": "Yes, Reset Everything"
+      },
+      "deletePanel": {
+        "textBefore": "Your account and ",
+        "textHighlight": "all associated data",
+        "textAfter": " will be permanently removed. This cannot be undone.",
+        "button": "Delete My Account",
+        "title": "Delete your account?",
+        "description": "This is permanent. Your profile, data and subscription will be immediately and irreversibly deleted.",
+        "cancel": "Cancel",
+        "confirm": "Yes, Delete Account"
+      },
+      "preferencesLink": {
+        "label": "Preferences & categories",
+        "description": "Currency, language, theme and your categories"
+      }
+    },
+    "settings": {
+      "title": "Settings",
+      "subtitle": "App preferences and your categories.",
+      "tabs": {
+        "preferences": "Preferences",
+        "categories": "Categories"
+      },
+      "appearance": {
+        "title": "Appearance",
+        "description": "Language and theme. Also available in the profile menu.",
+        "languageHint": "The language the app is shown in",
+        "darkModeHint": "Use the dark theme"
+      },
+      "general": {
+        "title": "General",
+        "description": "Settings related to your account and amounts.",
+        "notificationsHint": "Get notified about your budget"
+      },
+      "currency": {
+        "title": "Currency",
+        "description": "The currency your amounts are shown and saved in",
+        "save": "Save currency",
+        "saving": "Saving...",
+        "confirmTitle": "Change currency to {{currency}}?",
+        "confirmDescription": "All your amounts (transactions and targets) will be converted from {{from}} to {{to}} at today's BNR exchange rate. Because of rounding, converting back later may not give the exact original amounts.",
+        "cancel": "Cancel",
+        "convert": "Convert",
+        "success": "Currency changed to {{currency}}.",
+        "error": "Could not change the currency.",
+        "unavailable": "Could not change the currency, try again later.",
+        "select": "Select Currency"
+      },
+      "categories": {
+        "title": "Categories",
+        "description": "Add, rename or delete your categories. Default ones cannot be changed.",
+        "newPlaceholder": "New category name",
+        "add": "Add",
+        "custom": "Your categories",
+        "defaults": "Default categories",
+        "emptyCustom": "You have no custom categories yet.",
+        "defaultHint": "Default category, cannot be changed",
+        "rename": "Rename",
+        "save": "Save",
+        "cancel": "Cancel",
+        "delete": "Delete",
+        "deleteTitle": "Delete the \"{{name}}\" category?",
+        "deleteDescription": "Transactions in this category will be left without a category. This cannot be undone.",
+        "deleteConfirm": "Yes, delete",
+        "loadError": "Could not load the categories.",
+        "errors": {
+          "length": "The name must be between {{min}} and {{max}} characters.",
+          "exists": "A category with this name already exists.",
+          "add": "Could not add the category.",
+          "delete": "Could not delete the category.",
+          "rename": "Could not rename the category."
+        },
+        "toasts": {
+          "added": "Category \"{{name}}\" was added.",
+          "deleted": "Category \"{{name}}\" was deleted.",
+          "renamed": "Category renamed to \"{{name}}\"."
+        }
       }
     }
   }

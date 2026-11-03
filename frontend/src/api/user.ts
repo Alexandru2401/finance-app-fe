@@ -1,8 +1,12 @@
 import type { User } from "@/context/AuthContext";
+import type { Currency } from "@/lib/format";
+import type { Language } from "@/i18n";
 import { post, get, patch } from "./client";
 
 interface AuthResponse {
   message: string;
+  // PATCH /auth/user-info sends errors as { error }
+  error?: string;
   success: boolean;
   token?: string;
   user?: User;
@@ -30,6 +34,11 @@ async function createUser(email: string, password: string) {
   return response;
 }
 
+async function getUserInfo() {
+  const response = await get<AuthResponse>("/auth/user-info");
+  return response;
+}
+
 async function checkUserAuthentication() {
   const response = await get<AuthResponse>("/auth/check-me");
   return response;
@@ -40,10 +49,18 @@ async function logoutUser() {
   return response;
 }
 
-async function addUserInfo(username: string, currency: string) {
+// Changing the currency converts all saved amounts on the backend (BNR rate);
+// the response user only has user_id, username, currency and language.
+// Without a language the backend keeps the current one
+async function addUserInfo(
+  username: string,
+  currency: Currency,
+  language?: Language,
+) {
   const response = await patch<AuthResponse>("/auth/user-info", {
     username,
     currency,
+    language,
   });
   return response;
 }
@@ -54,4 +71,5 @@ export {
   checkUserAuthentication,
   logoutUser,
   addUserInfo,
+  getUserInfo,
 };

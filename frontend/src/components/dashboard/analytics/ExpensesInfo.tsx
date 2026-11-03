@@ -20,6 +20,7 @@ import {
     Pin
 } from "lucide-react";
 import { CartesianGrid, Line, LineChart, ReferenceLine, XAxis } from "recharts";
+import { useCurrency } from "@/hooks/useCurrency";
 
 const savingsWithForecast = [
     { month: "Ian", savings: 106, forecast: null },
@@ -86,6 +87,7 @@ const ForecastTooltip = ({ active, payload, label }: any) => {
 
 
 export default function ExpensesInfo() {
+    const { format } = useCurrency();
     return <div className="flex flex-col gap-6 lg:flex-row lg:gap-10">
         <Card className="flex-1">
             <CardHeader>
@@ -111,7 +113,7 @@ export default function ExpensesInfo() {
                             <div className="flex justify-between text-sm">
                                 <span className="text-muted-foreground">{label}</span>
                                 <span className="font-medium tabular-nums">
-                                    ${amount.toLocaleString()}
+                                    {format(amount)}
                                 </span>
                             </div>
                             <div className="h-1.5 w-full rounded-full bg-muted">
@@ -129,7 +131,7 @@ export default function ExpensesInfo() {
                 <p className="text-xs text-muted-foreground">
                     Total fix lunar:{" "}
                     <span className="font-semibold text-foreground tabular-nums">
-                        $1,560
+                        {format(1560)}
                     </span>
                 </p>
             </CardFooter>
@@ -162,7 +164,7 @@ export default function ExpensesInfo() {
                             <div className="flex justify-between text-sm">
                                 <span className="text-muted-foreground">{label}</span>
                                 <span className="font-medium tabular-nums">
-                                    ${amount.toLocaleString()}
+                                    {format(amount)}
                                 </span>
                             </div>
                             <div className="h-1.5 w-full rounded-full bg-finance-warning-bg">
@@ -180,7 +182,7 @@ export default function ExpensesInfo() {
                 <p className="text-xs text-muted-foreground">
                     Total variabil:{" "}
                     <span className="font-semibold tabular-nums text-finance-warning">
-                        $1,560
+                        {format(1560)}
                     </span>{" "}
                     — potențial de reducere
                 </p>

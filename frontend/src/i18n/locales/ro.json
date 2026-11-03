@@ -23,7 +23,8 @@
     "ro": "Română",
     "roHint": "Limba română",
     "en": "English",
-    "enHint": "Limba engleză"
+    "enHint": "Limba engleză",
+    "saveError": "Limba nu a putut fi salvată în cont."
   },
   "home": {
     "hero": {
@@ -796,6 +797,544 @@
           "Fiecare păstrează o sumă personală, iar restul merge în categorii comune și într-un singur obiectiv de economisire: avansul pentru apartament.",
           "Doi ani mai târziu s-au mutat în prima lor casă. „Să vedem cum crește obiectivul în fiecare lună ne-a ținut motivați.”"
         ]
+      }
+    }
+  },
+  "dashboard": {
+    "periods": {
+      "this-month": "Luna aceasta",
+      "last-month": "Luna trecută",
+      "last-3": "Ultimele 3 luni",
+      "last-6": "Ultimele 6 luni",
+      "last-12": "Ultimele 12 luni"
+    },
+    "common": {
+      "seeAll": "Vezi tot",
+      "seeDetails": "Vezi detalii",
+      "tryAgain": "Încearcă din nou",
+      "loadError": "Datele nu au putut fi încărcate.",
+      "uncategorized": "Fără categorie",
+      "income": "Venituri",
+      "expenses": "Cheltuieli",
+      "savings": "Economii"
+    },
+    "overview": {
+      "welcome": "Bine ai revenit, {{name}}!",
+      "defaultUser": "Utilizator",
+      "subtitle": "Aruncă o privire peste situația ta financiară.",
+      "selectPeriod": "Selectează perioada",
+      "onboarding": {
+        "title": "Hai să-ți organizăm finanțele",
+        "description": "Adaugă prima tranzacție ca să vezi analiza situației tale financiare.",
+        "addTransaction": "Adaugă tranzacție"
+      },
+      "netBalance": {
+        "title": "Sold net · {{period}}",
+        "definition": "Venituri minus cheltuieli în perioada aleasă",
+        "margin": "{{value}}% din venituri",
+        "allTime": "Sold total, de la început: {{amount}}",
+        "cashFlow": "Flux de numerar",
+        "sparklineCaption": "Flux de numerar · {{period}}",
+        "sparklineLabel": "Flux de numerar lunar (venituri minus cheltuieli): {{values}}",
+        "error": "Soldul nu a putut fi încărcat."
+      },
+      "breakdown": {
+        "title": "Distribuția bugetului",
+        "description": "Venituri, cheltuieli și economii",
+        "chartLabel": "Distribuția veniturilor, cheltuielilor și economiilor",
+        "empty": "Nu există tranzacții în această perioadă.",
+        "error": "Distribuția nu a putut fi încărcată."
+      },
+      "topSpendings": {
+        "title": "Cele mai mari cheltuieli",
+        "description": "Cheltuielile tale cele mai mari",
+        "empty": "Nu există cheltuieli în această perioadă.",
+        "error": "Cheltuielile nu au putut fi încărcate."
+      },
+      "trend": {
+        "title": "Evoluția bugetului",
+        "description": "Venituri vs. cheltuieli",
+        "chartLabel": "Grafic cu veniturile și cheltuielile, {{period}}",
+        "notEnoughData": "Evoluția are nevoie de cel puțin 2 luni de date.",
+        "pickLongerPeriod": "Alege o perioadă mai lungă ca s-o vezi.",
+        "error": "Evoluția bugetului nu a putut fi încărcată.",
+        "empty": "Evoluția finanțelor tale va apărea aici după ce adaugi tranzacții."
+      },
+      "recentTransactions": {
+        "title": "Tranzacții recente",
+        "description": "Ultimele tale tranzacții.",
+        "empty": "Nu ai înregistrat încă nicio tranzacție.",
+        "error": "Tranzacțiile nu au putut fi încărcate.",
+        "type": "Tip",
+        "category": "Categorie",
+        "date": "Dată",
+        "amount": "Sumă",
+        "types": {
+          "income": "Venit",
+          "expense": "Cheltuială",
+          "savings": "Economii"
+        }
+      }
+    },
+    "budget": {
+      "title": "Prezentare buget",
+      "subtitle": "Urmărește veniturile, cheltuielile și economiile și adaugă rapid înregistrări noi.",
+      "selectMonth": "Alege luna",
+      "yourTarget": "Țintele tale",
+      "addEntry": "Adaugă înregistrare",
+      "close": "Închide",
+      "loadError": "Tranzacțiile nu au putut fi încărcate.",
+      "form": {
+        "title": "Adaugă o înregistrare",
+        "subtitle": "Alege dacă e venit, cheltuială sau economie.",
+        "type": "Tip",
+        "selectType": "Alege tipul",
+        "types": {
+          "income": "Venit",
+          "expenses": "Cheltuială",
+          "savings": "Economie"
+        },
+        "category": "Categorie",
+        "addCategory": "Adaugă categorie nouă",
+        "newCategory": "Categorie nouă",
+        "newCategoryPlaceholder": "ex. Sală",
+        "add": "Adaugă",
+        "loadingCategories": "Se încarcă categoriile...",
+        "selectCategory": "Alege categoria",
+        "amount": "Sumă",
+        "date": "Dată",
+        "pickDate": "Alege o dată",
+        "notes": "Note",
+        "notesPlaceholder": "Note opționale despre această înregistrare...",
+        "saving": "Se salvează...",
+        "save": "Salvează",
+        "errors": {
+          "categoryNameRequired": "Introdu un nume pentru categorie.",
+          "categoryExists": "Această categorie există deja.",
+          "categoryRequired": "Categoria este obligatorie.",
+          "amountRequired": "Suma este obligatorie.",
+          "amountInvalid": "Introdu o sumă validă.",
+          "amountPositive": "Suma trebuie să fie mai mare decât 0.",
+          "notesTooLong": "Notele nu pot avea mai mult de {{max}} de caractere."
+        },
+        "toasts": {
+          "categoryAdded": "Categoria „{{name}}” a fost adăugată.",
+          "categoryError": "Categoria nu a putut fi creată.",
+          "categoriesError": "Categoriile nu au putut fi încărcate.",
+          "added": "Înregistrarea a fost adăugată!",
+          "addError": "Înregistrarea nu a putut fi salvată. Încearcă din nou."
+        }
+      },
+      "items": {
+        "summary_one": "Total: {{total}} · {{count}} înregistrare",
+        "summary_few": "Total: {{total}} · {{count}} înregistrări",
+        "summary_other": "Total: {{total}} · {{count}} de înregistrări",
+        "empty": "Nu există înregistrări încă.",
+        "addEntry": "Adaugă înregistrare",
+        "addMore": "Adaugă mai multe",
+        "viewDetails": "Vezi detalii",
+        "edit": "Editează",
+        "delete": "Șterge",
+        "detailsTitle": "Detalii înregistrare",
+        "entryOf": "Înregistrare: {{type}}",
+        "category": "Categorie",
+        "date": "Dată",
+        "notes": "Note",
+        "noNotes": "Nicio notă adăugată.",
+        "close": "Închide",
+        "editTitle": "Editează înregistrarea",
+        "editSubtitle": "Actualizează detaliile acestei înregistrări ({{type}}).",
+        "amount": "Sumă",
+        "selectCategory": "Alege categoria",
+        "pickDate": "Alege o dată",
+        "notesPlaceholder": "Adaugă o notă pentru această înregistrare...",
+        "cancel": "Anulează",
+        "saveChanges": "Salvează modificările",
+        "deleteTitle": "Șterge înregistrarea",
+        "deleteConfirm": "Sigur vrei să ștergi <bold>{{category}}</bold> ({{amount}})? Acțiunea nu poate fi anulată."
+      },
+      "summary": {
+        "netBalance": "Sold net",
+        "noTarget": "Nicio țintă setată",
+        "ofTarget": "{{pct}}% din țintă",
+        "ofLimit": "{{pct}}% din limită",
+        "ofGoal": "{{pct}}% din obiectiv"
+      },
+      "targets": {
+        "title": "Setează țintele pentru {{month}}",
+        "income": "Țintă venituri",
+        "expense": "Limită cheltuieli",
+        "savings": "Obiectiv economii",
+        "showHistory": "Vezi istoricul țintelor",
+        "hideHistory": "Ascunde istoricul țintelor",
+        "cancel": "Anulează",
+        "saving": "Se salvează...",
+        "save": "Salvează țintele",
+        "saved": "Țintele au fost salvate.",
+        "saveError": "Țintele nu au putut fi salvate."
+      },
+      "history": {
+        "title": "Istoric ținte",
+        "loadError": "Istoricul țintelor nu a putut fi încărcat.",
+        "empty": "Nu ai salvat nicio țintă încă.",
+        "download": "Descarcă",
+        "month": "Luna",
+        "net": "Net"
+      },
+      "toasts": {
+        "deleted": "Tranzacția a fost ștearsă.",
+        "deleteError": "Tranzacția nu a putut fi ștearsă.",
+        "updated": "Tranzacția a fost actualizată.",
+        "updateError": "Tranzacția nu a putut fi actualizată."
+      },
+      "extraInfo": {
+        "income": {
+          "title": "Surse de venit recurente",
+          "badge": "Recurente"
+        },
+        "expenses": {
+          "title": "Cheltuieli fixe lunare",
+          "badge": "Recurente"
+        },
+        "savings": {
+          "title": "Obiective de economisire",
+          "badge": "Obiective"
+        },
+        "monthlyTotal": "Total lunar:",
+        "items": {
+          "salary": "Salariu",
+          "investments": "Investiții",
+          "internet": "Internet",
+          "rent": "Chirie",
+          "utilities": "Utilități",
+          "emergency": "Fond urgență",
+          "vacation": "Vacanță"
+        }
+      },
+      "insights": {
+        "title": "Observații",
+        "doingGreat": "Te descurci excelent!",
+        "doingGreatValue": "Ai economisit {{pct}}% din obiectiv luna aceasta.",
+        "topExpense": "Cea mai mare cheltuială",
+        "incomeTrend": "Evoluția veniturilor",
+        "incomeTrendValue": "{{pct}}% față de luna trecută",
+        "savingsRate": "Rata de economisire",
+        "savingsRateValue": "{{pct}}% din venituri",
+        "daysLeft": "Zile rămase din perioadă",
+        "daysLeftValue_one": "{{count}} zi",
+        "daysLeftValue_few": "{{count}} zile",
+        "daysLeftValue_other": "{{count}} de zile"
+      },
+      "categories": {
+        "button": "Categorii",
+        "openSettings": "Deschide în Setări"
+      }
+    },
+    "transactions": {
+      "title": "Tranzacții",
+      "subtitle": "Vezi toate tranzacțiile tale.",
+      "add": "Adaugă tranzacție",
+      "deleted": "Tranzacția a fost ștearsă.",
+      "deleteError": "Tranzacția nu a putut fi ștearsă.",
+      "updated": "Tranzacția a fost actualizată.",
+      "updateError": "Tranzacția nu a putut fi actualizată.",
+      "details": {
+        "title": "Detalii tranzacție",
+        "subtitle": "Toate informațiile despre această tranzacție.",
+        "noNotes": "Nicio notiță adăugată.",
+        "addNotes": "Adaugă notiță",
+        "editNotes": "Editează notița",
+        "saveNotes": "Salvează notița",
+        "uncategorizedHint": "Categoria acestei tranzacții a fost ștearsă. Alege o categorie nouă din Editează ca să poți modifica tranzacția.",
+        "close": "Închide"
+      },
+      "edit": {
+        "title": "Editează tranzacția",
+        "subtitle": "Modifică tipul, suma, categoria, data sau notița.",
+        "selectCategory": "Alege categoria",
+        "categoryRequired": "Alege o categorie.",
+        "invalidAmount": "Suma trebuie să fie un număr mai mare decât 0.",
+        "pickDate": "Alege o dată",
+        "notesPlaceholder": "Adaugă o notiță pentru această tranzacție...",
+        "cancel": "Anulează",
+        "save": "Salvează modificările",
+        "saving": "Se salvează..."
+      },
+      "filters": {
+        "searchPlaceholder": "Caută categoria...",
+        "exportCsv": "Exportă CSV",
+        "year": "An",
+        "allYears": "Toți anii",
+        "month": "Lună",
+        "allMonths": "Toate lunile",
+        "day": "Zi",
+        "allDays": "Toate zilele",
+        "type": "Tip",
+        "allTypes": "Toate tipurile",
+        "category": "Categorie",
+        "allCategories": "Toate categoriile",
+        "amount": "Sumă",
+        "min": "Min",
+        "max": "Max",
+        "maxAmount": "Suma maximă",
+        "clear": "Șterge filtrele",
+        "sort": "Sortare",
+        "sorts": {
+          "date-desc": "Dată: cele mai noi",
+          "date-asc": "Dată: cele mai vechi",
+          "amount-desc": "Sumă: descrescător",
+          "amount-asc": "Sumă: crescător"
+        },
+        "active": "Active:",
+        "chips": {
+          "search": "Căutare: {{value}}",
+          "year": "An: {{value}}",
+          "month": "Lună: {{value}}",
+          "day": "Zi: {{value}}",
+          "type": "Tip: {{value}}",
+          "category": "Categorie: {{value}}",
+          "amount": "Sumă: {{value}}"
+        },
+        "remove": {
+          "search": "Elimină filtrul de căutare",
+          "year": "Elimină filtrul de an",
+          "month": "Elimină filtrul de lună",
+          "day": "Elimină filtrul de zi",
+          "type": "Elimină filtrul de tip",
+          "category": "Elimină filtrul de categorie",
+          "amount": "Elimină filtrul de sumă"
+        }
+      },
+      "table": {
+        "caption": "Lista tranzacțiilor tale recente.",
+        "type": "Tip",
+        "category": "Categorie",
+        "date": "Dată",
+        "amount": "Sumă",
+        "actions": "Acțiuni",
+        "emptyTitle": "Nu am găsit tranzacții",
+        "emptyHint": "Încearcă să modifici filtrele sau căutarea.",
+        "delete": "Șterge tranzacția",
+        "netTotal": "Total net",
+        "showing": "Se afișează <bold>{{from}}–{{to}}</bold> din <bold>{{total}}</bold> tranzacții",
+        "perPage": "Pe pagină",
+        "deleteTitle": "Șterge tranzacția",
+        "deleteConfirm": "Sigur vrei să ștergi <bold>{{category}}</bold> ({{amount}}, {{date}})? Acțiunea nu poate fi anulată.",
+        "cancel": "Anulează",
+        "deleting": "Se șterge...",
+        "confirmDelete": "Șterge",
+        "notes": "Notițe",
+        "view": "Vezi detalii",
+        "edit": "Editează",
+        "previous": "Înapoi",
+        "next": "Înainte",
+        "previousPage": "Pagina anterioară",
+        "nextPage": "Pagina următoare"
+      }
+    },
+    "nav": {
+      "sections": {
+        "dashboard": "Panou de control",
+        "budgetInfo": "Informații buget",
+        "settings": "Setări"
+      },
+      "overview": "Prezentare generală",
+      "budget": "Buget",
+      "transactions": "Tranzacții",
+      "analytics": "Analize",
+      "upgrade": "Treci la Pro",
+      "profile": "Profil",
+      "search": "Caută",
+      "openMenu": "Deschide meniul",
+      "closeMenu": "Închide meniul",
+      "toggleSidebar": "Restrânge/extinde bara laterală",
+      "logoAlt": "Logo",
+      "settings": "Setări"
+    },
+    "search": {
+      "title": "Căutare",
+      "hint": "Caută tranzacții, categorii sau pagini",
+      "placeholder": "Caută tranzacții, categorii sau pagini...",
+      "empty": "Niciun rezultat pentru „{{query}}”",
+      "error": "Căutarea a eșuat. Încearcă din nou.",
+      "custom": "Personalizată",
+      "groups": {
+        "pages": "Pagini",
+        "transactions": "Tranzacții",
+        "categories": "Categorii"
+      },
+      "types": {
+        "income": "Venituri",
+        "expenses": "Cheltuieli",
+        "savings": "Economii"
+      },
+      "shortcuts": {
+        "navigate": "navighează",
+        "select": "selectează",
+        "close": "închide"
+      }
+    },
+    "profileBadge": {
+      "openMenu": "Deschide meniul de profil",
+      "avatarAlt": "Avatar utilizator",
+      "defaultName": "Utilizator",
+      "settings": "Setări profil",
+      "darkMode": "Mod întunecat",
+      "notifications": "Notificări",
+      "currentPlan": "Plan curent",
+      "upgrade": "Upgrade",
+      "viewProfile": "Vezi profilul",
+      "help": "Ajutor",
+      "logout": "Deconectare",
+      "logoutError": "Deconectarea a eșuat. Încearcă din nou.",
+      "plans": {
+        "free": "Gratuit",
+        "pro": "Pro",
+        "business": "Business"
+      },
+      "allSettings": "Toate setările"
+    },
+    "profile": {
+      "loading": "Se încarcă profilul...",
+      "logout": "Deconectare",
+      "planBadge": "Plan {{plan}}",
+      "accountInfo": "Informații cont",
+      "fields": {
+        "email": "Email",
+        "plan": "Plan curent",
+        "memberSince": "Membru din",
+        "currency": "Monedă"
+      },
+      "settings": "Setări",
+      "version": "Budget Tracker · v{{version}}",
+      "actions": {
+        "plan": {
+          "label": "Schimbă planul",
+          "description": "Treci la un abonament superior sau inferior"
+        },
+        "email": {
+          "label": "Schimbă emailul",
+          "description": "Actualizează adresa de email pentru autentificare"
+        },
+        "password": {
+          "label": "Schimbă parola",
+          "description": "Păstrează-ți contul în siguranță"
+        },
+        "addAccount": {
+          "label": "Adaugă un cont",
+          "description": "Conectează un cont bancar sau un portofel nou"
+        },
+        "reset": {
+          "label": "Resetează datele",
+          "description": "Șterge definitiv toate tranzacțiile tale"
+        },
+        "delete": {
+          "label": "Șterge contul",
+          "description": "Elimină definitiv contul tău"
+        }
+      },
+      "emailPanel": {
+        "newEmail": "Adresă de email nouă",
+        "submit": "Actualizează emailul"
+      },
+      "passwordPanel": {
+        "current": "Parola curentă",
+        "new": "Parola nouă",
+        "confirm": "Confirmă parola nouă",
+        "submit": "Schimbă parola"
+      },
+      "accountPanel": {
+        "name": "Numele contului",
+        "namePlaceholder": "ex. Economii, Revolut, ING",
+        "balance": "Sold inițial (opțional)",
+        "submit": "Adaugă contul"
+      },
+      "resetPanel": {
+        "textBefore": "Această acțiune va șterge definitiv ",
+        "textHighlight": "toate tranzacțiile, bugetele și categoriile tale",
+        "textAfter": ". Contul tău va rămâne activ.",
+        "button": "Resetează toate datele",
+        "title": "Resetezi toate datele?",
+        "description": "Această acțiune nu poate fi anulată. Toate tranzacțiile, bugetele și categoriile tale vor fi șterse definitiv.",
+        "cancel": "Anulează",
+        "confirm": "Da, resetează tot"
+      },
+      "deletePanel": {
+        "textBefore": "Contul tău și ",
+        "textHighlight": "toate datele asociate",
+        "textAfter": " vor fi eliminate definitiv. Acțiunea nu poate fi anulată.",
+        "button": "Șterge contul meu",
+        "title": "Ștergi contul?",
+        "description": "Acțiunea este definitivă. Profilul, datele și abonamentul tău vor fi șterse imediat și ireversibil.",
+        "cancel": "Anulează",
+        "confirm": "Da, șterge contul"
+      },
+      "preferencesLink": {
+        "label": "Preferințe și categorii",
+        "description": "Monedă, limbă, temă și categoriile tale"
+      }
+    },
+    "settings": {
+      "title": "Setări",
+      "subtitle": "Preferințele aplicației și categoriile tale.",
+      "tabs": {
+        "preferences": "Preferințe",
+        "categories": "Categorii"
+      },
+      "appearance": {
+        "title": "Aspect",
+        "description": "Limba și tema aplicației. Le găsești și în meniul de profil.",
+        "languageHint": "Limba în care vezi aplicația",
+        "darkModeHint": "Folosește tema întunecată"
+      },
+      "general": {
+        "title": "General",
+        "description": "Setări legate de contul și sumele tale.",
+        "notificationsHint": "Primește notificări despre bugetul tău"
+      },
+      "currency": {
+        "title": "Monedă",
+        "description": "Moneda în care sunt afișate și salvate sumele",
+        "save": "Salvează moneda",
+        "saving": "Se salvează...",
+        "confirmTitle": "Schimbi moneda în {{currency}}?",
+        "confirmDescription": "Toate sumele tale (tranzacții și ținte) vor fi convertite din {{from}} în {{to}} la cursul BNR de azi. Din cauza rotunjirilor, o conversie înapoi s-ar putea să nu dea exact sumele inițiale.",
+        "cancel": "Anulează",
+        "convert": "Convertește",
+        "success": "Moneda a fost schimbată în {{currency}}.",
+        "error": "Moneda nu a putut fi schimbată.",
+        "unavailable": "Moneda nu a putut fi schimbată, încearcă mai târziu.",
+        "select": "Alege moneda"
+      },
+      "categories": {
+        "title": "Categorii",
+        "description": "Adaugă, redenumește sau șterge categoriile tale. Cele implicite nu pot fi modificate.",
+        "newPlaceholder": "Numele categoriei noi",
+        "add": "Adaugă",
+        "custom": "Categoriile tale",
+        "defaults": "Categorii implicite",
+        "emptyCustom": "Nu ai încă nicio categorie proprie.",
+        "defaultHint": "Categorie implicită, nu poate fi modificată",
+        "rename": "Redenumește",
+        "save": "Salvează",
+        "cancel": "Anulează",
+        "delete": "Șterge",
+        "deleteTitle": "Ștergi categoria „{{name}}”?",
+        "deleteDescription": "Tranzacțiile din această categorie vor rămâne fără categorie. Acțiunea nu poate fi anulată.",
+        "deleteConfirm": "Da, șterge",
+        "loadError": "Categoriile nu au putut fi încărcate.",
+        "errors": {
+          "length": "Numele trebuie să aibă între {{min}} și {{max}} de caractere.",
+          "exists": "Există deja o categorie cu acest nume.",
+          "add": "Categoria nu a putut fi adăugată.",
+          "delete": "Categoria nu a putut fi ștearsă.",
+          "rename": "Categoria nu a putut fi redenumită."
+        },
+        "toasts": {
+          "added": "Categoria „{{name}}” a fost adăugată.",
+          "deleted": "Categoria „{{name}}” a fost ștearsă.",
+          "renamed": "Categoria a fost redenumită în „{{name}}”."
+        }
       }
     }
   }

@@ -52,6 +52,7 @@
   --color-finance-success-bg: var(--finance-success-bg);
   --color-finance-danger-bg: var(--finance-danger-bg);
   --color-finance-warning-bg: var(--finance-warning-bg);
+  --color-finance-primary-bg: var(--finance-primary-bg);
   --animate-marquee: marquee 20s linear infinite;
 }
 
@@ -97,6 +98,7 @@
   --finance-success-bg: #e8f5ef;
   --finance-danger-bg: #fee2e2;
   --finance-warning-bg: #fef3c7;
+  --finance-primary-bg: #e7ecfc;
 }
 
 .dark {
@@ -140,6 +142,7 @@
   --finance-success-bg: #0c2b1f;
   --finance-danger-bg: #2d1515;
   --finance-warning-bg: #2a1f0a;
+  --finance-primary-bg: #12233d;
 }
 
 @layer base {
