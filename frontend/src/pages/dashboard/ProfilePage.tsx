@@ -1,4 +1,4 @@
-import ProfileBadge from "@/components/dashboard/budget/ProfileBadge";
+import UserAvatar from "@/components/dashboard/shared/UserAvatar";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -195,9 +195,7 @@ export default function ProfilePage() {
         <div className="flex items-center justify-between pt-2">
           <div className="flex items-center gap-4">
             <div className="relative">
-              <div className="w-16 h-16 rounded-full shadow-sm">
-                <ProfileBadge />
-              </div>
+              <UserAvatar className="h-16 w-16 shadow-sm" />
               <span className="absolute bottom-2 right-3 bg-card border border-border rounded-full p-0.5 shadow-sm">
                 <ShieldCheck className="w-3.5 h-3.5 text-finance-success" />
               </span>

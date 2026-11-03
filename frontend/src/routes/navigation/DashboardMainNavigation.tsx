@@ -3,6 +3,7 @@ import { Menu, PanelLeftOpen, Search, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { dashboardNavigation } from "@/components/dashboard/routes/DashboardNavigation";
 import SearchDialog from "@/components/dashboard/shared/SearchDialog";
+import SidebarUserMenu from "@/components/dashboard/shared/SidebarUserMenu";
 import {
   Tooltip,
   TooltipContent,
@@ -178,19 +179,51 @@ export default function DashboardMainNavigation() {
           </div>
         ))}
       </div>
+
+      {/* ===== USER (jos de tot) ===== */}
+      <div className={clsx("border-t p-3", !showLabels && "px-2")}>
+        <SidebarUserMenu
+          showLabels={showLabels}
+          // Only the mobile drawer passes onNavigate
+          mobile={Boolean(onNavigate)}
+          onNavigate={onNavigate}
+        />
+      </div>
     </nav>
   );
 
   return (
     <>
-      {/* Buton hamburger - doar pe mobile */}
-      <button
-        onClick={() => setMobileOpen(true)}
-        aria-label={t("dashboard.nav.openMenu")}
-        className="absolute top-6 left-6 z-30 md:hidden"
-      >
-        <Menu size={26} />
-      </button>
+      {/* Bara de sus - doar pe mobile: hamburger, logo, search */}
+      <header className="fixed inset-x-0 top-0 z-30 flex h-14 items-center gap-3 border-b bg-card px-3 text-card-foreground shadow-sm md:hidden">
+        <button
+          type="button"
+          onClick={() => setMobileOpen(true)}
+          aria-label={t("dashboard.nav.openMenu")}
+          aria-expanded={mobileOpen}
+          className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-finance-warning/60"
+        >
+          <Menu className="h-5 w-5" />
+        </button>
+
+        <Link to="/dashboard" className="flex items-center">
+          <img
+            src="/logo-mark.png"
+            alt={t("dashboard.nav.logoAlt")}
+            className="h-8 w-8 object-contain"
+          />
+        </Link>
+
+        <button
+          type="button"
+          onClick={() => setSearchOpen(true)}
+          aria-label={t("dashboard.nav.search")}
+          aria-haspopup="dialog"
+          className="ml-auto flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-finance-warning/60"
+        >
+          <Search className="h-5 w-5" />
+        </button>
+      </header>
 
       {/* Sidebar desktop */}
       <aside
