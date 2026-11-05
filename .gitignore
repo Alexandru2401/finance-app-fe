@@ -34,3 +34,4 @@ node_modules
 /playwright/.auth/
 
 coverage
+.eslintcache
