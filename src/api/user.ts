@@ -23,10 +23,11 @@ async function loginUser(email: string, password: string) {
   return response;
 }
 
-async function createUser(email: string, password: string) {
+async function createUser(email: string, password: string, language: Language) {
   const response = await post<AuthResponse>("/auth/register", {
     email,
     password,
+    language,
   });
   console.log("test");
   console.log("Response:", response);

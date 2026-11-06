@@ -29,6 +29,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { Transaction } from "@/api/transactions";
 import type { Category, UpdateTransactionPayload } from "@/api/budget";
+import NewCategoryField from "@/components/dashboard/shared/NewCategoryField";
 import { useDateLocale } from "@/hooks/useDateLocale";
 import { cn } from "@/lib/utils";
 import { TYPE_STYLES } from "./styles";
@@ -129,11 +130,10 @@ function NotesBody({
 }) {
   const { t, i18n } = useTranslation();
 
-  // Without a category the backend rejects any update (see neimplementat.md)
   const uncategorized = !tx.category_id;
   const hasNotes = Boolean(tx.notes?.trim());
 
-  const [editing, setEditing] = useState(startEditing && !uncategorized);
+  const [editing, setEditing] = useState(startEditing);
   const [notes, setNotes] = useState(tx.notes ?? "");
 
   async function save() {
@@ -216,18 +216,16 @@ function NotesBody({
           </>
         ) : (
           // Only one button; the dialog closes from the X / Esc / outside click
-          !uncategorized && (
-            <Button
-              type="button"
-              onClick={() => setEditing(true)}
-              className="cursor-pointer gap-1.5"
-            >
-              {hasNotes ? <Pencil size={14} /> : <Plus size={14} />}
-              {hasNotes
-                ? t("dashboard.transactions.details.editNotes")
-                : t("dashboard.transactions.details.addNotes")}
-            </Button>
-          )
+          <Button
+            type="button"
+            onClick={() => setEditing(true)}
+            className="cursor-pointer gap-1.5"
+          >
+            {hasNotes ? <Pencil size={14} /> : <Plus size={14} />}
+            {hasNotes
+              ? t("dashboard.transactions.details.editNotes")
+              : t("dashboard.transactions.details.addNotes")}
+          </Button>
         )}
       </DialogFooter>
     </>
@@ -239,6 +237,7 @@ function NotesBody({
 interface EditProps {
   transaction: Transaction | null;
   categories: Category[];
+  onCategoryCreated: (category: Category) => void;
   onClose: () => void;
   onSave: SaveFn;
 }
@@ -246,6 +245,7 @@ interface EditProps {
 export function TransactionEditDialog({
   transaction,
   categories,
+  onCategoryCreated,
   onClose,
   onSave,
 }: EditProps) {
@@ -263,6 +263,7 @@ export function TransactionEditDialog({
             key={transaction.item_id}
             tx={transaction}
             categories={categories}
+            onCategoryCreated={onCategoryCreated}
             saving={saving}
             setSaving={setSaving}
             onClose={onClose}
@@ -277,6 +278,7 @@ export function TransactionEditDialog({
 function EditForm({
   tx,
   categories,
+  onCategoryCreated,
   saving,
   setSaving,
   onClose,
@@ -284,6 +286,7 @@ function EditForm({
 }: {
   tx: Transaction;
   categories: Category[];
+  onCategoryCreated: (category: Category) => void;
   saving: boolean;
   setSaving: (saving: boolean) => void;
   onClose: () => void;
@@ -398,23 +401,39 @@ function EditForm({
       {/* Category */}
       <div className="space-y-2">
         <Label>{t("dashboard.transactions.table.category")}</Label>
-        <Select value={categoryId} onValueChange={setCategoryId}>
-          <SelectTrigger
-            className="w-full"
-            aria-invalid={submitted && categoryError}
-          >
-            <SelectValue
-              placeholder={t("dashboard.transactions.edit.selectCategory")}
+        {typeCategories.length === 0 ? (
+          <>
+            <p className="text-sm text-muted-foreground">
+              {t("dashboard.budget.form.noCategories")}
+            </p>
+            <NewCategoryField
+              type={type === "expense" ? "expenses" : type}
+              categories={typeCategories}
+              onCreated={(category) => {
+                onCategoryCreated(category);
+                setCategoryId(category.category_id);
+              }}
             />
-          </SelectTrigger>
-          <SelectContent>
-            {typeCategories.map((cat) => (
-              <SelectItem key={cat.category_id} value={cat.category_id}>
-                {cat.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+          </>
+        ) : (
+          <Select value={categoryId} onValueChange={setCategoryId}>
+            <SelectTrigger
+              className="w-full"
+              aria-invalid={submitted && categoryError}
+            >
+              <SelectValue
+                placeholder={t("dashboard.transactions.edit.selectCategory")}
+              />
+            </SelectTrigger>
+            <SelectContent>
+              {typeCategories.map((cat) => (
+                <SelectItem key={cat.category_id} value={cat.category_id}>
+                  {cat.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
         {submitted && categoryError && (
           <p className="text-xs text-destructive">
             {t("dashboard.transactions.edit.categoryRequired")}

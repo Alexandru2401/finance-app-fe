@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
+import NewCategoryField from "@/components/dashboard/shared/NewCategoryField";
 import { useCurrency } from "@/hooks/useCurrency";
 import { useDateLocale } from "@/hooks/useDateLocale";
 import { Link } from "react-router";
@@ -94,6 +95,10 @@ export default function ItemCard({ section, onShowForm }: ItemCardProps) {
 
   const startEdit = (item: BudgetItem) => {
     setEditingItem(item);
+    // Categories can change from the form or the settings on the same page
+    getCategories(section.section)
+      .then(setCategories)
+      .catch(() => {});
     // new Date() keeps local time; splitting the ISO string would show the day before
     setDate(item.date ? new Date(item.date) : undefined);
     setEditValues({
@@ -412,25 +417,44 @@ export default function ItemCard({ section, onShowForm }: ItemCardProps) {
             {/* Category */}
             <div className="space-y-2">
               <Label>{t("dashboard.budget.items.category")}</Label>
-              <Select
-                value={editValues.category}
-                onValueChange={(v) =>
-                  setEditValues((prev) => ({ ...prev, category: v }))
-                }
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue
-                    placeholder={t("dashboard.budget.items.selectCategory")}
+              {categories.length === 0 ? (
+                <>
+                  <p className="text-sm text-muted-foreground">
+                    {t("dashboard.budget.form.noCategories")}
+                  </p>
+                  <NewCategoryField
+                    type={section.section}
+                    categories={categories}
+                    onCreated={(category) => {
+                      setCategories((prev) => [...prev, category]);
+                      setEditValues((prev) => ({
+                        ...prev,
+                        category: category.category_id,
+                      }));
+                    }}
                   />
-                </SelectTrigger>
-                <SelectContent>
-                  {categories.map((cat) => (
-                    <SelectItem key={cat.category_id} value={cat.category_id}>
-                      {cat.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                </>
+              ) : (
+                <Select
+                  value={editValues.category}
+                  onValueChange={(v) =>
+                    setEditValues((prev) => ({ ...prev, category: v }))
+                  }
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue
+                      placeholder={t("dashboard.budget.items.selectCategory")}
+                    />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories.map((cat) => (
+                      <SelectItem key={cat.category_id} value={cat.category_id}>
+                        {cat.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
             </div>
 
             {/* Date */}

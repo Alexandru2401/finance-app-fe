@@ -979,6 +979,7 @@
         "addCategory": "Adaugă categorie nouă",
         "newCategory": "Categorie nouă",
         "newCategoryPlaceholder": "ex. Sală",
+        "noCategories": "Nu ai nicio categorie pentru acest tip. Creează una ca să continui.",
         "add": "Adaugă",
         "loadingCategories": "Se încarcă categoriile...",
         "selectCategory": "Alege categoria",
@@ -1126,7 +1127,7 @@
         "addNotes": "Adaugă notiță",
         "editNotes": "Editează notița",
         "saveNotes": "Salvează notița",
-        "uncategorizedHint": "Categoria acestei tranzacții a fost ștearsă. Alege o categorie nouă din Editează ca să poți modifica tranzacția.",
+        "uncategorizedHint": "Categoria acestei tranzacții a fost ștearsă. Poți alege una nouă din Editează.",
         "close": "Închide"
       },
       "edit": {
@@ -1389,13 +1390,11 @@
       },
       "categories": {
         "title": "Categorii",
-        "description": "Adaugă, redenumește sau șterge categoriile tale. Cele implicite nu pot fi modificate.",
+        "description": "Adaugă, redenumește sau șterge categoriile tale.",
         "newPlaceholder": "Numele categoriei noi",
         "add": "Adaugă",
         "custom": "Categoriile tale",
-        "defaults": "Categorii implicite",
-        "emptyCustom": "Nu ai încă nicio categorie proprie.",
-        "defaultHint": "Categorie implicită, nu poate fi modificată",
+        "emptyCustom": "Nu ai nicio categorie.",
         "rename": "Redenumește",
         "save": "Salvează",
         "cancel": "Anulează",

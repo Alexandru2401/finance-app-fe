@@ -978,6 +978,7 @@
         "addCategory": "Add new category",
         "newCategory": "New category",
         "newCategoryPlaceholder": "e.g. Gym",
+        "noCategories": "You have no categories for this type. Create one to continue.",
         "add": "Add",
         "loadingCategories": "Loading categories...",
         "selectCategory": "Select category",
@@ -1123,7 +1124,7 @@
         "addNotes": "Add note",
         "editNotes": "Edit note",
         "saveNotes": "Save note",
-        "uncategorizedHint": "The category of this transaction was deleted. Pick a new category from Edit to be able to change it.",
+        "uncategorizedHint": "The category of this transaction was deleted. You can pick a new one from Edit.",
         "close": "Close"
       },
       "edit": {
@@ -1386,13 +1387,11 @@
       },
       "categories": {
         "title": "Categories",
-        "description": "Add, rename or delete your categories. Default ones cannot be changed.",
+        "description": "Add, rename or delete your categories.",
         "newPlaceholder": "New category name",
         "add": "Add",
         "custom": "Your categories",
-        "defaults": "Default categories",
-        "emptyCustom": "You have no custom categories yet.",
-        "defaultHint": "Default category, cannot be changed",
+        "emptyCustom": "You have no categories yet.",
         "rename": "Rename",
         "save": "Save",
         "cancel": "Cancel",

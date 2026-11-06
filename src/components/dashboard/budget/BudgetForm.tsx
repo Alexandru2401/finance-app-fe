@@ -28,13 +28,8 @@ import BudgetItemSchema, {
   type BudgetItemInput,
   type BudgetItemPayload,
 } from "@/schemas/budget-item.schema";
-import {
-  addNewTransaction,
-  ApiRequestError,
-  createCategory,
-  getCategories,
-  type Category,
-} from "@/api/budget";
+import { addNewTransaction, getCategories, type Category } from "@/api/budget";
+import NewCategoryField from "@/components/dashboard/shared/NewCategoryField";
 
 type BudgetType = BudgetItemInput["type"];
 
@@ -53,13 +48,15 @@ const NOTES_WARNING_THRESHOLD = 100;
 // yyyy-MM-dd in local time (toISOString would shift the day in UTC+ timezones)
 const toDateString = (d: Date) => format(d, "yyyy-MM-dd");
 
-const CATEGORY_NAME_MAX_LENGTH = 40;
-
 interface BudgetFormProps {
   onCreated?: (type: BudgetItemPayload["type"]) => void;
+  onCategoryCreated?: (category: Category) => void;
 }
 
-export default function BudgetForm({ onCreated }: BudgetFormProps) {
+export default function BudgetForm({
+  onCreated,
+  onCategoryCreated,
+}: BudgetFormProps) {
   const { t } = useTranslation();
   const dateLocale = useDateLocale();
   const [formData, setFormData] = useState<BudgetItemInput>({
@@ -80,9 +77,6 @@ export default function BudgetForm({ onCreated }: BudgetFormProps) {
   const [categories, setCategories] = useState<Category[]>([]);
   const [categoriesLoading, setCategoriesLoading] = useState(true);
   const [newCategoryOpen, setNewCategoryOpen] = useState(false);
-  const [newCategoryName, setNewCategoryName] = useState("");
-  const [newCategoryError, setNewCategoryError] = useState<string>();
-  const [creatingCategory, setCreatingCategory] = useState(false);
 
   // Refetch categories whenever the type changes
   useEffect(() => {
@@ -129,56 +123,12 @@ export default function BudgetForm({ onCreated }: BudgetFormProps) {
     setFormData((prev) => ({ ...prev, type: value, category: "" }));
   }
 
-  function handleNewCategoryOpenChange(open: boolean) {
-    setNewCategoryOpen(open);
-    if (!open) {
-      setNewCategoryName("");
-      setNewCategoryError(undefined);
-    }
-  }
-
-  async function handleAddCategory() {
-    if (creatingCategory) return;
-
-    const name = newCategoryName.trim();
-
-    if (!name) {
-      setNewCategoryError(
-        t("dashboard.budget.form.errors.categoryNameRequired"),
-      );
-      return;
-    }
-
-    const exists = categories.some(
-      (cat) => cat.name.toLowerCase() === name.toLowerCase(),
-    );
-    if (exists) {
-      setNewCategoryError(t("dashboard.budget.form.errors.categoryExists"));
-      return;
-    }
-
-    setCreatingCategory(true);
-    try {
-      const category = await createCategory({ type: formData.type, name });
-
-      setCategories((prev) => [...prev, category]);
-      setFormData((prev) => ({ ...prev, category: category.category_id }));
-      handleNewCategoryOpenChange(false);
-      toast.success(
-        t("dashboard.budget.form.toasts.categoryAdded", {
-          name: category.name,
-        }),
-      );
-    } catch (err) {
-      // 409 = same name already exists (e.g. a default category of this type)
-      setNewCategoryError(
-        err instanceof ApiRequestError && err.status === 409
-          ? t("dashboard.budget.form.errors.categoryExists")
-          : t("dashboard.budget.form.toasts.categoryError"),
-      );
-    } finally {
-      setCreatingCategory(false);
-    }
+  function handleCategoryCreated(category: Category) {
+    setCategories((prev) => [...prev, category]);
+    setFormData((prev) => ({ ...prev, category: category.category_id }));
+    setFormErrors((prev) => ({ ...prev, category: undefined }));
+    setNewCategoryOpen(false);
+    onCategoryCreated?.(category);
   }
 
   function handleDateSelect(d: Date | undefined) {
@@ -258,113 +208,75 @@ export default function BudgetForm({ onCreated }: BudgetFormProps) {
             <Label htmlFor="category">
               {t("dashboard.budget.form.category")}
             </Label>
-            <Popover
-              open={newCategoryOpen}
-              onOpenChange={handleNewCategoryOpenChange}
-            >
-              <PopoverTrigger asChild>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="h-6 cursor-pointer gap-1 px-2 text-xs text-muted-foreground"
-                >
-                  <Plus className="h-3 w-3" aria-hidden="true" />
-                  {t("dashboard.budget.form.addCategory")}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-64 space-y-2" align="end">
-                <Label htmlFor="new-category">
-                  {t("dashboard.budget.form.newCategory")}
-                </Label>
-                {/* Not a nested <form>: submit events would bubble to the parent form through the portal */}
-                <div className="flex gap-2">
-                  <Input
-                    id="new-category"
-                    autoFocus
-                    value={newCategoryName}
-                    disabled={creatingCategory}
-                    maxLength={CATEGORY_NAME_MAX_LENGTH}
-                    onChange={(e) => {
-                      setNewCategoryName(e.target.value);
-                      setNewCategoryError(undefined);
-                    }}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        e.preventDefault();
-                        handleAddCategory();
-                      }
-                    }}
-                    placeholder={t(
-                      "dashboard.budget.form.newCategoryPlaceholder",
-                    )}
-                    aria-invalid={!!newCategoryError}
-                    aria-describedby={
-                      newCategoryError ? "new-category-error" : undefined
-                    }
-                  />
+            {categories.length > 0 && (
+              <Popover open={newCategoryOpen} onOpenChange={setNewCategoryOpen}>
+                <PopoverTrigger asChild>
                   <Button
                     type="button"
+                    variant="ghost"
                     size="sm"
-                    className="h-9 cursor-pointer"
-                    onClick={handleAddCategory}
-                    disabled={creatingCategory}
-                    aria-busy={creatingCategory}
+                    className="h-6 cursor-pointer gap-1 px-2 text-xs text-muted-foreground"
                   >
-                    {creatingCategory ? (
-                      <Loader2
-                        className="h-4 w-4 animate-spin"
-                        aria-hidden="true"
-                      />
-                    ) : (
-                      t("dashboard.budget.form.add")
-                    )}
+                    <Plus className="h-3 w-3" aria-hidden="true" />
+                    {t("dashboard.budget.form.addCategory")}
                   </Button>
-                </div>
-                {newCategoryError && (
-                  <p
-                    id="new-category-error"
-                    role="alert"
-                    className="text-xs text-destructive"
-                  >
-                    {newCategoryError}
-                  </p>
-                )}
-              </PopoverContent>
-            </Popover>
+                </PopoverTrigger>
+                <PopoverContent className="w-64" align="end">
+                  <NewCategoryField
+                    autoFocus
+                    type={formData.type}
+                    categories={categories}
+                    onCreated={handleCategoryCreated}
+                  />
+                </PopoverContent>
+              </Popover>
+            )}
           </div>
-          <Select
-            value={formData.category}
-            onValueChange={(v) => {
-              setFormData((prev) => ({ ...prev, category: v }));
-              setFormErrors((prev) => ({ ...prev, category: undefined }));
-            }}
-          >
-            <SelectTrigger
-              id="category"
-              className="w-full"
-              disabled={categoriesLoading}
-              aria-invalid={!!formErrors.category}
-              aria-describedby={
-                formErrors.category ? "category-error" : undefined
-              }
-            >
-              <SelectValue
-                placeholder={
-                  categoriesLoading
-                    ? t("dashboard.budget.form.loadingCategories")
-                    : t("dashboard.budget.form.selectCategory")
-                }
+          {!categoriesLoading && categories.length === 0 ? (
+            <>
+              <p className="text-sm text-muted-foreground">
+                {t("dashboard.budget.form.noCategories")}
+              </p>
+              <NewCategoryField
+                type={formData.type}
+                categories={categories}
+                onCreated={handleCategoryCreated}
               />
-            </SelectTrigger>
-            <SelectContent>
-              {categories.map((cat) => (
-                <SelectItem key={cat.category_id} value={cat.category_id}>
-                  {cat.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            </>
+          ) : (
+            <Select
+              value={formData.category}
+              onValueChange={(v) => {
+                setFormData((prev) => ({ ...prev, category: v }));
+                setFormErrors((prev) => ({ ...prev, category: undefined }));
+              }}
+            >
+              <SelectTrigger
+                id="category"
+                className="w-full"
+                disabled={categoriesLoading}
+                aria-invalid={!!formErrors.category}
+                aria-describedby={
+                  formErrors.category ? "category-error" : undefined
+                }
+              >
+                <SelectValue
+                  placeholder={
+                    categoriesLoading
+                      ? t("dashboard.budget.form.loadingCategories")
+                      : t("dashboard.budget.form.selectCategory")
+                  }
+                />
+              </SelectTrigger>
+              <SelectContent>
+                {categories.map((cat) => (
+                  <SelectItem key={cat.category_id} value={cat.category_id}>
+                    {cat.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
           {formErrors.category && (
             <p
               id="category-error"

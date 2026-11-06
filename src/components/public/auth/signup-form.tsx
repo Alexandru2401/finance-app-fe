@@ -19,6 +19,7 @@ import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 
 import { createUser } from "@/api/user";
+import type { Language } from "@/i18n";
 import { useAuth } from "@/hooks/useAuth";
 
 export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
@@ -29,7 +30,7 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
   });
 
   const { setUser } = useAuth();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const [loading, setLoading] = useState(false);
 
@@ -52,7 +53,11 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
     try {
       setLoading(true);
 
-      const response = await createUser(formData.email, formData.password);
+      const response = await createUser(
+        formData.email,
+        formData.password,
+        i18n.language as Language,
+      );
 
       if (!response.ok) {
         toast.error(response.data.message || t("auth.signup.failed"));
