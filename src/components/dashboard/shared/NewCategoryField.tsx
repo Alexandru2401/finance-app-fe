@@ -6,8 +6,7 @@ import { ApiRequestError, createCategory, type Category } from "@/api/budget";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-
-const CATEGORY_NAME_MAX_LENGTH = 40;
+import { CATEGORY_NAME_MAX, CATEGORY_NAME_MIN } from "@/lib/validation";
 
 interface NewCategoryFieldProps {
   type: Category["type"];
@@ -39,6 +38,16 @@ export default function NewCategoryField({
 
     if (!cleanName) {
       setError(t("dashboard.budget.form.errors.categoryNameRequired"));
+      return;
+    }
+
+    if (cleanName.length < CATEGORY_NAME_MIN) {
+      setError(
+        t("dashboard.settings.categories.errors.length", {
+          min: CATEGORY_NAME_MIN,
+          max: CATEGORY_NAME_MAX,
+        }),
+      );
       return;
     }
 
@@ -81,7 +90,7 @@ export default function NewCategoryField({
           autoFocus={autoFocus}
           value={name}
           disabled={creating}
-          maxLength={CATEGORY_NAME_MAX_LENGTH}
+          maxLength={CATEGORY_NAME_MAX}
           onChange={(e) => {
             setName(e.target.value);
             setError(undefined);

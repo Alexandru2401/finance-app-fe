@@ -97,7 +97,10 @@ export default function UserInfoForm() {
     if (!currency || !user) return;
     setLoading(true);
     try {
-      const response = await addUserInfo(name.trim(), currency);
+      const response = await addUserInfo({
+        username: name.trim(),
+        currency,
+      });
       console.log("addUserInfo response:", response);
 
       if (!response.ok || !response.data?.user) return;

@@ -30,6 +30,7 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { CATEGORY_NAME_MAX, CATEGORY_NAME_MIN } from "@/lib/validation";
 import { Check, Pencil, Plus, Tag, Trash2, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -37,10 +38,6 @@ import { toast } from "sonner";
 
 type CategoryType = Category["type"];
 const TYPES: CategoryType[] = ["income", "expenses", "savings"];
-
-// Same limits as the backend (POST /categories)
-const NAME_MIN = 2;
-const NAME_MAX = 50;
 
 // Settings page tab: the manager inside a card
 export default function CategoriesSettings() {
@@ -178,11 +175,14 @@ function AddCategoryForm({ type, existing, onCreated }: AddCategoryFormProps) {
     e.preventDefault();
     if (saving) return;
 
-    if (cleanName.length < NAME_MIN || cleanName.length > NAME_MAX) {
+    if (
+      cleanName.length < CATEGORY_NAME_MIN ||
+      cleanName.length > CATEGORY_NAME_MAX
+    ) {
       setError(
         t("dashboard.settings.categories.errors.length", {
-          min: NAME_MIN,
-          max: NAME_MAX,
+          min: CATEGORY_NAME_MIN,
+          max: CATEGORY_NAME_MAX,
         }),
       );
       return;
@@ -232,7 +232,7 @@ function AddCategoryForm({ type, existing, onCreated }: AddCategoryFormProps) {
           aria-label={t("dashboard.settings.categories.newPlaceholder")}
           aria-invalid={error !== null}
           aria-describedby={error ? `new-category-error-${type}` : undefined}
-          maxLength={NAME_MAX}
+          maxLength={CATEGORY_NAME_MAX}
           disabled={saving}
         />
         <Button
@@ -341,11 +341,14 @@ function CategoryRow({
       return;
     }
 
-    if (cleanName.length < NAME_MIN || cleanName.length > NAME_MAX) {
+    if (
+      cleanName.length < CATEGORY_NAME_MIN ||
+      cleanName.length > CATEGORY_NAME_MAX
+    ) {
       setError(
         t("dashboard.settings.categories.errors.length", {
-          min: NAME_MIN,
-          max: NAME_MAX,
+          min: CATEGORY_NAME_MIN,
+          max: CATEGORY_NAME_MAX,
         }),
       );
       return;
@@ -414,7 +417,7 @@ function CategoryRow({
               aria-invalid={error !== null}
               aria-describedby={error ? errorId : undefined}
               className="h-8"
-              maxLength={NAME_MAX}
+              maxLength={CATEGORY_NAME_MAX}
               disabled={saving}
               autoFocus
               onKeyDown={(e) => e.key === "Escape" && cancelEdit()}

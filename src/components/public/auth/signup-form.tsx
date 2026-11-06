@@ -9,6 +9,7 @@ import {
 import {
   Field,
   FieldDescription,
+  FieldError,
   FieldGroup,
   FieldLabel,
 } from "@/components/ui/field";
@@ -33,8 +34,11 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
   const { t, i18n } = useTranslation();
 
   const [loading, setLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
 
   const navigate = useNavigate();
+
+  const passwordMismatch = formData.password !== formData.confirmPassword;
 
   function handleChange(
     field: keyof typeof formData,
@@ -49,6 +53,9 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
   async function handleSubmitForm(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (loading) return;
+
+    setSubmitted(true);
+    if (passwordMismatch) return;
 
     try {
       setLoading(true);
@@ -122,10 +129,21 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
                 required
                 value={formData.confirmPassword}
                 onChange={(e) => handleChange("confirmPassword", e)}
+                aria-invalid={submitted && passwordMismatch}
+                aria-describedby={
+                  submitted && passwordMismatch
+                    ? "confirm-password-error"
+                    : undefined
+                }
               />
               <FieldDescription>
                 {t("auth.signup.confirmPasswordHint")}
               </FieldDescription>
+              {submitted && passwordMismatch && (
+                <FieldError id="confirm-password-error">
+                  {t("auth.signup.passwordMismatch")}
+                </FieldError>
+              )}
             </Field>
             <FieldGroup>
               <Field>

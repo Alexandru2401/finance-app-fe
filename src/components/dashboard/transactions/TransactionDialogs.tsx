@@ -30,6 +30,7 @@ import { Label } from "@/components/ui/label";
 import type { Transaction } from "@/api/transactions";
 import type { Category, UpdateTransactionPayload } from "@/api/budget";
 import NewCategoryField from "@/components/dashboard/shared/NewCategoryField";
+import { isValidAmount } from "@/lib/validation";
 import { useDateLocale } from "@/hooks/useDateLocale";
 import { cn } from "@/lib/utils";
 import { TYPE_STYLES } from "./styles";
@@ -304,7 +305,7 @@ function EditForm({
 
   const typeCategories = categories.filter((c) => sameType(c, type));
   const numericAmount = Number(amount);
-  const amountError = !Number.isFinite(numericAmount) || numericAmount <= 0;
+  const amountError = !isValidAmount(numericAmount);
   const categoryError = !categoryId;
   const dateError = !date;
 

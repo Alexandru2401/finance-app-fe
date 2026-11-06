@@ -23,6 +23,7 @@ import {
 import { useEffect, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import NewCategoryField from "@/components/dashboard/shared/NewCategoryField";
+import { isValidAmount } from "@/lib/validation";
 import { useCurrency } from "@/hooks/useCurrency";
 import { useDateLocale } from "@/hooks/useDateLocale";
 import { Link } from "react-router";
@@ -80,6 +81,7 @@ export default function ItemCard({ section, onShowForm }: ItemCardProps) {
 
   // Real categories for this section; the edit sends their category_id
   const [categories, setCategories] = useState<Category[]>([]);
+  const [amountError, setAmountError] = useState(false);
 
   useEffect(() => {
     let ignore = false;
@@ -95,6 +97,7 @@ export default function ItemCard({ section, onShowForm }: ItemCardProps) {
 
   const startEdit = (item: BudgetItem) => {
     setEditingItem(item);
+    setAmountError(false);
     // Categories can change from the form or the settings on the same page
     getCategories(section.section)
       .then(setCategories)
@@ -114,12 +117,17 @@ export default function ItemCard({ section, onShowForm }: ItemCardProps) {
   const confirmEdit = () => {
     const original = editingItem!;
     const amount = parseFloat(editValues.amount);
+    if (!isValidAmount(amount)) {
+      setAmountError(true);
+      return;
+    }
+
     const newDate = date ? format(date, "yyyy-MM-dd") : "";
     const notes = editValues.notes.trim();
 
     // PATCH only the fields that changed
     const payload: UpdateTransactionPayload = {};
-    if (amount > 0 && amount !== original.amount) payload.amount = amount;
+    if (amount !== original.amount) payload.amount = amount;
     if (newDate && newDate !== editValues.date) payload.date = newDate;
     if (editValues.category && editValues.category !== original.categoryId)
       payload.category_id = editValues.category;
@@ -405,13 +413,20 @@ export default function ItemCard({ section, onShowForm }: ItemCardProps) {
               <Input
                 type="number"
                 value={editValues.amount}
-                onChange={(e) =>
-                  setEditValues((v) => ({ ...v, amount: e.target.value }))
-                }
+                onChange={(e) => {
+                  setEditValues((v) => ({ ...v, amount: e.target.value }));
+                  setAmountError(false);
+                }}
                 placeholder="0.00"
                 step="0.01"
                 min="0"
+                aria-invalid={amountError}
               />
+              {amountError && (
+                <p role="alert" className="text-xs text-destructive">
+                  {t("dashboard.transactions.edit.invalidAmount")}
+                </p>
+              )}
             </div>
 
             {/* Category */}

@@ -214,6 +214,7 @@
       "passwordHint": "Must be at least 8 characters long.",
       "confirmPassword": "Confirm Password",
       "confirmPasswordHint": "Please confirm your password.",
+      "passwordMismatch": "Passwords do not match.",
       "submit": "Create Account",
       "submitting": "Creating Account...",
       "google": "Sign up with Google",
@@ -996,6 +997,8 @@
           "amountRequired": "Amount is required.",
           "amountInvalid": "Please enter a valid amount.",
           "amountPositive": "Amount must be greater than 0.",
+          "amountDecimals": "The amount can have at most 2 decimals.",
+          "amountTooLarge": "The amount is too large.",
           "notesTooLong": "Notes can't be longer than {{max}} characters."
         },
         "toasts": {
@@ -1132,7 +1135,7 @@
         "subtitle": "Change the type, amount, category, date or note.",
         "selectCategory": "Select a category",
         "categoryRequired": "Select a category.",
-        "invalidAmount": "The amount must be a number greater than 0.",
+        "invalidAmount": "Enter an amount greater than 0, with at most 2 decimals.",
         "pickDate": "Pick a date",
         "notesPlaceholder": "Add a note for this transaction...",
         "cancel": "Cancel",

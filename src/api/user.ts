@@ -52,17 +52,13 @@ async function logoutUser() {
 
 // Changing the currency converts all saved amounts on the backend (BNR rate);
 // the response user only has user_id, username, currency and language.
-// Without a language the backend keeps the current one
-async function addUserInfo(
-  username: string,
-  currency: Currency,
-  language?: Language,
-) {
-  const response = await patch<AuthResponse>("/auth/user-info", {
-    username,
-    currency,
-    language,
-  });
+// The backend keeps the value of every field that is not sent
+async function addUserInfo(info: {
+  username?: string;
+  currency?: Currency;
+  language?: Language;
+}) {
+  const response = await patch<AuthResponse>("/auth/user-info", info);
   return response;
 }
 

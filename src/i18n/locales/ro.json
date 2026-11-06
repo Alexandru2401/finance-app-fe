@@ -214,6 +214,7 @@
       "passwordHint": "Trebuie să aibă cel puțin 8 caractere.",
       "confirmPassword": "Confirmă parola",
       "confirmPasswordHint": "Te rugăm să confirmi parola.",
+      "passwordMismatch": "Parolele nu coincid.",
       "submit": "Creează cont",
       "submitting": "Se creează contul...",
       "google": "Înregistrează-te cu Google",
@@ -997,6 +998,8 @@
           "amountRequired": "Suma este obligatorie.",
           "amountInvalid": "Introdu o sumă validă.",
           "amountPositive": "Suma trebuie să fie mai mare decât 0.",
+          "amountDecimals": "Suma poate avea cel mult 2 zecimale.",
+          "amountTooLarge": "Suma este prea mare.",
           "notesTooLong": "Notele nu pot avea mai mult de {{max}} de caractere."
         },
         "toasts": {
@@ -1135,7 +1138,7 @@
         "subtitle": "Modifică tipul, suma, categoria, data sau notița.",
         "selectCategory": "Alege categoria",
         "categoryRequired": "Alege o categorie.",
-        "invalidAmount": "Suma trebuie să fie un număr mai mare decât 0.",
+        "invalidAmount": "Introdu o sumă mai mare decât 0, cu cel mult 2 zecimale.",
         "pickDate": "Alege o dată",
         "notesPlaceholder": "Adaugă o notiță pentru această tranzacție...",
         "cancel": "Anulează",
