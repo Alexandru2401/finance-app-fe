@@ -115,6 +115,15 @@ export default function PublicMainNavigation() {
             </NavigationMenuLink>
           </NavigationMenuItem>
 
+          <NavigationMenuItem className="hidden lg:block">
+            <NavigationMenuLink
+              asChild
+              className={navigationMenuTriggerStyle()}
+            >
+              <Link to="/roadmap">{t("nav.roadmap")}</Link>
+            </NavigationMenuLink>
+          </NavigationMenuItem>
+
           <NavigationMenuItem className="relative">
             <NavigationMenuTrigger>{t("nav.info")}</NavigationMenuTrigger>
             <NavigationMenuContent>
@@ -124,6 +133,14 @@ export default function PublicMainNavigation() {
                 </ListItem>
                 <ListItem href="/privacy-policy" title={t("nav.readPrivacy")}>
                   {t("nav.privacy")}
+                </ListItem>
+                {/* Sub lg nu încape în bară, lângă logo */}
+                <ListItem
+                  href="/roadmap"
+                  title={t("nav.roadmap")}
+                  className="lg:hidden"
+                >
+                  {t("nav.roadmapDescription")}
                 </ListItem>
               </ul>
             </NavigationMenuContent>
@@ -224,6 +241,13 @@ export default function PublicMainNavigation() {
               onClick={() => setOpenMenu(false)}
             >
               {t("nav.blog")}
+            </Link>
+            <Link
+              to="/roadmap"
+              className="text-sm font-medium hover:text-primary transition-colors py-2 border-b"
+              onClick={() => setOpenMenu(false)}
+            >
+              {t("nav.roadmap")}
             </Link>
             {/* Auth Buttons */}
             <div className="flex flex-col gap-3 mt-4 pt-4 border-t sm:hidden">

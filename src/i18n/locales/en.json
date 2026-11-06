@@ -5,6 +5,8 @@
     "about": "About",
     "prices": "Prices",
     "blog": "Blog",
+    "roadmap": "Roadmap",
+    "roadmapDescription": "See what's coming and tell us what you'd like in the app.",
     "info": "Info",
     "personalUse": "Personal use",
     "personalUseDescription": "Unlock the full potential and control for your finances.",
@@ -171,6 +173,7 @@
     "product": "Product",
     "home": "Home",
     "about": "About",
+    "roadmap": "Roadmap",
     "startFree": "Start for free",
     "login": "Log in",
     "social": "Social",
@@ -798,6 +801,83 @@
           "Two years later, they moved into their first home. \"Seeing the goal grow together every month kept us motivated.\""
         ]
       }
+    }
+  },
+  "roadmap": {
+    "badge": "FinanceApp Roadmap",
+    "title": "What's coming to the app",
+    "subtitle": "Vote for what you want most and tell us what you'd like to see. Your ideas help us set our priorities.",
+    "cta": "Suggest an idea",
+    "statuses": {
+      "next": {
+        "title": "Up next",
+        "description": "First on the list."
+      },
+      "planned": {
+        "title": "Planned",
+        "description": "On the list, after the first column."
+      },
+      "later": {
+        "title": "Later",
+        "description": "We'd like to get here too."
+      }
+    },
+    "items": {
+      "changePassword": {
+        "title": "Change password",
+        "description": "You'll be able to change your password right from your profile."
+      },
+      "csvExport": {
+        "title": "CSV export",
+        "description": "Download your transactions and target history to use them in other apps."
+      },
+      "accountManagement": {
+        "title": "Account management",
+        "description": "Change your email, reset your data and delete your account, right from the app."
+      },
+      "analytics": {
+        "title": "Full analytics",
+        "description": "Charts and statistics built from your real data."
+      },
+      "globalSearch": {
+        "title": "App-wide search",
+        "description": "Quickly find transactions and categories from any page."
+      },
+      "googleLogin": {
+        "title": "Sign in with Google",
+        "description": "Log in with one click, with no extra password."
+      },
+      "guidedTour": {
+        "title": "Guided tour",
+        "description": "A short walkthrough of the app for your first steps."
+      },
+      "paidPlans": {
+        "title": "Payments and plans",
+        "description": "Choose and change your plan right from the app."
+      }
+    },
+    "vote": {
+      "count_one": "{{count}} vote",
+      "count_other": "{{count}} votes",
+      "add": "Vote: {{title}}",
+      "remove": "Remove vote: {{title}}",
+      "loginRequired": "Log in to vote.",
+      "failed": "We couldn't save your vote. Please try again."
+    },
+    "feedback": {
+      "title": "What would you like to see?",
+      "text": "Tell us what's missing or what you'd improve. We read every message.",
+      "messageLabel": "Your idea",
+      "messagePlaceholder": "I'd like the app to...",
+      "submit": "Send idea",
+      "submitting": "Sending...",
+      "success": "Thank you! Your idea has been sent.",
+      "failed": "We couldn't send your idea. Please try again.",
+      "errors": {
+        "messageTooShort": "Write at least 10 characters.",
+        "messageTooLong": "The message can have at most 1000 characters."
+      },
+      "loginRequired": "Log in to send us an idea."
     }
   },
   "dashboard": {

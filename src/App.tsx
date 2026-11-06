@@ -16,6 +16,7 @@ import PublicPricesPersonalPage from "./pages/public/PublicPricesPersonalPage";
 import PublicPricesEnterprisePage from "./pages/public/PublicPricesEnterprisePage";
 import BlogPage from "./pages/public/blog/BlogPage";
 import PayPage from "./pages/public/paypage/PayPage";
+import RoadmapPage from "./pages/public/roadmap/RoadmapPage";
 import PrivacyPolicy from "./pages/public/terms-and-policy/PrivacyPolicy";
 import TermsAndConditions from "./pages/public/terms-and-policy/TermsAndConditions";
 import ErrorPage from "./routes/Error";
@@ -44,6 +45,7 @@ const publicRoutes = [
   { path: "prices/personal", element: <PublicPricesPersonalPage /> },
   { path: "prices/enterprise", element: <PublicPricesEnterprisePage /> },
   { path: "blog", element: <BlogPage /> },
+  { path: "roadmap", element: <RoadmapPage /> },
   { path: "paypage/:type", element: <PayPage /> },
   { path: "terms-and-services", element: <TermsAndConditions /> },
   { path: "privacy-policy", element: <PrivacyPolicy /> },
