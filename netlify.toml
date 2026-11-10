@@ -1,0 +1,21 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  # Requests go to the same origin and are proxied to Render (see below),
+  # so cookies stay first-party and sameSite "strict" keeps working.
+  VITE_API_URL = "/api/v1"
+
+# Proxy API calls to the Render backend.
+[[redirects]]
+  from = "/api/*"
+  to = "https://finance-app-backend-97jx.onrender.com/api/:splat"
+  status = 200
+  force = true
+
+# SPA fallback: every other route serves index.html (avoids 404 on refresh).
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
