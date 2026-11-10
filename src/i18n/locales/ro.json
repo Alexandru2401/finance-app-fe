@@ -1227,7 +1227,7 @@
       "budget": "Buget",
       "transactions": "Tranzacții",
       "analytics": "Analize",
-      "upgrade": "Treci la Pro",
+      "upgrade": "Mută la Pro",
       "profile": "Profil",
       "search": "Caută",
       "openMenu": "Deschide meniul",
@@ -1295,7 +1295,7 @@
       "actions": {
         "plan": {
           "label": "Schimbă planul",
-          "description": "Treci la un abonament superior sau inferior"
+          "description": "Mută la un abonament superior sau inferior"
         },
         "email": {
           "label": "Schimbă emailul",
