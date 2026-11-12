@@ -9,6 +9,7 @@ import {
 import {
   Field,
   FieldDescription,
+  FieldError,
   FieldGroup,
   FieldLabel,
 } from "@/components/ui/field";
@@ -19,6 +20,7 @@ import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 
 import { createUser } from "@/api/user";
+import type { Language } from "@/i18n";
 import { useAuth } from "@/hooks/useAuth";
 
 export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
@@ -29,11 +31,14 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
   });
 
   const { setUser } = useAuth();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const [loading, setLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
 
   const navigate = useNavigate();
+
+  const passwordMismatch = formData.password !== formData.confirmPassword;
 
   function handleChange(
     field: keyof typeof formData,
@@ -49,10 +54,17 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
     e.preventDefault();
     if (loading) return;
 
+    setSubmitted(true);
+    if (passwordMismatch) return;
+
     try {
       setLoading(true);
 
-      const response = await createUser(formData.email, formData.password);
+      const response = await createUser(
+        formData.email,
+        formData.password,
+        i18n.language as Language,
+      );
 
       if (!response.ok) {
         toast.error(response.data.message || t("auth.signup.failed"));
@@ -117,10 +129,21 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
                 required
                 value={formData.confirmPassword}
                 onChange={(e) => handleChange("confirmPassword", e)}
+                aria-invalid={submitted && passwordMismatch}
+                aria-describedby={
+                  submitted && passwordMismatch
+                    ? "confirm-password-error"
+                    : undefined
+                }
               />
               <FieldDescription>
                 {t("auth.signup.confirmPasswordHint")}
               </FieldDescription>
+              {submitted && passwordMismatch && (
+                <FieldError id="confirm-password-error">
+                  {t("auth.signup.passwordMismatch")}
+                </FieldError>
+              )}
             </Field>
             <FieldGroup>
               <Field>

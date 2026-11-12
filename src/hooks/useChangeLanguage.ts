@@ -3,7 +3,6 @@ import { toast } from "sonner";
 import { addUserInfo } from "@/api/user";
 import { useAuth } from "@/hooks/useAuth";
 import type { Language } from "@/i18n";
-import { DEFAULT_CURRENCY, isCurrency } from "@/lib/format";
 
 /**
  * Switches the app language right away and, when logged in, saves it on the
@@ -19,13 +18,7 @@ export function useChangeLanguage() {
     if (!user) return;
 
     try {
-      // The route also requires username and currency, so the current ones are
-      // sent; the same currency means no amounts are converted
-      const res = await addUserInfo(
-        user.username || user.email.split("@")[0],
-        isCurrency(user.currency) ? user.currency : DEFAULT_CURRENCY,
-        language,
-      );
+      const res = await addUserInfo({ language });
       if (!res.ok || !res.data?.user) throw new Error();
       // Keeps AuthProvider from switching back to the old saved language
       setUser({ ...user, ...res.data.user });

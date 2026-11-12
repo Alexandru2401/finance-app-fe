@@ -34,6 +34,11 @@ export default function PublicFooter() {
                 </Link>
               </li>
               <li>
+                <Link to="/roadmap" className="hover:text-white transition">
+                  {t("footer.roadmap")}
+                </Link>
+              </li>
+              <li>
                 <Link to="/signin" className="hover:text-white transition">
                   {t("footer.startFree")}
                 </Link>

@@ -74,7 +74,6 @@ export function LoginForm({
       return;
     }
 
-    console.log("Valid form data:", result.data);
     setErrors({});
 
     setIsSubmiting(true);
