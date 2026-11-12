@@ -65,4 +65,13 @@ async function getTransactions(
   return { ok: true, data: response.data };
 }
 
-export { getTransactions };
+// Years in which the user has at least one transaction, newest first
+async function getTransactionYears(): Promise<number[]> {
+  const response = await get<{ success: boolean; years: number[] }>(
+    "/transactions/years",
+  );
+  if (!response.ok) throw new Error("Could not load transaction years");
+  return response.data.years;
+}
+
+export { getTransactions, getTransactionYears };

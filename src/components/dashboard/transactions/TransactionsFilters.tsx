@@ -14,7 +14,7 @@ import {
 import { Download, Search, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { Category } from "@/api/budget";
-import type { TransactionFilters } from "./filters";
+import { daysInMonth, type TransactionFilters } from "./filters";
 
 // Month names in the app language, e.g. "January" / "Ianuarie"
 const monthNames = (locale: string) =>
@@ -242,7 +242,10 @@ export default function TransactionsFilters({
               <SelectItem value="all">
                 {t("dashboard.transactions.filters.allDays")}
               </SelectItem>
-              {Array.from({ length: 31 }, (_, i) => i + 1).map((d) => (
+              {Array.from(
+                { length: daysInMonth(filters.year, filters.month) },
+                (_, i) => i + 1,
+              ).map((d) => (
                 <SelectItem key={d} value={String(d)}>
                   {d}
                 </SelectItem>

@@ -13,6 +13,7 @@ import {
 import { Plus } from "lucide-react";
 import {
   DEFAULT_FILTERS,
+  daysInMonth,
   type TransactionFilters,
 } from "@/components/dashboard/transactions/filters";
 
@@ -20,6 +21,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   getTransactions,
+  getTransactionYears,
   type Transaction,
   type TransactionsParams,
 } from "@/api/transactions";
@@ -51,11 +53,6 @@ const SORTS: Record<string, TransactionsParams["sort"]> = {
 // Wait for a pause in typing before searching
 const SEARCH_DELAY = 300;
 
-// No endpoint lists the years with data, so offer the last few
-const YEARS = Array.from({ length: 6 }, (_, i) =>
-  String(new Date().getFullYear() - i),
-);
-
 const toNumber = (value: string) =>
   value === "all" ? undefined : Number(value);
 const toAmount = (value: string) =>
@@ -68,6 +65,8 @@ export default function TransactionsPage() {
   // Debounced copy of filters.search, the one sent to the backend
   const [search, setSearch] = useState(DEFAULT_FILTERS.search);
   const [categories, setCategories] = useState<Category[]>([]);
+  // Years with transactions, from the backend (newest first)
+  const [years, setYears] = useState<string[]>([]);
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState<number>(15);
   const [pagination, setPagination] = useState<PaginationInfo | null>(null);
@@ -84,6 +83,24 @@ export default function TransactionsPage() {
       .then(setCategories)
       .catch(() => setCategories([]));
   }, []);
+
+  // Fetched again after every change (add / edit / delete), since a
+  // transaction can add or remove a year
+  useEffect(() => {
+    let ignore = false;
+    getTransactionYears()
+      .then((data) => !ignore && setYears(data.map(String)))
+      .catch(() => {});
+    return () => {
+      ignore = true;
+    };
+  }, [refreshKey]);
+
+  // The selected year stays in the list even if it no longer has transactions
+  const yearOptions =
+    filters.year !== "all" && !years.includes(filters.year)
+      ? [...years, filters.year].sort((a, b) => Number(b) - Number(a))
+      : years;
 
   function addCategory(category: Category) {
     setCategories((prev) => [...prev, category]);
@@ -234,7 +251,17 @@ export default function TransactionsPage() {
     // Typing in the search waits for the debounce above
     const onlySearch = Object.keys(patch).every((key) => key === "search");
     if (!onlySearch) setPage(1);
-    setFilters((prev) => ({ ...prev, ...patch }));
+    setFilters((prev) => {
+      const next = { ...prev, ...patch };
+      // e.g. day 31 and then February: the day no longer exists
+      if (
+        next.day !== "all" &&
+        Number(next.day) > daysInMonth(next.year, next.month)
+      ) {
+        next.day = "all";
+      }
+      return next;
+    });
   }
 
   function clearFilters() {
@@ -282,7 +309,7 @@ export default function TransactionsPage() {
         filters={filters}
         onChange={changeFilters}
         onClear={clearFilters}
-        years={YEARS}
+        years={yearOptions}
         categories={categories}
       />
       <TransactionsTable
