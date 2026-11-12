@@ -562,7 +562,7 @@ function ChangePasswordPanel() {
         setValues(EMPTY_PASSWORDS);
         return;
       }
-      const message = res.data?.error || res.data?.message;
+      const message = res.data?.message;
       if (message === "Current password is incorrect") {
         setError("currentIncorrect");
       } else {

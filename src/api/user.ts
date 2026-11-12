@@ -4,9 +4,8 @@ import type { Language } from "@/i18n";
 import { post, get, patch } from "./client";
 
 interface AuthResponse {
+  // Errors are { success: false, message }
   message: string;
-  // PATCH /auth/user-info sends errors as { error }
-  error?: string;
   success: boolean;
   token?: string;
   user?: User;
@@ -61,7 +60,7 @@ async function addUserInfo(info: {
 }
 
 // 204 on success; the other sessions of the user are logged out.
-// A wrong current password is a 400 with { error: "Current password is incorrect" }
+// A wrong current password is a 400 with { message: "Current password is incorrect" }
 async function updatePassword(currentPassword: string, newPassword: string) {
   const response = await patch<AuthResponse | null>("/auth/update-password", {
     currentPassword,

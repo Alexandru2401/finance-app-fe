@@ -52,7 +52,7 @@ export default function CurrencySettings({ user }: { user: User }) {
         toast.error(
           res.status === 503
             ? t("dashboard.settings.currency.unavailable")
-            : (res.data?.error ?? t("dashboard.settings.currency.error")),
+            : (res.data?.message ?? t("dashboard.settings.currency.error")),
         );
         return;
       }

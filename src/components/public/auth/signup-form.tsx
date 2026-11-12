@@ -71,12 +71,8 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
       );
 
       if (!response.ok) {
-        // Validation errors come as { error }, e.g. "Email already exists"
-        toast.error(
-          response.data?.error ||
-            response.data?.message ||
-            t("auth.signup.failed"),
-        );
+        // e.g. "Email already exists"
+        toast.error(response.data?.message || t("auth.signup.failed"));
         return;
       }
 

@@ -120,9 +120,7 @@ export default function UserInfoForm() {
         // 4xx come with a useful message (e.g. invalid name); 5xx is
         // "Server error", e.g. when the BNR rates cannot be fetched
         const message =
-          response.status < 500
-            ? response.data?.error || response.data?.message
-            : undefined;
+          response.status < 500 ? response.data?.message : undefined;
         toast.error("Nu am putut salva datele", {
           description: message || "Încearcă din nou în câteva momente.",
         });

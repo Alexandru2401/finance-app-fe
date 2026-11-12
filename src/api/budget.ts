@@ -139,8 +139,8 @@ export interface UpdateTransactionPayload {
   notes?: string | null;
 }
 
-// Errors come as { message } (4xx) or { error } (500)
-type ApiError = { message?: string; error?: string } | null;
+// Every error from the backend is { success: false, message }
+type ApiError = { success?: boolean; message?: string } | null;
 
 async function updateTransaction(
   id: string,
@@ -148,22 +148,14 @@ async function updateTransaction(
 ): Promise<void> {
   const response = await patch<ApiError>(`/transactions/${id}`, payload);
   if (!response.ok) {
-    throw new Error(
-      response.data?.message ??
-        response.data?.error ??
-        "Could not update transaction",
-    );
+    throw new Error(response.data?.message ?? "Could not update transaction");
   }
 }
 
 async function deleteTransaction(id: string): Promise<void> {
   const response = await del<ApiError>(`/transactions/${id}`);
   if (!response.ok) {
-    throw new Error(
-      response.data?.message ??
-        response.data?.error ??
-        "Could not delete transaction",
-    );
+    throw new Error(response.data?.message ?? "Could not delete transaction");
   }
 }
 
@@ -280,11 +272,7 @@ async function saveBudgetTarget(
   );
 
   if (!response.ok || !response.data?.target) {
-    throw new Error(
-      response.data?.message ??
-        response.data?.error ??
-        "Could not save targets",
-    );
+    throw new Error(response.data?.message ?? "Could not save targets");
   }
   return fromApiMonthlyTarget(response.data.target);
 }
