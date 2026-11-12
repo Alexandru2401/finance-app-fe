@@ -27,9 +27,11 @@ dist-ssr
 node_modules
 
 # Playwright
-playwright-report/
-test-results/
-blob-report/
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/
 
-# ESLint cache
+coverage
 .eslintcache
