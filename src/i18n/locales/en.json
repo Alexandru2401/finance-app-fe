@@ -189,6 +189,8 @@
     "email": "Email",
     "emailPlaceholder": "m@example.com",
     "password": "Password",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
     "errors": {
       "emailRequired": "Email is required.",
       "emailInvalid": "Please enter a valid email.",
@@ -211,7 +213,8 @@
       "title": "Create an account",
       "description": "Enter your information below to create your account",
       "emailHint": "We'll use this to contact you. We will not share your email with anyone else.",
-      "passwordHint": "Must be at least 8 characters long.",
+      "passwordHint": "Must be between 8 and 72 characters.",
+      "passwordLength": "The password must be between 8 and 72 characters.",
       "confirmPassword": "Confirm Password",
       "confirmPasswordHint": "Please confirm your password.",
       "passwordMismatch": "Passwords do not match.",
@@ -1320,7 +1323,15 @@
         "current": "Current Password",
         "new": "New Password",
         "confirm": "Confirm New Password",
-        "submit": "Change Password"
+        "submit": "Change Password",
+        "required": "Fill in all the fields.",
+        "length": "The new password must be between 8 and 72 characters.",
+        "mismatch": "The new passwords do not match.",
+        "same": "The new password must be different from the current one.",
+        "currentIncorrect": "The current password is incorrect.",
+        "success": "Password changed. Your other devices have been logged out.",
+        "failed": "Could not change the password.",
+        "submitting": "Saving..."
       },
       "accountPanel": {
         "name": "Account Name",

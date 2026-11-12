@@ -19,6 +19,7 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
@@ -36,11 +37,18 @@ import {
   Trash2,
   UserRoundCog,
 } from "lucide-react";
-import { useEffect, useState, type ComponentProps } from "react";
+import {
+  useEffect,
+  useState,
+  type ComponentProps,
+  type FormEvent,
+} from "react";
 import { Link, useNavigate } from "react-router";
 import { useTranslation } from "react-i18next";
 
-import { logoutUser, getUserInfo } from "@/api/user";
+import { logoutUser, getUserInfo, updatePassword } from "@/api/user";
+import { isValidPassword } from "@/lib/password";
+import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import type { User } from "@/context/AuthContext";
 
@@ -388,30 +396,7 @@ function ActionPanel({ id, user }: { id: ActionId; user: User }) {
       </div>
     );
 
-  if (id === "password")
-    return (
-      <div className="space-y-3">
-        <div className="space-y-1">
-          <Label className="text-muted-foreground text-xs">
-            {t("dashboard.profile.passwordPanel.current")}
-          </Label>
-          <Input type="password" placeholder="••••••••" />
-        </div>
-        <div className="space-y-1">
-          <Label className="text-muted-foreground text-xs">
-            {t("dashboard.profile.passwordPanel.new")}
-          </Label>
-          <Input type="password" placeholder="••••••••" />
-        </div>
-        <div className="space-y-1">
-          <Label className="text-muted-foreground text-xs">
-            {t("dashboard.profile.passwordPanel.confirm")}
-          </Label>
-          <Input type="password" placeholder="••••••••" />
-        </div>
-        <ProfileBtn label={t("dashboard.profile.passwordPanel.submit")} />
-      </div>
-    );
+  if (id === "password") return <ChangePasswordPanel />;
 
   if (id === "add-account")
     return (
@@ -525,4 +510,142 @@ function ActionPanel({ id, user }: { id: ActionId; user: User }) {
     );
 
   return null;
+}
+
+type PasswordError =
+  "required" | "length" | "mismatch" | "same" | "currentIncorrect" | "failed";
+
+const EMPTY_PASSWORDS = { current: "", next: "", confirm: "" };
+
+function ChangePasswordPanel() {
+  const { t } = useTranslation();
+  const [values, setValues] = useState(EMPTY_PASSWORDS);
+  const [error, setError] = useState<PasswordError | null>(null);
+  // Message from the backend for errors without a translation (e.g. rate limit)
+  const [serverMessage, setServerMessage] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+
+  const change = (field: keyof typeof EMPTY_PASSWORDS, value: string) => {
+    setValues((prev) => ({ ...prev, [field]: value }));
+    setError(null);
+    setServerMessage(null);
+  };
+
+  // Same rules as the backend, checked first so most mistakes need no request
+  function validate(): PasswordError | null {
+    if (!values.current || !values.next || !values.confirm) return "required";
+    if (!isValidPassword(values.next)) return "length";
+    if (values.next !== values.confirm) return "mismatch";
+    if (values.next === values.current) return "same";
+    return null;
+  }
+
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (saving) return;
+
+    const invalid = validate();
+    if (invalid) {
+      setError(invalid);
+      return;
+    }
+
+    setSaving(true);
+    try {
+      const res = await updatePassword(values.current, values.next);
+      if (res.ok) {
+        toast.success(t("dashboard.profile.passwordPanel.success"));
+        setValues(EMPTY_PASSWORDS);
+        return;
+      }
+      const message = res.data?.error || res.data?.message;
+      if (message === "Current password is incorrect") {
+        setError("currentIncorrect");
+      } else {
+        setError("failed");
+        // 5xx only says "Server error", which does not help the user
+        if (res.status < 500 && message) setServerMessage(message);
+      }
+    } catch {
+      setError("failed");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  // Which field the error belongs to, for aria-invalid
+  const invalidCurrent = error === "currentIncorrect";
+  const invalidNext = error === "length" || error === "same";
+  const invalidConfirm = error === "mismatch";
+
+  return (
+    <form className="space-y-3" onSubmit={handleSubmit} noValidate>
+      <div className="space-y-1">
+        <Label
+          htmlFor="current-password"
+          className="text-muted-foreground text-xs"
+        >
+          {t("dashboard.profile.passwordPanel.current")}
+        </Label>
+        <PasswordInput
+          id="current-password"
+          placeholder="••••••••"
+          autoComplete="current-password"
+          value={values.current}
+          onChange={(e) => change("current", e.target.value)}
+          aria-invalid={invalidCurrent}
+          aria-describedby={error ? "password-panel-error" : undefined}
+        />
+      </div>
+      <div className="space-y-1">
+        <Label htmlFor="new-password" className="text-muted-foreground text-xs">
+          {t("dashboard.profile.passwordPanel.new")}
+        </Label>
+        <PasswordInput
+          id="new-password"
+          placeholder="••••••••"
+          autoComplete="new-password"
+          value={values.next}
+          onChange={(e) => change("next", e.target.value)}
+          aria-invalid={invalidNext}
+          aria-describedby={error ? "password-panel-error" : undefined}
+        />
+      </div>
+      <div className="space-y-1">
+        <Label
+          htmlFor="confirm-new-password"
+          className="text-muted-foreground text-xs"
+        >
+          {t("dashboard.profile.passwordPanel.confirm")}
+        </Label>
+        <PasswordInput
+          id="confirm-new-password"
+          placeholder="••••••••"
+          autoComplete="new-password"
+          value={values.confirm}
+          onChange={(e) => change("confirm", e.target.value)}
+          aria-invalid={invalidConfirm}
+          aria-describedby={error ? "password-panel-error" : undefined}
+        />
+      </div>
+      {error && (
+        <p
+          id="password-panel-error"
+          role="alert"
+          className="text-xs text-finance-danger"
+        >
+          {serverMessage ?? t(`dashboard.profile.passwordPanel.${error}`)}
+        </p>
+      )}
+      <ProfileBtn
+        type="submit"
+        disabled={saving}
+        label={
+          saving
+            ? t("dashboard.profile.passwordPanel.submitting")
+            : t("dashboard.profile.passwordPanel.submit")
+        }
+      />
+    </form>
+  );
 }

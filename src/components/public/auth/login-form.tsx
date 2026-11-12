@@ -14,6 +14,7 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { useState } from "react";
 import LoginSchema, { type LoginErrorKey } from "@/schemas/login.schema";
 import { useNavigate } from "react-router";
@@ -140,9 +141,8 @@ export function LoginForm({
                     {t("auth.login.forgotPassword")}
                   </a>
                 </div>
-                <Input
+                <PasswordInput
                   id="password"
-                  type="password"
                   value={formData.password}
                   onChange={(e) => handleChange("password", e)}
                   className={errors.password ? "border-red-500" : ""}

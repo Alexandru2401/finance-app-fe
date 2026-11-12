@@ -60,7 +60,18 @@ async function addUserInfo(info: {
   return response;
 }
 
+// 204 on success; the other sessions of the user are logged out.
+// A wrong current password is a 400 with { error: "Current password is incorrect" }
+async function updatePassword(currentPassword: string, newPassword: string) {
+  const response = await patch<AuthResponse | null>("/auth/update-password", {
+    currentPassword,
+    newPassword,
+  });
+  return response;
+}
+
 export {
+  updatePassword,
   loginUser,
   createUser,
   checkUserAuthentication,

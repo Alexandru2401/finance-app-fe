@@ -189,6 +189,8 @@
     "email": "Email",
     "emailPlaceholder": "nume@exemplu.ro",
     "password": "Parolă",
+    "showPassword": "Arată parola",
+    "hidePassword": "Ascunde parola",
     "errors": {
       "emailRequired": "Emailul este obligatoriu.",
       "emailInvalid": "Introdu o adresă de email validă.",
@@ -211,7 +213,8 @@
       "title": "Creează un cont",
       "description": "Completează datele de mai jos pentru a-ți crea contul",
       "emailHint": "Îl vom folosi pentru a te contacta. Nu îl vom împărtăși cu nimeni.",
-      "passwordHint": "Trebuie să aibă cel puțin 8 caractere.",
+      "passwordHint": "Trebuie să aibă între 8 și 72 de caractere.",
+      "passwordLength": "Parola trebuie să aibă între 8 și 72 de caractere.",
       "confirmPassword": "Confirmă parola",
       "confirmPasswordHint": "Te rugăm să confirmi parola.",
       "passwordMismatch": "Parolele nu coincid.",
@@ -1323,7 +1326,15 @@
         "current": "Parola curentă",
         "new": "Parola nouă",
         "confirm": "Confirmă parola nouă",
-        "submit": "Schimbă parola"
+        "submit": "Schimbă parola",
+        "required": "Completează toate câmpurile.",
+        "length": "Parola nouă trebuie să aibă între 8 și 72 de caractere.",
+        "mismatch": "Parolele noi nu coincid.",
+        "same": "Parola nouă trebuie să fie diferită de cea curentă.",
+        "currentIncorrect": "Parola curentă este greșită.",
+        "success": "Parola a fost schimbată. Celelalte dispozitive au fost deconectate.",
+        "failed": "Nu am putut schimba parola.",
+        "submitting": "Se salvează..."
       },
       "accountPanel": {
         "name": "Numele contului",
