@@ -1,31 +1,27 @@
-import { Calendar } from "@/components/ui/calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import {
   getCategories,
   type BudgetItem,
   type Category,
   type UpdateTransactionPayload,
 } from "@/api/budget";
-import { format } from "date-fns/format";
+import type { Transaction } from "@/api/transactions";
 import {
-  ChevronDownIcon,
-  FileText,
-  Minus,
-  Pencil,
-  PiggyBank,
-  Plus,
-  Trash2,
-} from "lucide-react";
+  TransactionEditDialog,
+  TransactionNotesDialog,
+} from "@/components/dashboard/transactions/TransactionDialogs";
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { FileText, Minus, Pencil, PiggyBank, Plus, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
-import NewCategoryField from "@/components/dashboard/shared/NewCategoryField";
-import { isValidAmount } from "@/lib/validation";
 import { useCurrency } from "@/hooks/useCurrency";
-import { useDateLocale } from "@/hooks/useDateLocale";
 import { Link } from "react-router";
 import type { Section } from "../../../pages/dashboard/BudgetPage";
 import { Button } from "../../ui/button";
@@ -37,15 +33,6 @@ import {
   CardHeader,
   CardTitle,
 } from "../../ui/card";
-import { Input } from "../../ui/input";
-import { Label } from "../../ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../../ui/select";
 
 type BudgetType = "income" | "expenses" | "savings";
 
@@ -56,6 +43,18 @@ const formatDate = (date: string, locale: string) =>
     year: "numeric",
   });
 
+// The dialogs from Transactions work with the transaction shape of the API
+const toTransaction = (item: BudgetItem): Transaction => ({
+  item_id: item.id,
+  type: item.type === "expenses" ? "expense" : item.type,
+  amount: item.amount,
+  // Items from the backend always have a date; the fallback keeps the dialogs safe
+  date: item.date ?? new Date().toISOString(),
+  category_id: item.categoryId ?? null,
+  category_name: item.category || null,
+  notes: item.notes ?? null,
+});
+
 interface ItemCardProps {
   section: Section;
   onShowForm: () => void;
@@ -64,28 +63,25 @@ interface ItemCardProps {
 export default function ItemCard({ section, onShowForm }: ItemCardProps) {
   const { t, i18n } = useTranslation();
   const { format: formatMoney } = useCurrency();
-  const dateLocale = useDateLocale();
   const categoryName = (item: BudgetItem) =>
     item.category || t("dashboard.common.uncategorized");
-  const [editingItem, setEditingItem] = useState<BudgetItem | null>(null);
+
+  // Ids instead of objects, so the dialogs always show the latest data of the item
+  const [notesId, setNotesId] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [deletingItem, setDeletingItem] = useState<BudgetItem | null>(null);
-  const [viewingItem, setViewingItem] = useState<BudgetItem | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const findTx = (id: string | null) => {
+    const item = id && section.items.find((i) => i.id === id);
+    return item ? toTransaction(item) : null;
+  };
 
-  const [date, setDate] = useState<Date | undefined>(new Date());
-  const [editValues, setEditValues] = useState({
-    amount: "",
-    category: "",
-    date: "",
-    notes: "",
-  });
-
-  // Real categories for this section; the edit sends their category_id
+  // All the categories: the edit dialog can also change the type
   const [categories, setCategories] = useState<Category[]>([]);
-  const [amountError, setAmountError] = useState(false);
 
   useEffect(() => {
     let ignore = false;
-    getCategories(section.section)
+    getCategories()
       .then((data) => {
         if (!ignore) setCategories(data);
       })
@@ -93,57 +89,27 @@ export default function ItemCard({ section, onShowForm }: ItemCardProps) {
     return () => {
       ignore = true;
     };
-  }, [section.section]);
+  }, []);
 
   const startEdit = (item: BudgetItem) => {
-    setEditingItem(item);
-    setAmountError(false);
+    setEditingId(item.id);
     // Categories can change from the form or the settings on the same page
-    getCategories(section.section)
+    getCategories()
       .then(setCategories)
       .catch(() => {});
-    // new Date() keeps local time; splitting the ISO string would show the day before
-    setDate(item.date ? new Date(item.date) : undefined);
-    setEditValues({
-      amount: item.amount.toFixed(2),
-      category: item.categoryId ?? "",
-      date: item.date ? format(new Date(item.date), "yyyy-MM-dd") : "",
-      notes: item.notes ?? "",
-    });
   };
 
-  const cancelEdit = () => setEditingItem(null);
+  // Resolves to false if saving failed, so the dialog stays open
+  const saveTx = (tx: Transaction, payload: UpdateTransactionPayload) =>
+    section.onEdit(tx.item_id, payload);
 
-  const confirmEdit = () => {
-    const original = editingItem!;
-    const amount = parseFloat(editValues.amount);
-    if (!isValidAmount(amount)) {
-      setAmountError(true);
-      return;
-    }
-
-    const newDate = date ? format(date, "yyyy-MM-dd") : "";
-    const notes = editValues.notes.trim();
-
-    // PATCH only the fields that changed
-    const payload: UpdateTransactionPayload = {};
-    if (amount !== original.amount) payload.amount = amount;
-    if (newDate && newDate !== editValues.date) payload.date = newDate;
-    if (editValues.category && editValues.category !== original.categoryId)
-      payload.category_id = editValues.category;
-    // Empty string clears the note on the backend
-    if (notes !== (original.notes ?? "").trim()) payload.notes = notes;
-
-    if (Object.keys(payload).length > 0) section.onEdit(original.id, payload);
-    setEditingItem(null);
-  };
-
-  const startDelete = (item: BudgetItem) => setDeletingItem(item);
-  const cancelDelete = () => setDeletingItem(null);
-  const confirmDelete = () => {
-    section.onDelete(deletingItem!.id);
-    setDeletingItem(null);
-  };
+  async function confirmDelete() {
+    if (!deletingItem) return;
+    setIsDeleting(true);
+    const deleted = await section.onDelete(deletingItem.id);
+    setIsDeleting(false);
+    if (deleted) setDeletingItem(null);
+  }
 
   const styles = {
     income: {
@@ -249,7 +215,7 @@ export default function ItemCard({ section, onShowForm }: ItemCardProps) {
                         type="button"
                         variant="ghost"
                         size="sm"
-                        onClick={() => setViewingItem(item)}
+                        onClick={() => setNotesId(item.id)}
                         aria-label={t("dashboard.budget.items.viewDetails")}
                         className="cursor-pointer  hover:bg-slate-400/20"
                       >
@@ -271,7 +237,7 @@ export default function ItemCard({ section, onShowForm }: ItemCardProps) {
                         type="button"
                         variant="ghost"
                         size="sm"
-                        onClick={() => startDelete(item)}
+                        onClick={() => setDeletingItem(item)}
                         aria-label={t("dashboard.budget.items.delete")}
                         className="cursor-pointer  hover:bg-slate-400/20"
                       >
@@ -299,256 +265,35 @@ export default function ItemCard({ section, onShowForm }: ItemCardProps) {
         )}
       </Card>
 
-      {/* ── VIEW DETAILS MODAL ── */}
-      {viewingItem && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div
-            className="absolute inset-0 bg-black/60 backdrop-blur-xs"
-            onClick={() => setViewingItem(null)}
-          />
-          <div className="relative z-10 flex w-full max-w-sm mx-4 flex-col gap-5 rounded-xl border border-border bg-popover p-6 shadow-2xl">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <h2 className="text-lg font-semibold text-foreground">
-                  {t("dashboard.budget.items.detailsTitle")}
-                </h2>
-                <p className="text-sm text-muted-foreground">
-                  {t("dashboard.budget.items.entryOf", { type: section.title })}
-                </p>
-              </div>
-              <span
-                className={`text-2xl font-bold tabular-nums ${
-                  section.section === "expenses"
-                    ? "text-finance-danger"
-                    : "text-finance-success"
-                }`}
-              >
-                {formatMoney(viewingItem.amount, "auto", true)}
-              </span>
-            </div>
+      <TransactionNotesDialog
+        transaction={findTx(notesId)}
+        onClose={() => setNotesId(null)}
+        onSave={saveTx}
+      />
 
-            <div className="grid grid-cols-2 gap-3 text-sm">
-              <div className="rounded-lg bg-muted/40 p-3">
-                <p className="mb-0.5 text-xs text-muted-foreground">
-                  {t("dashboard.budget.items.category")}
-                </p>
-                <p className="font-medium capitalize text-foreground">
-                  {categoryName(viewingItem)}
-                </p>
-              </div>
-              <div className="rounded-lg bg-muted/40 p-3">
-                <p className="mb-0.5 text-xs text-muted-foreground">
-                  {t("dashboard.budget.items.date")}
-                </p>
-                <p className="font-medium text-foreground">
-                  {viewingItem.date
-                    ? formatDate(viewingItem.date, i18n.language)
-                    : "—"}
-                </p>
-              </div>
-            </div>
+      <TransactionEditDialog
+        transaction={findTx(editingId)}
+        categories={categories}
+        onCategoryCreated={(category) =>
+          setCategories((prev) => [...prev, category])
+        }
+        onClose={() => setEditingId(null)}
+        onSave={saveTx}
+      />
 
-            <div className="rounded-lg bg-muted/40 p-3">
-              <p className="mb-1 text-xs text-muted-foreground">
-                {t("dashboard.budget.items.notes")}
-              </p>
-              <p className="max-h-32 overflow-y-auto overflow-x-hidden whitespace-pre-wrap break-all text-sm text-foreground">
-                {viewingItem.notes?.trim() ? (
-                  viewingItem.notes
-                ) : (
-                  <span className="italic text-muted-foreground">
-                    {t("dashboard.budget.items.noNotes")}
-                  </span>
-                )}
-              </p>
-            </div>
-
-            <div className="flex justify-end gap-2 pt-1">
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={() => setViewingItem(null)}
-                className="cursor-pointer"
-              >
-                {t("dashboard.budget.items.close")}
-              </Button>
-              <Button
-                type="button"
-                onClick={() => {
-                  setViewingItem(null);
-                  startEdit(viewingItem);
-                }}
-                className="w-22 cursor-pointer"
-              >
-                {t("dashboard.budget.items.edit")}
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ── EDIT MODAL ── */}
-      {editingItem && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-            onClick={cancelEdit}
-          />
-          <div className="relative z-10 flex max-h-[90vh] w-full max-w-md mx-4 flex-col gap-4 overflow-y-auto rounded-xl border border-border bg-popover p-6 shadow-2xl">
-            <div>
-              <h2 className="flex items-center gap-1 text-lg font-semibold text-foreground">
-                <Pencil size={16} className="mr-1 shrink-0" />
-                {t("dashboard.budget.items.editTitle")}
-              </h2>
-              <p className="mt-1 text-sm text-muted-foreground">
-                {t("dashboard.budget.items.editSubtitle", {
-                  type: section.title.toLowerCase(),
-                })}
-              </p>
-            </div>
-
-            {/* Amount */}
-            <div className="space-y-2">
-              <Label>{t("dashboard.budget.items.amount")}</Label>
-              <Input
-                type="number"
-                value={editValues.amount}
-                onChange={(e) => {
-                  setEditValues((v) => ({ ...v, amount: e.target.value }));
-                  setAmountError(false);
-                }}
-                placeholder="0.00"
-                step="0.01"
-                min="0"
-                aria-invalid={amountError}
-              />
-              {amountError && (
-                <p role="alert" className="text-xs text-destructive">
-                  {t("dashboard.transactions.edit.invalidAmount")}
-                </p>
-              )}
-            </div>
-
-            {/* Category */}
-            <div className="space-y-2">
-              <Label>{t("dashboard.budget.items.category")}</Label>
-              {categories.length === 0 ? (
-                <>
-                  <p className="text-sm text-muted-foreground">
-                    {t("dashboard.budget.form.noCategories")}
-                  </p>
-                  <NewCategoryField
-                    type={section.section}
-                    categories={categories}
-                    onCreated={(category) => {
-                      setCategories((prev) => [...prev, category]);
-                      setEditValues((prev) => ({
-                        ...prev,
-                        category: category.category_id,
-                      }));
-                    }}
-                  />
-                </>
-              ) : (
-                <Select
-                  value={editValues.category}
-                  onValueChange={(v) =>
-                    setEditValues((prev) => ({ ...prev, category: v }))
-                  }
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue
-                      placeholder={t("dashboard.budget.items.selectCategory")}
-                    />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {categories.map((cat) => (
-                      <SelectItem key={cat.category_id} value={cat.category_id}>
-                        {cat.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            </div>
-
-            {/* Date */}
-            <div className="space-y-2">
-              <Label>{t("dashboard.budget.items.date")}</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    data-empty={!date}
-                    className="w-full justify-between text-left font-normal data-[empty=true]:text-muted-foreground"
-                  >
-                    {date ? (
-                      format(date, "PPP", { locale: dateLocale })
-                    ) : (
-                      <span>{t("dashboard.budget.items.pickDate")}</span>
-                    )}
-                    <ChevronDownIcon />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={date}
-                    onSelect={setDate}
-                    defaultMonth={date}
-                    locale={dateLocale}
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
-
-            {/* Notes */}
-            <div className="space-y-2">
-              <Label>{t("dashboard.budget.items.notes")}</Label>
-              <textarea
-                className="min-h-20 w-full resize-none rounded-md border border-input bg-transparent px-3 py-2 text-sm outline-none transition focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
-                value={editValues.notes}
-                onChange={(e) =>
-                  setEditValues((v) => ({ ...v, notes: e.target.value }))
-                }
-                placeholder={t("dashboard.budget.items.notesPlaceholder")}
-              />
-            </div>
-
-            <div className="flex justify-end gap-2 pt-2">
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={cancelEdit}
-                className="cursor-pointer"
-              >
-                {t("dashboard.budget.items.cancel")}
-              </Button>
-              <Button
-                type="button"
-                onClick={confirmEdit}
-                className="cursor-pointer"
-              >
-                {t("dashboard.budget.items.saveChanges")}
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
-      {/* ── DELETE CONFIRM MODAL ── */}
-      {deletingItem && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-            onClick={cancelDelete}
-          />
-          <div className="relative z-10 flex w-full max-w-sm mx-4 flex-col gap-4 rounded-xl border border-border bg-popover p-4 shadow-2xl">
-            <div>
-              <h2 className="flex items-center gap-1 text-lg font-semibold text-foreground">
-                <Trash2 size={16} className="shrink-0 text-finance-danger" />{" "}
-                {t("dashboard.budget.items.deleteTitle")}
-              </h2>
-              <p className="mt-2 text-sm text-muted-foreground">
+      <AlertDialog
+        open={deletingItem !== null}
+        // Closing is blocked while the request runs
+        onOpenChange={(open) => !open && !isDeleting && setDeletingItem(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <Trash2 size={18} className="text-finance-danger" />
+              {t("dashboard.budget.items.deleteTitle")}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {deletingItem && (
                 <Trans
                   i18nKey="dashboard.budget.items.deleteConfirm"
                   values={{
@@ -559,29 +304,27 @@ export default function ItemCard({ section, onShowForm }: ItemCardProps) {
                     bold: <span className="font-medium text-foreground" />,
                   }}
                 />
-              </p>
-            </div>
-            <div className="flex justify-end gap-2 pt-2">
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={cancelDelete}
-                className="cursor-pointer"
-              >
-                {t("dashboard.budget.items.cancel")}
-              </Button>
-              <Button
-                type="button"
-                variant="destructive"
-                onClick={confirmDelete}
-                className="cursor-pointer"
-              >
-                {t("dashboard.budget.items.delete")}
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting} className="cursor-pointer">
+              {t("dashboard.budget.items.cancel")}
+            </AlertDialogCancel>
+            {/* A plain button, so the dialog stays open until the delete finishes */}
+            <Button
+              variant="destructive"
+              onClick={confirmDelete}
+              disabled={isDeleting}
+              className="cursor-pointer"
+            >
+              {isDeleting
+                ? t("dashboard.transactions.table.deleting")
+                : t("dashboard.budget.items.delete")}
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

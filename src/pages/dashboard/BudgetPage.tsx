@@ -130,8 +130,9 @@ export interface Section {
   items: BudgetItem[];
   total: number;
   section: "income" | "expenses" | "savings";
-  onDelete: (id: string) => void;
-  onEdit: (id: string, payload: UpdateTransactionPayload) => void;
+  // Resolve to false if the request failed, so the dialog stays open
+  onDelete: (id: string) => Promise<boolean>;
+  onEdit: (id: string, payload: UpdateTransactionPayload) => Promise<boolean>;
 }
 
 export default function BudgetPage() {
@@ -249,24 +250,47 @@ export default function BudgetPage() {
     }
   }
 
-  async function deleteItem(id: string) {
+  async function deleteItem(id: string): Promise<boolean> {
     try {
       await deleteTransaction(id);
       toast.success(t("dashboard.budget.toasts.deleted"));
       refresh();
+      return true;
     } catch {
       toast.error(t("dashboard.budget.toasts.deleteError"));
+      return false;
     }
   }
 
-  async function editItem(id: string, payload: UpdateTransactionPayload) {
+  async function editItem(
+    id: string,
+    payload: UpdateTransactionPayload,
+  ): Promise<boolean> {
     try {
       await updateTransaction(id, payload);
-      toast.success(t("dashboard.budget.toasts.updated"));
-      refresh();
-    } catch {
-      toast.error(t("dashboard.budget.toasts.updateError"));
+    } catch (err) {
+      // The backend message explains e.g. a category of another type
+      toast.error(t("dashboard.budget.toasts.updateError"), {
+        description: err instanceof Error ? err.message : undefined,
+      });
+      return false;
     }
+    // The notes dialog stays open and reads the item: show the new note
+    // right away, before the lists are fetched again
+    if (payload.notes !== undefined) {
+      const notes = payload.notes?.trim() || undefined;
+      setItemsByTab((prev) =>
+        Object.fromEntries(
+          Object.entries(prev).map(([tab, items]) => [
+            tab,
+            items?.map((item) => (item.id === id ? { ...item, notes } : item)),
+          ]),
+        ),
+      );
+    }
+    toast.success(t("dashboard.budget.toasts.updated"));
+    refresh();
+    return true;
   }
 
   const totalsByType = {
