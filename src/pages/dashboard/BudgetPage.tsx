@@ -2,7 +2,7 @@ import BudgetForm from "@/components/dashboard/budget/BudgetForm";
 import ItemCard from "@/components/dashboard/budget/ItemCard";
 import { Button } from "@/components/ui/button";
 import { CalendarDays, ExternalLink, Plus, Tags, Target } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 import {
   Sheet,
   SheetContent,

@@ -33,7 +33,7 @@ import {
   Plus,
 } from "lucide-react";
 import { Trans, useTranslation } from "react-i18next";
-import { Link, Navigate, useParams, useSearchParams } from "react-router-dom";
+import { Link, Navigate, useParams, useSearchParams } from "react-router";
 import { toast } from "sonner";
 
 const TRIAL_DAYS = 14;
@@ -259,8 +259,7 @@ export default function PayPage() {
       await new Promise((resolve) => setTimeout(resolve, 1200));
       setCompleted(true);
       window.scrollTo({ top: 0, behavior: "smooth" });
-    } catch (err) {
-      console.log(err);
+    } catch {
       toast.error(t("pay.failed"));
     } finally {
       setLoading(false);

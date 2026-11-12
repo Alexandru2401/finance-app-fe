@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom"; // Next: import { useRouter } from "next/navigation"
+import { useNavigate } from "react-router";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -101,15 +101,12 @@ export default function UserInfoForm() {
         username: name.trim(),
         currency,
       });
-      console.log("addUserInfo response:", response);
-
       if (!response.ok || !response.data?.user) return;
       // Raspunsul are doar user_id, username si currency
       setUser({ ...user, ...response.data.user });
       setStep(4);
-    } catch (err) {
-      console.log(err);
-      // toast cu Sonner daca vrei
+    } catch {
+      // TODO: eroare vizibila pentru user (vezi neimplementat.md, Onboarding)
     } finally {
       setLoading(false);
     }

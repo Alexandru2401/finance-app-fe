@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import {
@@ -7,7 +7,6 @@ import {
   ChevronsUpDown,
   CreditCard,
   Crown,
-  HelpCircle,
   Languages,
   LogOut,
   Moon,
@@ -273,11 +272,6 @@ export default function SidebarUserMenu({
               to: "/dashboard/settings",
               icon: Settings,
               label: t("dashboard.profileBadge.allSettings"),
-            },
-            {
-              to: "/help",
-              icon: HelpCircle,
-              label: t("dashboard.profileBadge.help"),
             },
           ].map(({ to, icon: Icon, label }) => (
             <Button

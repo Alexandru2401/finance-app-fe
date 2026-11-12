@@ -81,8 +81,6 @@ export function LoginForm({
     try {
       const response = await loginUser(formData.email, formData.password);
 
-      console.log("Raspuns request din form:", response);
-
       if (!response.ok) {
         toast.error(response.data.message || t("auth.login.failed"));
         return;
@@ -92,7 +90,6 @@ export function LoginForm({
       toast.success(response.data.message || t("auth.login.success"));
       navigate("/dashboard", { replace: true });
     } catch (err) {
-      console.log(err);
       const errorMessage =
         err instanceof Error ? err.message : t("auth.errors.unknown");
       toast.error(t("auth.errors.generic", { message: errorMessage }));

@@ -74,8 +74,7 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
       setUser(response.data.user ?? null); // userul are username: null → onboarding
 
       navigate("/dashboard/user-info");
-    } catch (err) {
-      console.log(err);
+    } catch {
       toast.error(t("auth.signup.failed")); // aici doar erori de retea
     } finally {
       setLoading(false);
@@ -151,9 +150,6 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
                   {loading
                     ? t("auth.signup.submitting")
                     : t("auth.signup.submit")}
-                </Button>
-                <Button variant="outline" type="button">
-                  {t("auth.signup.google")}
                 </Button>
                 <FieldDescription className="px-6 text-center">
                   {t("auth.signup.hasAccount")}{" "}

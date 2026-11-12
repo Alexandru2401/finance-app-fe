@@ -37,7 +37,7 @@ import {
   UserRoundCog,
 } from "lucide-react";
 import { useEffect, useState, type ComponentProps } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router";
 import { useTranslation } from "react-i18next";
 
 import { logoutUser, getUserInfo } from "@/api/user";
@@ -138,8 +138,8 @@ export default function ProfilePage() {
         if (active && res.ok) {
           setUser(res.data.user ?? null);
         }
-      } catch (err) {
-        console.log(err);
+      } catch {
+        // daca cererea esueaza, ramane userul din context
       }
     })();
 
@@ -151,14 +151,11 @@ export default function ProfilePage() {
   async function handleLogout() {
     try {
       const res = await logoutUser();
-      if (!res.ok) {
-        console.error("Logout failed:", res.data?.message);
-        return;
-      }
+      if (!res.ok) return;
       setUser(null);
       navigate("/login", { replace: true });
-    } catch (err) {
-      console.log(err);
+    } catch {
+      // eroare de retea: userul ramane logat
     }
   }
 

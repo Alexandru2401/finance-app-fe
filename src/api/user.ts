@@ -18,8 +18,6 @@ async function loginUser(email: string, password: string) {
     password,
   });
 
-  console.log("Response:", response);
-  console.log("Data:", response.data);
   return response;
 }
 
@@ -29,9 +27,6 @@ async function createUser(email: string, password: string, language: Language) {
     password,
     language,
   });
-  console.log("test");
-  console.log("Response:", response);
-  console.log("Data:", response.data);
   return response;
 }
 

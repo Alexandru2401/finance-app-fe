@@ -1,6 +1,6 @@
 import { useMemo, useState, type SubmitEvent } from "react";
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 import { toast } from "sonner";
 import { ArrowRight, Clock, Mail, PenLine, Search } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";

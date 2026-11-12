@@ -33,7 +33,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 
 const SALES_EMAIL = "sales@financeapp.com";
 const MAX_CALCULATOR_SEATS = 100;
