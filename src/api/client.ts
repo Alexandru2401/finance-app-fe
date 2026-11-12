@@ -42,22 +42,26 @@ function request(path: string, options: RequestOptions) {
   });
 }
 
-async function api<T = unknown>(
-  path: string,
-  options: RequestOptions = {},
-): Promise<ApiResponse<T>> {
-  let response = await request(path, options);
+async function send(path: string, options: RequestOptions): Promise<Response> {
+  const response = await request(path, options);
 
   // 401 = access token missing (cookie expired), 403 = token invalid/expired.
   // Get a new access token from the refresh cookie and retry once.
   if (
     (response.status === 401 || response.status === 403) &&
-    !NO_REFRESH_PATHS.includes(path)
+    !NO_REFRESH_PATHS.includes(path) &&
+    (await refreshAccessToken())
   ) {
-    if (await refreshAccessToken()) {
-      response = await request(path, options);
-    }
+    return request(path, options);
   }
+  return response;
+}
+
+async function api<T = unknown>(
+  path: string,
+  options: RequestOptions = {},
+): Promise<ApiResponse<T>> {
+  const response = await send(path, options);
 
   if (response.status === 204) {
     return { ok: true, status: 204, data: null as T };
@@ -71,6 +75,17 @@ async function api<T = unknown>(
   }
 
   return { ok: response.ok, status: response.status, data };
+}
+
+// A file instead of JSON (e.g. a CSV export), with the same token refresh
+export async function getFile(
+  path: string,
+): Promise<{ ok: boolean; status: number; blob: Blob | null }> {
+  const response = await send(path, { method: "GET" });
+  if (!response.ok) {
+    return { ok: false, status: response.status, blob: null };
+  }
+  return { ok: true, status: response.status, blob: await response.blob() };
 }
 
 export const get = <T = unknown>(path: string) =>

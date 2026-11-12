@@ -20,6 +20,7 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
+  exportTransactions,
   getTransactions,
   getTransactionYears,
   type Transaction,
@@ -59,7 +60,7 @@ const toAmount = (value: string) =>
   value.trim() === "" ? undefined : Number(value);
 
 export default function TransactionsPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [transactions, setTransactions] = useState<Transaction[] | null>(null);
   const [filters, setFilters] = useState<TransactionFilters>(DEFAULT_FILTERS);
   // Debounced copy of filters.search, the one sent to the backend
@@ -77,6 +78,7 @@ export default function TransactionsPage() {
   // Bumped after a delete so the current page is fetched again
   const [refreshKey, setRefreshKey] = useState(0);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [exporting, setExporting] = useState(false);
 
   useEffect(() => {
     getCategories()
@@ -241,6 +243,27 @@ export default function TransactionsPage() {
     return true;
   }
 
+  // Same filters as the table, without pagination
+  async function handleExport() {
+    if (exporting) return;
+    setExporting(true);
+    try {
+      const blob = await exportTransactions(params, i18n.language);
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `transactions-${new Date().toISOString().slice(0, 10)}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    } catch {
+      toast.error(t("dashboard.transactions.filters.exportError"));
+    } finally {
+      setExporting(false);
+    }
+  }
+
   function changeLimit(newLimit: number) {
     setLimit(newLimit);
     // The current page may not exist with the new size
@@ -310,6 +333,8 @@ export default function TransactionsPage() {
         onChange={changeFilters}
         onClear={clearFilters}
         years={yearOptions}
+        onExport={handleExport}
+        exporting={exporting}
         categories={categories}
       />
       <TransactionsTable

@@ -51,6 +51,9 @@ interface Props {
   onClear: () => void;
   years: string[];
   categories: Category[];
+  // Downloads a CSV with all the transactions matching the filters
+  onExport: () => void;
+  exporting: boolean;
 }
 
 export default function TransactionsFilters({
@@ -59,6 +62,8 @@ export default function TransactionsFilters({
   onClear,
   years,
   categories,
+  onExport,
+  exporting,
 }: Props) {
   const { t, i18n } = useTranslation();
   const months = monthNames(i18n.language);
@@ -159,9 +164,17 @@ export default function TransactionsFilters({
             onChange={(e) => onChange({ search: e.target.value })}
           />
         </div>
-        <Button variant="outline" size="sm" className="cursor-pointer gap-2">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={onExport}
+          disabled={exporting}
+          className="cursor-pointer gap-2"
+        >
           <Download className="h-4 w-4" aria-hidden="true" />
-          {t("dashboard.transactions.filters.exportCsv")}
+          {exporting
+            ? t("dashboard.transactions.filters.exporting")
+            : t("dashboard.transactions.filters.exportCsv")}
         </Button>
       </div>
 

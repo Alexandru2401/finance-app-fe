@@ -1132,6 +1132,8 @@
       "filters": {
         "searchPlaceholder": "Caută categoria...",
         "exportCsv": "Exportă CSV",
+        "exporting": "Se exportă...",
+        "exportError": "Nu am putut exporta tranzacțiile.",
         "year": "An",
         "allYears": "Toți anii",
         "month": "Lună",

@@ -1129,6 +1129,8 @@
       "filters": {
         "searchPlaceholder": "Search category...",
         "exportCsv": "Export CSV",
+        "exporting": "Exporting...",
+        "exportError": "Could not export the transactions.",
         "year": "Year",
         "allYears": "All years",
         "month": "Month",

@@ -1,4 +1,4 @@
-import { get } from "./client";
+import { get, getFile } from "./client";
 
 export interface Transaction {
   item_id: string;
@@ -40,15 +40,12 @@ export interface TransactionsParams {
   maxAmount?: number;
 }
 
-async function getTransactions(
-  params: TransactionsParams = {},
-): Promise<Result<TransactionsResponse>> {
+// Same filters for the list and the CSV export
+function filtersQuery(params: TransactionsParams): URLSearchParams {
   const qs = new URLSearchParams();
   // The backend uses "expense" (singular); the frontend uses "expenses"
   if (params.type)
     qs.set("type", params.type === "expenses" ? "expense" : params.type);
-  if (params.limit) qs.set("limit", String(params.limit));
-  if (params.page) qs.set("page", String(params.page));
   if (params.sort) qs.set("sort", params.sort);
   if (params.year) qs.set("year", String(params.year));
   if (params.month) qs.set("month", String(params.month));
@@ -59,6 +56,15 @@ async function getTransactions(
     qs.set("minAmount", String(params.minAmount));
   if (params.maxAmount !== undefined)
     qs.set("maxAmount", String(params.maxAmount));
+  return qs;
+}
+
+async function getTransactions(
+  params: TransactionsParams = {},
+): Promise<Result<TransactionsResponse>> {
+  const qs = filtersQuery(params);
+  if (params.limit) qs.set("limit", String(params.limit));
+  if (params.page) qs.set("page", String(params.page));
 
   const response = await get<TransactionsResponse>(`/transactions?${qs}`);
   if (!response.ok) return { ok: false, error: "Could not load transactions" };
@@ -74,4 +80,18 @@ async function getTransactionYears(): Promise<number[]> {
   return response.data.years;
 }
 
-export { getTransactions, getTransactionYears };
+// CSV with every transaction matching the filters (no pagination).
+// lang picks the language of the header and of the types
+async function exportTransactions(
+  params: TransactionsParams,
+  lang: string,
+): Promise<Blob> {
+  const qs = filtersQuery(params);
+  qs.set("lang", lang);
+  const response = await getFile(`/transactions/export?${qs}`);
+  if (!response.ok || !response.blob)
+    throw new Error("Could not export transactions");
+  return response.blob;
+}
+
+export { getTransactions, getTransactionYears, exportTransactions };
