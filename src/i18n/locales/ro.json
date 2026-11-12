@@ -1049,7 +1049,9 @@
         "title": "Istoric ținte",
         "loadError": "Istoricul țintelor nu a putut fi încărcat.",
         "empty": "Nu ai salvat nicio țintă încă.",
-        "download": "Descarcă",
+        "download": "Exportă CSV",
+        "downloading": "Se exportă...",
+        "downloadError": "Nu am putut exporta istoricul țintelor.",
         "month": "Luna",
         "net": "Net"
       },

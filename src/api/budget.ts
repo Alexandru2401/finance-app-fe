@@ -1,4 +1,4 @@
-import { del, get, patch, post } from "./client";
+import { del, get, getFile, patch, post } from "./client";
 import type { BudgetItemPayload } from "@/schemas/budget-item.schema";
 import { DEFAULT_PERIOD, periodMonth } from "@/lib/periods";
 
@@ -289,7 +289,23 @@ async function saveBudgetTarget(
   return fromApiMonthlyTarget(response.data.target);
 }
 
-export { getBudgetTarget, getAllBudgetTargets, saveBudgetTarget };
+// CSV with every saved target, the actual totals of that month and the
+// progress; lang picks the language of the header
+async function exportTargetHistory(lang: string): Promise<Blob> {
+  const response = await getFile(
+    `/target/export?lang=${encodeURIComponent(lang)}`,
+  );
+  if (!response.ok || !response.blob)
+    throw new Error("Could not export target history");
+  return response.blob;
+}
+
+export {
+  getBudgetTarget,
+  getAllBudgetTargets,
+  saveBudgetTarget,
+  exportTargetHistory,
+};
 
 export interface BudgetSummary {
   income: number;

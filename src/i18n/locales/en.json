@@ -1047,7 +1047,9 @@
         "title": "Target history",
         "loadError": "Could not load target history.",
         "empty": "No targets saved yet.",
-        "download": "Download",
+        "download": "Export CSV",
+        "downloading": "Exporting...",
+        "downloadError": "Could not export the target history.",
         "month": "Month",
         "net": "Net"
       },
