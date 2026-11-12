@@ -201,7 +201,6 @@
     "login": {
       "title": "Login to your account",
       "description": "Enter your email below to login to your account",
-      "forgotPassword": "Forgot your password?",
       "submit": "Login",
       "submitting": "Loading...",
       "noAccount": "Don't have an account?",
@@ -1225,7 +1224,6 @@
       "budget": "Budget",
       "transactions": "Transactions",
       "analytics": "Analytics",
-      "upgrade": "Upgrade to Pro",
       "profile": "Profile",
       "search": "Search",
       "openMenu": "Open menu",
@@ -1302,10 +1300,6 @@
           "label": "Change Password",
           "description": "Keep your account secure"
         },
-        "addAccount": {
-          "label": "Add an Account",
-          "description": "Link a new bank or wallet account"
-        },
         "reset": {
           "label": "Reset Data",
           "description": "Permanently delete all your transactions"
@@ -1315,6 +1309,7 @@
           "description": "Permanently remove your account"
         }
       },
+      "comingSoon": "Coming soon",
       "emailPanel": {
         "newEmail": "New Email Address",
         "submit": "Update email"
@@ -1332,12 +1327,6 @@
         "success": "Password changed. Your other devices have been logged out.",
         "failed": "Could not change the password.",
         "submitting": "Saving..."
-      },
-      "accountPanel": {
-        "name": "Account Name",
-        "namePlaceholder": "e.g. Savings, Revolut, ING",
-        "balance": "Initial Balance (optional)",
-        "submit": "Add Account"
       },
       "resetPanel": {
         "textBefore": "This will permanently delete ",

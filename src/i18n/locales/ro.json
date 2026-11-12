@@ -201,7 +201,6 @@
     "login": {
       "title": "Autentifică-te în contul tău",
       "description": "Introdu emailul mai jos pentru a te autentifica",
-      "forgotPassword": "Ai uitat parola?",
       "submit": "Autentificare",
       "submitting": "Se încarcă...",
       "noAccount": "Nu ai cont?",
@@ -1228,7 +1227,6 @@
       "budget": "Buget",
       "transactions": "Tranzacții",
       "analytics": "Analize",
-      "upgrade": "Mută la Pro",
       "profile": "Profil",
       "search": "Caută",
       "openMenu": "Deschide meniul",
@@ -1305,10 +1303,6 @@
           "label": "Schimbă parola",
           "description": "Păstrează-ți contul în siguranță"
         },
-        "addAccount": {
-          "label": "Adaugă un cont",
-          "description": "Conectează un cont bancar sau un portofel nou"
-        },
         "reset": {
           "label": "Resetează datele",
           "description": "Șterge definitiv toate tranzacțiile tale"
@@ -1318,6 +1312,7 @@
           "description": "Elimină definitiv contul tău"
         }
       },
+      "comingSoon": "În curând",
       "emailPanel": {
         "newEmail": "Adresă de email nouă",
         "submit": "Actualizează emailul"
@@ -1335,12 +1330,6 @@
         "success": "Parola a fost schimbată. Celelalte dispozitive au fost deconectate.",
         "failed": "Nu am putut schimba parola.",
         "submitting": "Se salvează..."
-      },
-      "accountPanel": {
-        "name": "Numele contului",
-        "namePlaceholder": "ex. Economii, Revolut, ING",
-        "balance": "Sold inițial (opțional)",
-        "submit": "Adaugă contul"
       },
       "resetPanel": {
         "textBefore": "Această acțiune va șterge definitiv ",

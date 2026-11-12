@@ -28,7 +28,6 @@ import {
   Lock,
   LogOut,
   Mail,
-  PlusCircle,
   RefreshCw,
   Settings,
   SlidersHorizontal,
@@ -56,8 +55,7 @@ const PLANS = ["free", "pro", "business"] as const;
 type Plan = (typeof PLANS)[number];
 const isPlan = (value: unknown): value is Plan => PLANS.includes(value as Plan);
 
-type ActionId =
-  "plan" | "email" | "password" | "add-account" | "reset" | "delete" | null;
+type ActionId = "plan" | "email" | "password" | "reset" | "delete" | null;
 
 const actions = [
   {
@@ -66,6 +64,8 @@ const actions = [
     key: "plan",
     icon: Star,
     danger: false,
+    // No payments yet (Stripe postponed)
+    comingSoon: true,
   },
   {
     id: "email",
@@ -73,6 +73,8 @@ const actions = [
     key: "email",
     icon: Mail,
     danger: false,
+    // No backend route yet: shown greyed out with a "Coming soon" badge
+    comingSoon: true,
   },
   {
     id: "password",
@@ -82,18 +84,12 @@ const actions = [
     danger: false,
   },
   {
-    id: "add-account",
-    // Label and description: dashboard.profile.actions.<key>
-    key: "addAccount",
-    icon: PlusCircle,
-    danger: false,
-  },
-  {
     id: "reset",
     // Label and description: dashboard.profile.actions.<key>
     key: "reset",
     icon: RefreshCw,
     danger: true,
+    comingSoon: true,
   },
   {
     id: "delete",
@@ -101,6 +97,7 @@ const actions = [
     key: "delete",
     icon: Trash2,
     danger: true,
+    comingSoon: true,
   },
 ] as const;
 
@@ -293,63 +290,91 @@ export default function ProfilePage() {
               <ChevronRight className="w-4 h-4 text-muted-foreground" />
             </Link>
 
-            {actions.map(({ id, key, icon: Icon, danger }) => (
-              <Collapsible
-                key={id}
-                open={openSection === id}
-                onOpenChange={() => toggle(id as ActionId)}
-              >
-                <CollapsibleTrigger asChild className="cursor-pointer">
-                  <button
-                    className={cn(
-                      "w-full flex items-center justify-between px-2 py-3 rounded-xl border text-left",
-                      "bg-card border-border",
-                      danger
-                        ? "hover:border-finance-danger/50 hover:bg-finance-danger-bg"
-                        : "hover:border-finance-warning/60 hover:bg-finance-warning-bg/50",
-                    )}
-                  >
-                    <div className="flex items-center gap-2">
-                      <div
-                        className={cn(
-                          "p-2 rounded-lg",
-                          danger
-                            ? "bg-finance-danger-bg text-finance-danger"
-                            : "bg-background text-muted-foreground",
-                        )}
-                      >
-                        <Icon className="w-4 h-4" />
-                      </div>
-                      <div>
-                        <p
+            {actions.map(({ id, key, icon: Icon, danger, ...action }) =>
+              "comingSoon" in action && action.comingSoon ? (
+                // Not clickable yet; the panel code below stays for later
+                <div
+                  key={id}
+                  aria-disabled="true"
+                  className="w-full flex items-center justify-between px-2 py-3 rounded-xl border border-border bg-card text-left opacity-60 cursor-not-allowed select-none"
+                >
+                  <div className="flex items-center gap-2">
+                    <div className="p-2 rounded-lg bg-muted text-muted-foreground">
+                      <Icon className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">
+                        {t(`dashboard.profile.actions.${key}.label`)}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {t(`dashboard.profile.actions.${key}.description`)}
+                      </p>
+                    </div>
+                  </div>
+                  <Badge variant="secondary" className="text-xs shrink-0">
+                    {t("dashboard.profile.comingSoon")}
+                  </Badge>
+                </div>
+              ) : (
+                <Collapsible
+                  key={id}
+                  open={openSection === id}
+                  onOpenChange={() => toggle(id as ActionId)}
+                >
+                  <CollapsibleTrigger asChild className="cursor-pointer">
+                    <button
+                      className={cn(
+                        "w-full flex items-center justify-between px-2 py-3 rounded-xl border text-left",
+                        "bg-card border-border",
+                        danger
+                          ? "hover:border-finance-danger/50 hover:bg-finance-danger-bg"
+                          : "hover:border-finance-warning/60 hover:bg-finance-warning-bg/50",
+                      )}
+                    >
+                      <div className="flex items-center gap-2">
+                        <div
                           className={cn(
-                            "text-sm font-medium",
-                            danger ? "text-finance-danger" : "text-foreground",
+                            "p-2 rounded-lg",
+                            danger
+                              ? "bg-finance-danger-bg text-finance-danger"
+                              : "bg-background text-muted-foreground",
                           )}
                         >
-                          {t(`dashboard.profile.actions.${key}.label`)}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {t(`dashboard.profile.actions.${key}.description`)}
-                        </p>
+                          <Icon className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <p
+                            className={cn(
+                              "text-sm font-medium",
+                              danger
+                                ? "text-finance-danger"
+                                : "text-foreground",
+                            )}
+                          >
+                            {t(`dashboard.profile.actions.${key}.label`)}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {t(`dashboard.profile.actions.${key}.description`)}
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                    <ChevronRight
-                      className={cn(
-                        "w-4 h-4 text-muted-foreground transition-transform duration-200",
-                        openSection === id && "rotate-90",
-                      )}
-                    />
-                  </button>
-                </CollapsibleTrigger>
+                      <ChevronRight
+                        className={cn(
+                          "w-4 h-4 text-muted-foreground transition-transform duration-200",
+                          openSection === id && "rotate-90",
+                        )}
+                      />
+                    </button>
+                  </CollapsibleTrigger>
 
-                <CollapsibleContent>
-                  <div className="mt-1 ml-4 border-l-2 border-border pl-4 py-3 pr-2">
-                    <ActionPanel id={id as ActionId} user={user} />
-                  </div>
-                </CollapsibleContent>
-              </Collapsible>
-            ))}
+                  <CollapsibleContent>
+                    <div className="mt-1 ml-4 border-l-2 border-border pl-4 py-3 pr-2">
+                      <ActionPanel id={id as ActionId} user={user} />
+                    </div>
+                  </CollapsibleContent>
+                </Collapsible>
+              ),
+            )}
           </div>
         </div>
 
@@ -397,27 +422,6 @@ function ActionPanel({ id, user }: { id: ActionId; user: User }) {
     );
 
   if (id === "password") return <ChangePasswordPanel />;
-
-  if (id === "add-account")
-    return (
-      <div className="space-y-3">
-        <div className="space-y-1">
-          <Label className="text-muted-foreground text-xs">
-            {t("dashboard.profile.accountPanel.name")}
-          </Label>
-          <Input
-            placeholder={t("dashboard.profile.accountPanel.namePlaceholder")}
-          />
-        </div>
-        <div className="space-y-1">
-          <Label className="text-muted-foreground text-xs">
-            {t("dashboard.profile.accountPanel.balance")}
-          </Label>
-          <Input type="number" placeholder="0.00" />
-        </div>
-        <ProfileBtn label={t("dashboard.profile.accountPanel.submit")} />
-      </div>
-    );
 
   if (id === "reset")
     return (

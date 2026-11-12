@@ -129,18 +129,7 @@ export function LoginForm({
 
               {/* Password Field */}
               <Field className="mt-2 max-h-16">
-                <div className="flex items-center">
-                  <FieldLabel htmlFor="password">
-                    {t("auth.password")}
-                  </FieldLabel>
-
-                  <a
-                    href="#"
-                    className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
-                  >
-                    {t("auth.login.forgotPassword")}
-                  </a>
-                </div>
+                <FieldLabel htmlFor="password">{t("auth.password")}</FieldLabel>
                 <PasswordInput
                   id="password"
                   value={formData.password}
