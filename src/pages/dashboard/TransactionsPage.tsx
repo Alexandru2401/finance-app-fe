@@ -73,6 +73,8 @@ export default function TransactionsPage() {
   const [pagination, setPagination] = useState<PaginationInfo | null>(null);
   // Key of the last request that finished; loading while it differs from the current one
   const [loadedKey, setLoadedKey] = useState<string | null>(null);
+  // Key of the last request that failed; shows the error instead of the table
+  const [failedKey, setFailedKey] = useState<string | null>(null);
   // Bumped after a delete so the current page is fetched again
   const [refreshKey, setRefreshKey] = useState(0);
   const [showAddForm, setShowAddForm] = useState(false);
@@ -132,13 +134,19 @@ export default function TransactionsPage() {
   // refreshKey is part of the key, so a refetch after a delete shows loading too
   const requestKey = `${JSON.stringify(request)}#${refreshKey}`;
   const loading = loadedKey !== requestKey;
+  const error = !loading && failedKey === requestKey;
 
   useEffect(() => {
     let ignore = false;
 
     getTransactions(request)
       .then((res) => {
-        if (ignore || !res.ok) return;
+        if (ignore) return;
+        if (!res.ok) {
+          setFailedKey(requestKey);
+          return;
+        }
+        setFailedKey(null);
         setTransactions(res.data.transactions);
         setPagination({
           page: res.data.page,
@@ -148,6 +156,8 @@ export default function TransactionsPage() {
           net: res.data.net,
         });
       })
+      // Network error (the backend is unreachable)
+      .catch(() => !ignore && setFailedKey(requestKey))
       // Also on failure, so the skeleton does not stay forever
       .finally(() => !ignore && setLoadedKey(requestKey));
 
@@ -278,6 +288,9 @@ export default function TransactionsPage() {
       <TransactionsTable
         transactions={transactions}
         loading={loading}
+        error={error}
+        // A new refreshKey means a new request for the same filters
+        onRetry={() => setRefreshKey((k) => k + 1)}
         pagination={pagination}
         onPageChange={setPage}
         onLimitChange={changeLimit}

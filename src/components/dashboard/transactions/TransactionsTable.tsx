@@ -48,7 +48,7 @@ import {
   TYPE_STYLES,
 } from "@/components/dashboard/transactions/styles";
 import type { PaginationInfo } from "@/pages/dashboard/TransactionsPage";
-import { FileText, Pencil, Trash2 } from "lucide-react";
+import { AlertCircle, FileText, Pencil, RotateCw, Trash2 } from "lucide-react";
 import { useState, type MouseEvent } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import { useCurrency } from "@/hooks/useCurrency";
@@ -81,6 +81,9 @@ const BOLD = { bold: <span className="font-medium text-foreground" /> };
 interface Props {
   transactions: Transaction[] | null;
   loading: boolean;
+  // The last request failed; shows a message with a retry button
+  error: boolean;
+  onRetry: () => void;
   // null until the first page is loaded
   pagination: PaginationInfo | null;
   onPageChange: (page: number) => void;
@@ -100,6 +103,8 @@ interface Props {
 export default function TransactionsTable({
   transactions,
   loading,
+  error,
+  onRetry,
   pagination,
   onPageChange,
   onLimitChange,
@@ -183,7 +188,37 @@ export default function TransactionsTable({
           </TableHeader>
 
           <TableBody>
-            {loading || !transactions ? (
+            {error ? (
+              <TableRow className="hover:bg-transparent">
+                <TableCell colSpan={6} className="h-32 text-center">
+                  <div
+                    role="alert"
+                    className="flex flex-col items-center gap-1"
+                  >
+                    <AlertCircle
+                      size={20}
+                      className="text-finance-danger"
+                      aria-hidden="true"
+                    />
+                    <p className="text-sm font-medium">
+                      {t("dashboard.transactions.table.errorTitle")}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {t("dashboard.transactions.table.errorHint")}
+                    </p>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={onRetry}
+                      className="mt-2 cursor-pointer gap-1.5"
+                    >
+                      <RotateCw size={14} aria-hidden="true" />
+                      {t("dashboard.transactions.table.retry")}
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ) : loading || !transactions ? (
               [0, 1, 2, 3, 4].map((i) => (
                 <TableRow key={i}>
                   <TableCell>
@@ -292,7 +327,7 @@ export default function TransactionsTable({
                   netTotal >= 0 ? "text-finance-success" : "text-finance-danger"
                 }`}
               >
-                {loading || !transactions
+                {loading || error || !transactions
                   ? "—"
                   : format(netTotal, netTotal >= 0 ? "+" : "-")}
               </TableCell>
@@ -305,7 +340,9 @@ export default function TransactionsTable({
       {/* PAGINATIE */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6">
         <div className="flex items-center gap-4">
-          <p className="text-sm text-muted-foreground">
+          <p
+            className={`text-sm text-muted-foreground ${error ? "invisible" : ""}`}
+          >
             <Trans
               i18nKey="dashboard.transactions.table.showing"
               values={{
@@ -341,7 +378,7 @@ export default function TransactionsTable({
           </div>
         </div>
 
-        {totalPages > 1 && (
+        {totalPages > 1 && !error && (
           <Pagination className="mx-0 w-auto justify-end">
             <PaginationContent>
               <PaginationItem>
