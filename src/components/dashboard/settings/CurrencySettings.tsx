@@ -40,17 +40,13 @@ export default function CurrencySettings({ user }: { user: User }) {
     current ?? DEFAULT_CURRENCY,
   );
   const [saving, setSaving] = useState(false);
-  // The backend converts the saved amounts only when a currency was already set
+  // Any other currency converts the saved amounts on the backend
   const converts = current !== null && currency !== current;
 
   async function saveCurrency() {
     setSaving(true);
     try {
-      // The backend requires the username too, so the displayed one is sent
-      const res = await addUserInfo(
-        user.username || user.email.split("@")[0],
-        currency,
-      );
+      const res = await addUserInfo({ currency });
       if (!res.ok || !res.data?.user) {
         // 503 = BNR rate unavailable, nothing was saved
         toast.error(
@@ -129,7 +125,8 @@ export default function CurrencySettings({ user }: { user: User }) {
         <Button
           size="sm"
           className="cursor-pointer"
-          disabled={saving || currency === current}
+          // Without the saved currency there is no way to tell what converts
+          disabled={saving || current === null || currency === current}
           onClick={saveCurrency}
         >
           {saveLabel}

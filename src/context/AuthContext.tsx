@@ -6,7 +6,7 @@ export type User = {
   email: string;
   plan_type: string;
   currency: string | null;
-  // Saved language; only /auth/user-info returns it
+  // Saved language; PATCH /auth/user-info and login/register return it too
   language?: string;
   is_active: boolean;
   created_at: string;

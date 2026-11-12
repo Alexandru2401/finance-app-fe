@@ -89,6 +89,7 @@ interface Props {
   onDelete: (id: string) => Promise<boolean>;
   // For the edit dialog (only the categories of the transaction's type are shown)
   categories: Category[];
+  onCategoryCreated: (category: Category) => void;
   // Resolves to false if the update failed, so the dialog stays open
   onUpdate: (
     tx: Transaction,
@@ -104,6 +105,7 @@ export default function TransactionsTable({
   onLimitChange,
   onDelete,
   categories,
+  onCategoryCreated,
   onUpdate,
 }: Props) {
   const { t, i18n } = useTranslation();
@@ -400,6 +402,7 @@ export default function TransactionsTable({
       <TransactionEditDialog
         transaction={editingTx}
         categories={categories}
+        onCategoryCreated={onCategoryCreated}
         onClose={() => setEditingId(null)}
         onSave={onUpdate}
       />

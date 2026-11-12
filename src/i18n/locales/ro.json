@@ -5,6 +5,8 @@
     "about": "Despre noi",
     "prices": "Prețuri",
     "blog": "Blog",
+    "roadmap": "Ce urmează",
+    "roadmapDescription": "Vezi ce urmează și spune-ne ce ți-ar plăcea în aplicație.",
     "info": "Info",
     "personalUse": "Uz personal",
     "personalUseDescription": "Deblochează întregul potențial și controlul asupra finanțelor tale.",
@@ -171,6 +173,7 @@
     "product": "Produs",
     "home": "Acasă",
     "about": "Despre noi",
+    "roadmap": "Ce urmează",
     "startFree": "Începe gratuit",
     "login": "Autentificare",
     "social": "Social",
@@ -211,6 +214,7 @@
       "passwordHint": "Trebuie să aibă cel puțin 8 caractere.",
       "confirmPassword": "Confirmă parola",
       "confirmPasswordHint": "Te rugăm să confirmi parola.",
+      "passwordMismatch": "Parolele nu coincid.",
       "submit": "Creează cont",
       "submitting": "Se creează contul...",
       "google": "Înregistrează-te cu Google",
@@ -800,6 +804,84 @@
       }
     }
   },
+  "roadmap": {
+    "badge": "Roadmap FinanceApp",
+    "title": "Ce urmează în aplicație",
+    "subtitle": "Votează ce îți dorești cel mai mult și spune-ne ce ți-ar plăcea să vezi. Ideile tale ne ajută să stabilim prioritățile.",
+    "cta": "Propune o idee",
+    "statuses": {
+      "next": {
+        "title": "Urmează",
+        "description": "Primele pe listă."
+      },
+      "planned": {
+        "title": "Planificat",
+        "description": "Sunt pe listă, după cele din prima coloană."
+      },
+      "later": {
+        "title": "Mai târziu",
+        "description": "Ne dorim să ajungem și aici."
+      }
+    },
+    "items": {
+      "changePassword": {
+        "title": "Schimbarea parolei",
+        "description": "Îți vei putea schimba parola direct din profil."
+      },
+      "csvExport": {
+        "title": "Export CSV",
+        "description": "Descarci tranzacțiile și istoricul țintelor ca să le folosești în alte aplicații."
+      },
+      "accountManagement": {
+        "title": "Gestionarea contului",
+        "description": "Schimbarea emailului, resetarea datelor și ștergerea contului, direct din aplicație."
+      },
+      "analytics": {
+        "title": "Analize complete",
+        "description": "Grafice și statistici construite din datele tale reale."
+      },
+      "globalSearch": {
+        "title": "Căutare în toată aplicația",
+        "description": "Găsești rapid tranzacții și categorii, indiferent de pagina pe care ești."
+      },
+      "googleLogin": {
+        "title": "Autentificare cu Google",
+        "description": "Intri în cont cu un singur clic, fără o parolă în plus."
+      },
+      "guidedTour": {
+        "title": "Tur ghidat",
+        "description": "O prezentare scurtă a aplicației, pentru primii pași."
+      },
+      "paidPlans": {
+        "title": "Plăți și planuri",
+        "description": "Alegi și schimbi planul direct din aplicație."
+      }
+    },
+    "vote": {
+      "count_one": "{{count}} vot",
+      "count_few": "{{count}} voturi",
+      "count_other": "{{count}} de voturi",
+      "add": "Votează: {{title}}",
+      "remove": "Retrage votul: {{title}}",
+      "loginRequired": "Conectează-te ca să poți vota.",
+      "failed": "Nu am putut salva votul. Încearcă din nou."
+    },
+    "feedback": {
+      "title": "Ce ți-ar plăcea să vezi?",
+      "text": "Spune-ne ce îți lipsește sau ce ai îmbunătăți. Citim fiecare mesaj.",
+      "messageLabel": "Ideea ta",
+      "messagePlaceholder": "Mi-ar plăcea ca aplicația să...",
+      "submit": "Trimite ideea",
+      "submitting": "Se trimite...",
+      "success": "Mulțumim! Ideea ta a fost trimisă.",
+      "failed": "Nu am putut trimite ideea. Încearcă din nou.",
+      "errors": {
+        "messageTooShort": "Scrie cel puțin 10 caractere.",
+        "messageTooLong": "Mesajul poate avea cel mult 1000 de caractere."
+      },
+      "loginRequired": "Conectează-te ca să ne trimiți o idee."
+    }
+  },
   "dashboard": {
     "periods": {
       "this-month": "Luna aceasta",
@@ -898,6 +980,7 @@
         "addCategory": "Adaugă categorie nouă",
         "newCategory": "Categorie nouă",
         "newCategoryPlaceholder": "ex. Sală",
+        "noCategories": "Nu ai nicio categorie pentru acest tip. Creează una ca să continui.",
         "add": "Adaugă",
         "loadingCategories": "Se încarcă categoriile...",
         "selectCategory": "Alege categoria",
@@ -915,6 +998,8 @@
           "amountRequired": "Suma este obligatorie.",
           "amountInvalid": "Introdu o sumă validă.",
           "amountPositive": "Suma trebuie să fie mai mare decât 0.",
+          "amountDecimals": "Suma poate avea cel mult 2 zecimale.",
+          "amountTooLarge": "Suma este prea mare.",
           "notesTooLong": "Notele nu pot avea mai mult de {{max}} de caractere."
         },
         "toasts": {
@@ -1045,7 +1130,7 @@
         "addNotes": "Adaugă notiță",
         "editNotes": "Editează notița",
         "saveNotes": "Salvează notița",
-        "uncategorizedHint": "Categoria acestei tranzacții a fost ștearsă. Alege o categorie nouă din Editează ca să poți modifica tranzacția.",
+        "uncategorizedHint": "Categoria acestei tranzacții a fost ștearsă. Poți alege una nouă din Editează.",
         "close": "Închide"
       },
       "edit": {
@@ -1053,7 +1138,7 @@
         "subtitle": "Modifică tipul, suma, categoria, data sau notița.",
         "selectCategory": "Alege categoria",
         "categoryRequired": "Alege o categorie.",
-        "invalidAmount": "Suma trebuie să fie un număr mai mare decât 0.",
+        "invalidAmount": "Introdu o sumă mai mare decât 0, cu cel mult 2 zecimale.",
         "pickDate": "Alege o dată",
         "notesPlaceholder": "Adaugă o notiță pentru această tranzacție...",
         "cancel": "Anulează",
@@ -1142,7 +1227,7 @@
       "budget": "Buget",
       "transactions": "Tranzacții",
       "analytics": "Analize",
-      "upgrade": "Treci la Pro",
+      "upgrade": "Mută la Pro",
       "profile": "Profil",
       "search": "Caută",
       "openMenu": "Deschide meniul",
@@ -1210,7 +1295,7 @@
       "actions": {
         "plan": {
           "label": "Schimbă planul",
-          "description": "Treci la un abonament superior sau inferior"
+          "description": "Mută la un abonament superior sau inferior"
         },
         "email": {
           "label": "Schimbă emailul",
@@ -1308,13 +1393,11 @@
       },
       "categories": {
         "title": "Categorii",
-        "description": "Adaugă, redenumește sau șterge categoriile tale. Cele implicite nu pot fi modificate.",
+        "description": "Adaugă, redenumește sau șterge categoriile tale.",
         "newPlaceholder": "Numele categoriei noi",
         "add": "Adaugă",
         "custom": "Categoriile tale",
-        "defaults": "Categorii implicite",
-        "emptyCustom": "Nu ai încă nicio categorie proprie.",
-        "defaultHint": "Categorie implicită, nu poate fi modificată",
+        "emptyCustom": "Nu ai nicio categorie.",
         "rename": "Redenumește",
         "save": "Salvează",
         "cancel": "Anulează",

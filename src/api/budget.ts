@@ -27,7 +27,6 @@ export interface Category {
   category_id: string;
   type: BudgetType;
   name: string;
-  key: string | null; // null pentru categoriile custom
 }
 
 type ApiCategory = Omit<Category, "type"> & { type: ApiBudgetType };
@@ -68,7 +67,7 @@ export class ApiRequestError extends Error {
 }
 
 // POST /categories → 201 { category }; 409 if a category with the same name and
-// type already exists (custom or default, case-insensitive); 400 if invalid
+// type already exists (case-insensitive); 400 if invalid
 async function createCategory(payload: {
   type: BudgetType;
   name: string;

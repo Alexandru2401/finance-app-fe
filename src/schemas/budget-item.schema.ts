@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { hasAtMostTwoDecimals, MAX_AMOUNT } from "@/lib/validation";
 
 export const NOTES_MAX_LENGTH = 1500;
 
@@ -18,7 +19,11 @@ const BudgetItemSchema = z.object({
     .pipe(
       z
         .number({ error: `${ERRORS}.amountInvalid` })
-        .positive({ message: `${ERRORS}.amountPositive` }),
+        .positive({ message: `${ERRORS}.amountPositive` })
+        .max(MAX_AMOUNT, { message: `${ERRORS}.amountTooLarge` })
+        .refine(hasAtMostTwoDecimals, {
+          message: `${ERRORS}.amountDecimals`,
+        }),
     ),
 
   notes: z

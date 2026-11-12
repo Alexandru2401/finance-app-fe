@@ -83,6 +83,10 @@ export default function TransactionsPage() {
       .catch(() => setCategories([]));
   }, []);
 
+  function addCategory(category: Category) {
+    setCategories((prev) => [...prev, category]);
+  }
+
   // The search only reaches the backend after the user stops typing
   useEffect(() => {
     if (filters.search === search) return;
@@ -257,7 +261,10 @@ export default function TransactionsPage() {
           <div className="px-4 pb-6">
             {/* The list is fetched again, so the new transaction shows up
                 if it matches the current filters */}
-            <BudgetForm onCreated={() => setRefreshKey((k) => k + 1)} />
+            <BudgetForm
+              onCreated={() => setRefreshKey((k) => k + 1)}
+              onCategoryCreated={addCategory}
+            />
           </div>
         </SheetContent>
       </Sheet>
@@ -276,6 +283,7 @@ export default function TransactionsPage() {
         onLimitChange={changeLimit}
         onDelete={handleDelete}
         categories={categories}
+        onCategoryCreated={addCategory}
         onUpdate={handleUpdate}
       />
     </section>

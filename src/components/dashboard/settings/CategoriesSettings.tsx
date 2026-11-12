@@ -18,7 +18,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -31,17 +30,14 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Check, Lock, Pencil, Plus, Tag, Trash2, X } from "lucide-react";
+import { CATEGORY_NAME_MAX, CATEGORY_NAME_MIN } from "@/lib/validation";
+import { Check, Pencil, Plus, Tag, Trash2, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 type CategoryType = Category["type"];
 const TYPES: CategoryType[] = ["income", "expenses", "savings"];
-
-// Same limits as the backend (POST /categories)
-const NAME_MIN = 2;
-const NAME_MAX = 50;
 
 // Settings page tab: the manager inside a card
 export default function CategoriesSettings() {
@@ -179,11 +175,14 @@ function AddCategoryForm({ type, existing, onCreated }: AddCategoryFormProps) {
     e.preventDefault();
     if (saving) return;
 
-    if (cleanName.length < NAME_MIN || cleanName.length > NAME_MAX) {
+    if (
+      cleanName.length < CATEGORY_NAME_MIN ||
+      cleanName.length > CATEGORY_NAME_MAX
+    ) {
       setError(
         t("dashboard.settings.categories.errors.length", {
-          min: NAME_MIN,
-          max: NAME_MAX,
+          min: CATEGORY_NAME_MIN,
+          max: CATEGORY_NAME_MAX,
         }),
       );
       return;
@@ -233,7 +232,7 @@ function AddCategoryForm({ type, existing, onCreated }: AddCategoryFormProps) {
           aria-label={t("dashboard.settings.categories.newPlaceholder")}
           aria-invalid={error !== null}
           aria-describedby={error ? `new-category-error-${type}` : undefined}
-          maxLength={NAME_MAX}
+          maxLength={CATEGORY_NAME_MAX}
           disabled={saving}
         />
         <Button
@@ -268,74 +267,48 @@ interface CategoryListProps {
 function CategoryList({ categories, onRenamed, onDeleted }: CategoryListProps) {
   const { t } = useTranslation();
 
-  // Custom categories first, then the defaults
-  const custom = categories
-    .filter((c) => c.key === null)
-    .sort((a, b) => a.name.localeCompare(b.name));
-  const defaults = categories.filter((c) => c.key !== null);
+  const sorted = [...categories].sort((a, b) => a.name.localeCompare(b.name));
 
   return (
-    <div className="flex flex-col gap-5">
-      <section>
-        <h3 className="mb-2 text-xs font-semibold uppercase text-muted-foreground">
-          {t("dashboard.settings.categories.custom")} ({custom.length})
-        </h3>
-        {custom.length === 0 ? (
-          <p className="rounded-lg border border-dashed px-3 py-4 text-center text-sm text-muted-foreground">
-            {t("dashboard.settings.categories.emptyCustom")}
-          </p>
-        ) : (
-          <ul className="flex flex-col gap-1.5">
-            {custom.map((category) => (
-              <CustomCategoryRow
-                key={category.category_id}
-                category={category}
-                siblings={categories}
-                onRenamed={onRenamed}
-                onDeleted={onDeleted}
-              />
-            ))}
-          </ul>
-        )}
-      </section>
-
-      <section>
-        <h3 className="mb-2 text-xs font-semibold uppercase text-muted-foreground">
-          {t("dashboard.settings.categories.defaults")} ({defaults.length})
-        </h3>
-        <ul className="flex flex-wrap gap-2">
-          {defaults.map((category) => (
-            <li key={category.category_id}>
-              <Badge
-                variant="secondary"
-                className="gap-1.5 px-2.5 py-1 font-normal"
-                title={t("dashboard.settings.categories.defaultHint")}
-              >
-                <Lock className="size-3 opacity-60" />
-                {category.name}
-              </Badge>
-            </li>
+    <section>
+      <h3 className="mb-2 text-xs font-semibold uppercase text-muted-foreground">
+        {t("dashboard.settings.categories.custom")} ({sorted.length})
+      </h3>
+      {sorted.length === 0 ? (
+        <p className="rounded-lg border border-dashed px-3 py-4 text-center text-sm text-muted-foreground">
+          {t("dashboard.settings.categories.emptyCustom")}
+        </p>
+      ) : (
+        <ul className="flex flex-col gap-1.5">
+          {sorted.map((category) => (
+            <CategoryRow
+              key={category.category_id}
+              category={category}
+              siblings={categories}
+              onRenamed={onRenamed}
+              onDeleted={onDeleted}
+            />
           ))}
         </ul>
-      </section>
-    </div>
+      )}
+    </section>
   );
 }
 
-interface CustomCategoryRowProps {
+interface CategoryRowProps {
   category: Category;
-  // All categories of the same type (custom + default), for the duplicate check
+  // All categories of the same type, for the duplicate check
   siblings: Category[];
   onRenamed: (category: Category) => void;
   onDeleted: (id: string) => void;
 }
 
-function CustomCategoryRow({
+function CategoryRow({
   category,
   siblings,
   onRenamed,
   onDeleted,
-}: CustomCategoryRowProps) {
+}: CategoryRowProps) {
   const { t } = useTranslation();
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState(category.name);
@@ -368,11 +341,14 @@ function CustomCategoryRow({
       return;
     }
 
-    if (cleanName.length < NAME_MIN || cleanName.length > NAME_MAX) {
+    if (
+      cleanName.length < CATEGORY_NAME_MIN ||
+      cleanName.length > CATEGORY_NAME_MAX
+    ) {
       setError(
         t("dashboard.settings.categories.errors.length", {
-          min: NAME_MIN,
-          max: NAME_MAX,
+          min: CATEGORY_NAME_MIN,
+          max: CATEGORY_NAME_MAX,
         }),
       );
       return;
@@ -441,7 +417,7 @@ function CustomCategoryRow({
               aria-invalid={error !== null}
               aria-describedby={error ? errorId : undefined}
               className="h-8"
-              maxLength={NAME_MAX}
+              maxLength={CATEGORY_NAME_MAX}
               disabled={saving}
               autoFocus
               onKeyDown={(e) => e.key === "Escape" && cancelEdit()}
@@ -503,7 +479,7 @@ function CustomCategoryRow({
 function DeleteCategoryButton({
   category,
   onDeleted,
-}: Pick<CustomCategoryRowProps, "category" | "onDeleted">) {
+}: Pick<CategoryRowProps, "category" | "onDeleted">) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
