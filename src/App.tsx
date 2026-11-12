@@ -30,7 +30,6 @@ import UserInfoForm from "./components/public/auth/userInfoForm";
 
 const dashboardRoutes = [
   { index: true, element: <DashboardHomePage /> },
-  { path: "user-info", element: <UserInfoForm /> },
   { path: "budget", element: <BudgetPage /> },
   { path: "transactions", element: <TransactionsPage /> },
   { path: "profile", element: <ProfilePage /> },

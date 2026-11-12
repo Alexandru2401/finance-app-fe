@@ -1,5 +1,7 @@
 import { useState } from "react";
-import { useNavigate } from "react-router";
+import { Navigate, useNavigate } from "react-router";
+import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -24,6 +26,7 @@ import { addUserInfo } from "@/api/user";
 import { useAuth } from "@/hooks/useAuth";
 
 import type { Currency } from "@/lib/format";
+import { SUPPORTED_LANGUAGES, type Language } from "@/i18n";
 
 const ACCENT = "#ffd649";
 
@@ -85,6 +88,7 @@ function Stepper({ current }: { current: number }) {
 
 export default function UserInfoForm() {
   const navigate = useNavigate();
+  const { i18n } = useTranslation();
 
   const [step, setStep] = useState(2); // pasul 1 (Cont) e deja creat la register
   const [name, setName] = useState("");
@@ -92,25 +96,53 @@ export default function UserInfoForm() {
   const [loading, setLoading] = useState(false);
 
   const { user, setUser } = useAuth();
+  // Read once, at the first render: after saving, the user becomes "completed"
+  // but the success screen must stay until they press the button
+  const [alreadyCompleted] = useState(
+    () => user?.has_completed_onboarding === true,
+  );
 
   const handleFinish = async () => {
     if (!currency || !user) return;
+    // The language the app is shown in right now
+    const language = SUPPORTED_LANGUAGES.includes(i18n.language as Language)
+      ? (i18n.language as Language)
+      : undefined;
     setLoading(true);
     try {
       const response = await addUserInfo({
         username: name.trim(),
         currency,
+        language,
+        completeOnboarding: true,
       });
-      if (!response.ok || !response.data?.user) return;
-      // Raspunsul are doar user_id, username si currency
+      if (!response.ok || !response.data?.user) {
+        // 4xx come with a useful message (e.g. invalid name); 5xx is
+        // "Server error", e.g. when the BNR rates cannot be fetched
+        const message =
+          response.status < 500
+            ? response.data?.error || response.data?.message
+            : undefined;
+        toast.error("Nu am putut salva datele", {
+          description: message || "Încearcă din nou în câteva momente.",
+        });
+        return;
+      }
+      // Raspunsul are doar user_id, username, currency, language si has_completed_onboarding
       setUser({ ...user, ...response.data.user });
       setStep(4);
     } catch {
-      // TODO: eroare vizibila pentru user (vezi neimplementat.md, Onboarding)
+      toast.error("Nu am putut salva datele", {
+        description: "Verifică conexiunea la internet și încearcă din nou.",
+      });
     } finally {
       setLoading(false);
     }
   };
+
+  // Onboarding was finished before: it cannot be opened again
+  if (alreadyCompleted) return <Navigate to="/dashboard" replace />;
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-muted/30 p-4">
       <Card className="w-full max-w-md shadow-xl">

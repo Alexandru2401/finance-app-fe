@@ -73,7 +73,7 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
 
       setUser(response.data.user ?? null); // userul are username: null → onboarding
 
-      navigate("/dashboard/user-info");
+      navigate("/dashboard/user-info", { replace: true });
     } catch {
       toast.error(t("auth.signup.failed")); // aici doar erori de retea
     } finally {

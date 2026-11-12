@@ -10,6 +10,10 @@ export type User = {
   language?: string;
   is_active: boolean;
   created_at: string;
+  // false until the user finishes onboarding (name + currency); while false
+  // every dashboard page redirects to /dashboard/user-info.
+  // undefined if the backend does not send it yet: no redirect then
+  has_completed_onboarding?: boolean;
 };
 
 export type AuthValue = {

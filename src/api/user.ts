@@ -46,12 +46,15 @@ async function logoutUser() {
 }
 
 // Changing the currency converts all saved amounts on the backend (BNR rate);
-// the response user only has user_id, username, currency and language.
-// The backend keeps the value of every field that is not sent
+// the response user only has user_id, username, currency, language and
+// has_completed_onboarding. The backend keeps the value of every field that is
+// not sent. completeOnboarding marks the onboarding as finished (needs
+// username and currency in the same request)
 async function addUserInfo(info: {
   username?: string;
   currency?: Currency;
   language?: Language;
+  completeOnboarding?: true;
 }) {
   const response = await patch<AuthResponse>("/auth/user-info", info);
   return response;
