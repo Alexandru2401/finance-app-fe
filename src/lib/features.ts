@@ -15,5 +15,5 @@ export const FEATURES = {
   // Analytics page (static data for now)
   analytics: false,
   // Insights + ExtraInfo on the Budget page (static data for now)
-  budgetInsights: false,
+  budgetInsights: true,
 } as const;

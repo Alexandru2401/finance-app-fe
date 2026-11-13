@@ -436,7 +436,11 @@ export default function BudgetPage() {
 
         {FEATURES.budgetInsights && (
           <div className="flex flex-col md:flex-row md:justify-between lg:flex-col gap-6">
-            <Insights />
+            <Insights
+              summary={summaryLoaded ? summary : null}
+              month={selectedMonth}
+              refreshKey={refreshKey}
+            />
             <ExtraInfo activeTab={activeTab} />
           </div>
         )}
