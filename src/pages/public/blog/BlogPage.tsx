@@ -1,3 +1,4 @@
+import { FEATURES } from "@/lib/features";
 import { useMemo, useState, type SubmitEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router";
@@ -190,35 +191,39 @@ export default function BlogPage() {
       )}
 
       {/* Newsletter + poveste */}
-      <div className="mt-20 grid gap-6 lg:grid-cols-3">
-        <div className="rounded-2xl bg-black p-8 text-white md:p-10 lg:col-span-2">
-          <Mail className="mb-4 h-8 w-8 text-amber-400" />
-          <h2 className="mb-2 text-2xl md:text-3xl font-bold">
-            {t("blog.newsletter.title")}
-          </h2>
-          <p className="mb-6 max-w-xl text-slate-300">
-            {t("blog.newsletter.text")}
-          </p>
-          <form
-            onSubmit={handleSubscribe}
-            className="flex max-w-lg flex-col gap-3 sm:flex-row"
-          >
-            <Input
-              type="email"
-              required
-              placeholder={t("blog.newsletter.placeholder")}
-              aria-label={t("blog.newsletter.placeholder")}
-              className="h-11 border-slate-700 bg-slate-900 text-white placeholder:text-slate-500"
-            />
-            <Button
-              type="submit"
-              size="lg"
-              className="h-11 bg-amber-400 text-black hover:bg-amber-300 cursor-pointer"
+      <div
+        className={`mt-20 grid gap-6 ${FEATURES.newsletter ? "lg:grid-cols-3" : ""}`}
+      >
+        {FEATURES.newsletter && (
+          <div className="rounded-2xl bg-black p-8 text-white md:p-10 lg:col-span-2">
+            <Mail className="mb-4 h-8 w-8 text-amber-400" />
+            <h2 className="mb-2 text-2xl md:text-3xl font-bold">
+              {t("blog.newsletter.title")}
+            </h2>
+            <p className="mb-6 max-w-xl text-slate-300">
+              {t("blog.newsletter.text")}
+            </p>
+            <form
+              onSubmit={handleSubscribe}
+              className="flex max-w-lg flex-col gap-3 sm:flex-row"
             >
-              {t("blog.newsletter.button")}
-            </Button>
-          </form>
-        </div>
+              <Input
+                type="email"
+                required
+                placeholder={t("blog.newsletter.placeholder")}
+                aria-label={t("blog.newsletter.placeholder")}
+                className="h-11 border-slate-700 bg-slate-900 text-white placeholder:text-slate-500"
+              />
+              <Button
+                type="submit"
+                size="lg"
+                className="h-11 bg-amber-400 text-black hover:bg-amber-300 cursor-pointer"
+              >
+                {t("blog.newsletter.button")}
+              </Button>
+            </form>
+          </div>
+        )}
 
         <div className="flex flex-col rounded-2xl border bg-card p-8 md:p-10">
           <PenLine className="mb-4 h-8 w-8 text-amber-500" />

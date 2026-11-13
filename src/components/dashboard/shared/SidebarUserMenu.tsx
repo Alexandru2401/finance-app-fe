@@ -1,9 +1,9 @@
+import { FEATURES } from "@/lib/features";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import {
-  Bell,
   ChevronsUpDown,
   CreditCard,
   Crown,
@@ -56,7 +56,6 @@ export default function SidebarUserMenu({
   onNavigate,
 }: SidebarUserMenuProps) {
   const [open, setOpen] = useState(false);
-  const [notifications, setNotifications] = useState(true);
 
   const navigate = useNavigate();
   const { user, setUser } = useAuth();
@@ -216,23 +215,6 @@ export default function SidebarUserMenu({
               })}
             </div>
           </div>
-
-          <div className="flex items-center justify-between rounded-lg bg-muted/50 px-2 py-2 transition-colors hover:bg-muted">
-            <div className="flex items-center gap-2">
-              <Bell className="h-4 w-4 text-primary" />
-              <Label
-                htmlFor="notifications"
-                className="cursor-pointer font-normal"
-              >
-                {t("dashboard.profileBadge.notifications")}
-              </Label>
-            </div>
-            <Switch
-              id="notifications"
-              checked={notifications}
-              onCheckedChange={setNotifications}
-            />
-          </div>
         </div>
 
         <Separator />
@@ -249,12 +231,14 @@ export default function SidebarUserMenu({
                 <p className="text-xs text-muted-foreground">{planLabel}</p>
               </div>
             </div>
-            <Button asChild variant="outline" size="sm" className="text-xs">
-              <Link to="/dashboard/upgrade-plans" onClick={close}>
-                <CreditCard className="mr-1 h-3 w-3" />
-                {t("dashboard.profileBadge.upgrade")}
-              </Link>
-            </Button>
+            {FEATURES.payments && (
+              <Button asChild variant="outline" size="sm" className="text-xs">
+                <Link to="/dashboard/upgrade-plans" onClick={close}>
+                  <CreditCard className="mr-1 h-3 w-3" />
+                  {t("dashboard.profileBadge.upgrade")}
+                </Link>
+              </Button>
+            )}
           </div>
         </div>
 

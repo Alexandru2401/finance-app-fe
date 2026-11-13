@@ -1,3 +1,4 @@
+import { FEATURES } from "@/lib/features";
 import { useEffect, useState, type SubmitEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate } from "react-router";
@@ -39,7 +40,7 @@ export default function RoadmapPage() {
 
   // Se reîncarcă după autentificare: `voted` depinde de user
   useEffect(() => {
-    if (loading) return;
+    if (loading || !FEATURES.roadmapVotes) return;
     let ignore = false;
 
     getRoadmapVotes()
@@ -111,12 +112,14 @@ export default function RoadmapPage() {
         <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
           {t("roadmap.subtitle")}
         </p>
-        <Button asChild variant="outline" className="mt-6">
-          <a href="#feedback">
-            {t("roadmap.cta")}
-            <ArrowDown className="h-4 w-4" />
-          </a>
-        </Button>
+        {FEATURES.feedback && (
+          <Button asChild variant="outline" className="mt-6">
+            <a href="#feedback">
+              {t("roadmap.cta")}
+              <ArrowDown className="h-4 w-4" />
+            </a>
+          </Button>
+        )}
       </div>
 
       {/* Coloane pe status */}
@@ -146,7 +149,7 @@ export default function RoadmapPage() {
         ))}
       </div>
 
-      <FeedbackSection />
+      {FEATURES.feedback && <FeedbackSection />}
     </section>
   );
 }
@@ -171,31 +174,33 @@ function RoadmapCard({
     <li className="rounded-2xl border bg-card p-5 shadow-sm">
       <div className="mb-3 flex items-center justify-between gap-3">
         <Icon className="h-6 w-6 text-amber-500" aria-hidden />
-        <button
-          type="button"
-          onClick={onVote}
-          disabled={disabled}
-          aria-pressed={voted}
-          className={cn(
-            "inline-flex min-h-9 items-center gap-1.5 rounded-full border px-3 py-1 text-sm transition cursor-pointer disabled:cursor-not-allowed disabled:opacity-60",
-            voted
-              ? "border-red-500/40 bg-red-500/10 text-red-500"
-              : "text-muted-foreground hover:border-red-500/40 hover:text-red-500",
-          )}
-        >
-          <Heart
-            className={cn("h-4 w-4", voted && "fill-current")}
-            aria-hidden
-          />
-          <span className="sr-only">
-            {t(voted ? "roadmap.vote.remove" : "roadmap.vote.add", { title })}
-          </span>
-          {vote && (
-            <span className="tabular-nums">
-              {t("roadmap.vote.count", { count: vote.count })}
+        {FEATURES.roadmapVotes && (
+          <button
+            type="button"
+            onClick={onVote}
+            disabled={disabled}
+            aria-pressed={voted}
+            className={cn(
+              "inline-flex min-h-9 items-center gap-1.5 rounded-full border px-3 py-1 text-sm transition cursor-pointer disabled:cursor-not-allowed disabled:opacity-60",
+              voted
+                ? "border-red-500/40 bg-red-500/10 text-red-500"
+                : "text-muted-foreground hover:border-red-500/40 hover:text-red-500",
+            )}
+          >
+            <Heart
+              className={cn("h-4 w-4", voted && "fill-current")}
+              aria-hidden
+            />
+            <span className="sr-only">
+              {t(voted ? "roadmap.vote.remove" : "roadmap.vote.add", { title })}
             </span>
-          )}
-        </button>
+            {vote && (
+              <span className="tabular-nums">
+                {t("roadmap.vote.count", { count: vote.count })}
+              </span>
+            )}
+          </button>
+        )}
       </div>
       <h3 className="mb-1 font-semibold leading-snug">{title}</h3>
       <p className="text-sm text-muted-foreground leading-relaxed">

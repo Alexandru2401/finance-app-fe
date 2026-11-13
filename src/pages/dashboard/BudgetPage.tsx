@@ -1,3 +1,4 @@
+import { FEATURES } from "@/lib/features";
 import BudgetForm from "@/components/dashboard/budget/BudgetForm";
 import ItemCard from "@/components/dashboard/budget/ItemCard";
 import { Button } from "@/components/ui/button";
@@ -373,8 +374,13 @@ export default function BudgetPage() {
         </div>
       </PageHeader>
 
-      <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="col-span-2 space-y-3">
+      {/* Without the side column the lists take the whole width */}
+      <div
+        className={`grid grid-cols-1 gap-6 ${FEATURES.budgetInsights ? "lg:grid-cols-3" : ""}`}
+      >
+        <div
+          className={`${FEATURES.budgetInsights ? "col-span-2" : ""} space-y-3`}
+        >
           {!summaryLoaded ? (
             <SummaryCardsSkeleton />
           ) : (
@@ -428,10 +434,12 @@ export default function BudgetPage() {
           </div>
         </div>
 
-        <div className="flex flex-col md:flex-row md:justify-between lg:flex-col gap-6">
-          <Insights />
-          <ExtraInfo activeTab={activeTab} />
-        </div>
+        {FEATURES.budgetInsights && (
+          <div className="flex flex-col md:flex-row md:justify-between lg:flex-col gap-6">
+            <Insights />
+            <ExtraInfo activeTab={activeTab} />
+          </div>
+        )}
       </div>
 
       {showForm && (

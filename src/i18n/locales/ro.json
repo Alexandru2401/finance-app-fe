@@ -303,7 +303,8 @@
           "a": "Oferim garanția returnării banilor în 30 de zile. Dacă nu ești mulțumit, contactează-ne pentru o rambursare completă."
         }
       }
-    }
+    },
+    "comingSoon": "În curând"
   },
   "pricesEnterprise": {
     "badge": "Pentru echipe și companii",
@@ -1254,7 +1255,6 @@
       "defaultName": "Utilizator",
       "settings": "Setări profil",
       "darkMode": "Mod întunecat",
-      "notifications": "Notificări",
       "currentPlan": "Plan curent",
       "upgrade": "Upgrade",
       "viewProfile": "Vezi profilul",
@@ -1361,8 +1361,7 @@
       },
       "general": {
         "title": "General",
-        "description": "Setări legate de contul și sumele tale.",
-        "notificationsHint": "Primește notificări despre bugetul tău"
+        "description": "Setări legate de contul și sumele tale."
       },
       "currency": {
         "title": "Monedă",

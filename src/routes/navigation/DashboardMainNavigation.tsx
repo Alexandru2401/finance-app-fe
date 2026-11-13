@@ -1,3 +1,4 @@
+import { FEATURES } from "@/lib/features";
 import { Link, useLocation } from "react-router";
 import { Menu, PanelLeftOpen, Search, X } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -17,10 +18,8 @@ const isMac =
   /Mac|iPhone|iPad/.test(navigator.platform);
 const shortcutLabel = isMac ? "⌘ K" : "Ctrl K";
 
-// Global search is hidden until the backend has GET /search (api/search.ts
-// still returns dummy data). Set to true to bring back the field, the mobile
-// button and the Ctrl+K shortcut.
-const SEARCH_ENABLED = false;
+// Global search: the field, the mobile button and the Ctrl+K shortcut
+const SEARCH_ENABLED = FEATURES.globalSearch;
 
 export default function DashboardMainNavigation() {
   const [open, setOpen] = useState(true);

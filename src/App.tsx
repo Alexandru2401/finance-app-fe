@@ -1,3 +1,4 @@
+import { FEATURES } from "@/lib/features";
 import { createBrowserRouter, RouterProvider } from "react-router";
 import { lazy } from "react";
 import Login from "./pages/auth/Login";
@@ -33,8 +34,12 @@ const dashboardRoutes = [
   { path: "budget", element: <BudgetPage /> },
   { path: "transactions", element: <TransactionsPage /> },
   { path: "profile", element: <ProfilePage /> },
-  { path: "analytics", element: <AnalyticsPage /> },
-  { path: "upgrade-plans", element: <UpgradePlansPage /> },
+  ...(FEATURES.analytics
+    ? [{ path: "analytics", element: <AnalyticsPage /> }]
+    : []),
+  ...(FEATURES.payments
+    ? [{ path: "upgrade-plans", element: <UpgradePlansPage /> }]
+    : []),
   { path: "settings", element: <SettingsPage /> },
 ];
 
@@ -45,7 +50,9 @@ const publicRoutes = [
   { path: "prices/enterprise", element: <PublicPricesEnterprisePage /> },
   { path: "blog", element: <BlogPage /> },
   { path: "roadmap", element: <RoadmapPage /> },
-  { path: "paypage/:type", element: <PayPage /> },
+  ...(FEATURES.payments
+    ? [{ path: "paypage/:type", element: <PayPage /> }]
+    : []),
   { path: "terms-and-services", element: <TermsAndConditions /> },
   { path: "privacy-policy", element: <PrivacyPolicy /> },
   { path: "signin", element: <SignIn /> },

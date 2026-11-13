@@ -1,3 +1,4 @@
+import { FEATURES } from "@/lib/features";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -120,20 +121,34 @@ export default function PublicPricesPersonalPage() {
               </CardContent>
 
               <CardFooter>
-                <Link
-                  to={isFree ? "/signin" : `/paypage/personal?plan=${plan.id}`}
-                  className="w-full"
-                >
+                {!isFree && !FEATURES.payments ? (
+                  // No payments yet
                   <Button
-                    className="w-full cursor-pointer"
-                    variant={plan.popular ? "default" : "outline"}
+                    className="w-full"
+                    variant="outline"
                     size="lg"
+                    disabled
                   >
-                    {isFree
-                      ? t("prices.getStartedFree")
-                      : t("prices.startTrial")}
+                    {t("prices.comingSoon")}
                   </Button>
-                </Link>
+                ) : (
+                  <Link
+                    to={
+                      isFree ? "/signin" : `/paypage/personal?plan=${plan.id}`
+                    }
+                    className="w-full"
+                  >
+                    <Button
+                      className="w-full cursor-pointer"
+                      variant={plan.popular ? "default" : "outline"}
+                      size="lg"
+                    >
+                      {isFree
+                        ? t("prices.getStartedFree")
+                        : t("prices.startTrial")}
+                    </Button>
+                  </Link>
+                )}
               </CardFooter>
             </Card>
           );

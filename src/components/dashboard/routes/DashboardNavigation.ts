@@ -1,3 +1,4 @@
+import { FEATURES } from "@/lib/features";
 import {
   ChartNoAxesCombined,
   LayoutDashboard,
@@ -51,11 +52,15 @@ export const dashboardNavigation: DashboardNavSection[] = [
         to: "/dashboard/transactions",
         icon: UserRoundPen,
       },
-      {
-        label: "analytics",
-        to: "/dashboard/analytics",
-        icon: ChartNoAxesCombined,
-      },
+      ...(FEATURES.analytics
+        ? [
+            {
+              label: "analytics" as const,
+              to: "/dashboard/analytics",
+              icon: ChartNoAxesCombined,
+            },
+          ]
+        : []),
     ],
     title: "budgetInfo",
   },
