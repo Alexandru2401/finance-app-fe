@@ -92,7 +92,7 @@ export default function ExtraInfo({
     const gap = shown.length > 1 ? DONUT_GAP : 0;
     let start = 0;
     return (
-      <div className="relative mx-auto aspect-square w-40">
+      <div className="relative mx-auto aspect-square w-28">
         <svg viewBox="0 0 100 100" className="h-full w-full -rotate-90">
           {shown.map((row, i) => {
             const share = (row.total / total) * 100;
@@ -136,7 +136,7 @@ export default function ExtraInfo({
     if (loading) {
       return (
         <div className="space-y-4">
-          <Skeleton className="mx-auto size-40 rounded-full" />
+          <Skeleton className="mx-auto size-28 rounded-full" />
           <div className="space-y-2">
             {Array.from({ length: 3 }, (_, i) => (
               <Skeleton key={i} className="h-5 w-full" />
@@ -191,7 +191,7 @@ export default function ExtraInfo({
   return (
     // Fixed height (fits the donut + 5 legend rows), so the card does not
     // change size between tabs, months, loading and empty states
-    <Card className="h-[26rem] w-full">
+    <Card className="h-[21rem] w-full">
       <CardHeader>
         <div className="flex items-center gap-2">
           <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-accent">

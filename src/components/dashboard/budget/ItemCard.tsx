@@ -139,8 +139,9 @@ export default function ItemCard({ section, onShowForm }: ItemCardProps) {
     );
 
   return (
-    <div className="w-full">
-      <Card>
+    <div className="flex w-full flex-1 flex-col">
+      {/* Fills the height it gets from the page; the footer stays at the bottom */}
+      <Card className="flex-1">
         <CardHeader className="items-center">
           <div>
             <CardTitle className="flex items-center justify-between gap-2 text-lg text-foreground">
@@ -164,7 +165,7 @@ export default function ItemCard({ section, onShowForm }: ItemCardProps) {
         </CardHeader>
 
         {section.section && (
-          <CardContent className="overflow-hidden">
+          <CardContent className="flex-1 overflow-hidden">
             {section.items.length === 0 ? (
               <div className="flex flex-col items-center justify-center gap-4 py-6">
                 <p className="text-sm text-muted-foreground">

@@ -1099,12 +1099,7 @@
         "incomeTrendNoData": "Nu ai venituri luna trecută pentru comparație.",
         "savingsRate": "Rata de economisire",
         "savingsRateValue": "{{pct}}% din venituri",
-        "savingsRateNoIncome": "Niciun venit luna aceasta.",
-        "daysLeft": "Zile rămase din lună",
-        "daysLeftValue_one": "{{count}} zi",
-        "daysLeftValue_few": "{{count}} zile",
-        "daysLeftValue_other": "{{count}} de zile",
-        "monthClosed": "Luna s-a încheiat."
+        "savingsRateNoIncome": "Niciun venit luna aceasta."
       },
       "categories": {
         "button": "Categorii",

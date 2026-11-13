@@ -102,7 +102,7 @@ function SummaryCardsSkeleton() {
 
 function ItemListSkeleton() {
   return (
-    <Card>
+    <Card className="flex-1">
       <CardHeader>
         <Skeleton className="h-5 w-28" />
         <Skeleton className="mt-1 h-3 w-40" />
@@ -379,7 +379,7 @@ export default function BudgetPage() {
         className={`grid grid-cols-1 gap-6 ${FEATURES.budgetInsights ? "lg:grid-cols-3" : ""}`}
       >
         <div
-          className={`${FEATURES.budgetInsights ? "col-span-2" : ""} space-y-3`}
+          className={`${FEATURES.budgetInsights ? "col-span-2" : ""} flex flex-col gap-3`}
         >
           {!summaryLoaded ? (
             <SummaryCardsSkeleton />
@@ -394,11 +394,13 @@ export default function BudgetPage() {
             />
           )}
 
-          <div className="grid items-start gap-6">
+          {/* On lg the grid stretches this column to the height of the side
+              column, so the list card ends at the same level as the donut */}
+          <div className="flex flex-1 flex-col">
             <Tabs
               value={activeTab}
               onValueChange={(v) => setActiveTab(v as typeof activeTab)}
-              className="w-full"
+              className="w-full flex-1"
             >
               <TabsList>
                 {sections.map((section) => (
@@ -413,14 +415,18 @@ export default function BudgetPage() {
               </TabsList>
 
               {sections.map((section) => (
-                <TabsContent key={section.section} value={section.section}>
+                <TabsContent
+                  key={section.section}
+                  value={section.section}
+                  className="flex flex-col"
+                >
                   {itemsByTab[section.section] ? (
                     <ItemCard
                       section={section}
                       onShowForm={() => setShowForm(true)}
                     />
                   ) : itemsError ? (
-                    <Card>
+                    <Card className="flex-1">
                       <CardContent className="py-6 text-sm text-destructive">
                         {t("dashboard.budget.loadError")}
                       </CardContent>

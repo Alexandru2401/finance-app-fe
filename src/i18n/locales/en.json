@@ -1096,11 +1096,7 @@
         "incomeTrendNoData": "No income last month to compare with.",
         "savingsRate": "Savings rate",
         "savingsRateValue": "{{pct}}% of income",
-        "savingsRateNoIncome": "No income this month.",
-        "daysLeft": "Days left in the month",
-        "daysLeftValue_one": "{{count}} day",
-        "daysLeftValue_other": "{{count}} days",
-        "monthClosed": "This month has ended."
+        "savingsRateNoIncome": "No income this month."
       },
       "categories": {
         "button": "Categories",

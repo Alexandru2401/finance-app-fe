@@ -1,5 +1,4 @@
 import {
-  Calendar,
   Home,
   Lightbulb,
   PiggyBank,
@@ -17,7 +16,7 @@ import {
   type BudgetSummary,
   type TopExpense,
 } from "@/api/budget";
-import { monthPeriod, periodMonth, shiftMonth } from "@/lib/periods";
+import { monthPeriod, shiftMonth } from "@/lib/periods";
 
 interface InsightsProps {
   // null while the summary of the page is loading
@@ -205,37 +204,11 @@ export default function Insights({
     return { ...base, tone, value: k("savingsRateValue", { pct }) };
   }
 
-  // Only the current month has days left; a past month is closed
-  function daysLeft(): Insight {
-    const base = {
-      icon: <Calendar className="h-4 w-4" />,
-      tone: "text-finance-purple",
-      label: k("daysLeft"),
-    };
-    if (month !== periodMonth("this-month"))
-      return {
-        ...base,
-        tone: "text-muted-foreground",
-        value: k("monthClosed"),
-      };
-
-    const today = new Date();
-    const lastDay = new Date(
-      today.getFullYear(),
-      today.getMonth() + 1,
-      0,
-    ).getDate();
-    // Today counts as a day left
-    const count = lastDay - today.getDate() + 1;
-    return { ...base, value: k("daysLeftValue", { count }) };
-  }
-
   const insights = [
     savingsGoal(),
     topExpenseInsight(),
     incomeTrend(),
     savingsRate(),
-    daysLeft(),
   ];
 
   return (
