@@ -31,3 +31,26 @@ export const DEFAULT_FILTERS: TransactionFilters = {
   maxAmount: "",
   sort: "date-desc",
 };
+
+const FILTER_KEYS = Object.keys(
+  DEFAULT_FILTERS,
+) as (keyof TransactionFilters)[];
+
+// Filters from the URL (?type=expense&year=2026...); missing ones stay default
+export function filtersFromParams(params: URLSearchParams): TransactionFilters {
+  const filters = { ...DEFAULT_FILTERS };
+  for (const key of FILTER_KEYS) {
+    const value = params.get(key);
+    if (value !== null) filters[key] = value;
+  }
+  return filters;
+}
+
+// Only the filters that differ from the default, so the URL stays short
+export function filtersToParams(filters: TransactionFilters): URLSearchParams {
+  const params = new URLSearchParams();
+  for (const key of FILTER_KEYS) {
+    if (filters[key] !== DEFAULT_FILTERS[key]) params.set(key, filters[key]);
+  }
+  return params;
+}

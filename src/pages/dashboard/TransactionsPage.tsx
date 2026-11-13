@@ -14,10 +14,13 @@ import { Plus } from "lucide-react";
 import {
   DEFAULT_FILTERS,
   daysInMonth,
+  filtersFromParams,
+  filtersToParams,
   type TransactionFilters,
 } from "@/components/dashboard/transactions/filters";
 
 import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router";
 import { useTranslation } from "react-i18next";
 import {
   exportTransactions,
@@ -62,9 +65,13 @@ const toAmount = (value: string) =>
 export default function TransactionsPage() {
   const { t, i18n } = useTranslation();
   const [transactions, setTransactions] = useState<Transaction[] | null>(null);
-  const [filters, setFilters] = useState<TransactionFilters>(DEFAULT_FILTERS);
+  const [searchParams, setSearchParams] = useSearchParams();
+  // Read from the URL once, so the filters survive a refresh / Back
+  const [filters, setFilters] = useState<TransactionFilters>(() =>
+    filtersFromParams(searchParams),
+  );
   // Debounced copy of filters.search, the one sent to the backend
-  const [search, setSearch] = useState(DEFAULT_FILTERS.search);
+  const [search, setSearch] = useState(filters.search);
   const [categories, setCategories] = useState<Category[]>([]);
   // Years with transactions, from the backend (newest first)
   const [years, setYears] = useState<string[]>([]);
@@ -145,6 +152,12 @@ export default function TransactionsPage() {
       filters.sort,
     ],
   );
+
+  // Filters -> URL; replace, so every change does not add a history entry.
+  // The debounced search is used, so the URL does not change on every key
+  useEffect(() => {
+    setSearchParams(filtersToParams({ ...filters, search }), { replace: true });
+  }, [filters, search, setSearchParams]);
 
   const request = useMemo(
     () => ({ ...params, page, limit }),
