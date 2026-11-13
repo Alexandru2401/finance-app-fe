@@ -1178,7 +1178,9 @@
           "type": "Elimină filtrul de tip",
           "category": "Elimină filtrul de categorie",
           "amount": "Elimină filtrul de sumă"
-        }
+        },
+        "more": "Filtre",
+        "reset": "Resetează aceste filtre"
       },
       "table": {
         "caption": "Lista tranzacțiilor tale recente.",
@@ -1195,7 +1197,6 @@
         "delete": "Șterge tranzacția",
         "netTotal": "Total net",
         "showing": "Se afișează <bold>{{from}}–{{to}}</bold> din <bold>{{total}}</bold> tranzacții",
-        "perPage": "Pe pagină",
         "deleteTitle": "Șterge tranzacția",
         "deleteConfirm": "Sigur vrei să ștergi <bold>{{category}}</bold> ({{amount}}, {{date}})? Acțiunea nu poate fi anulată.",
         "cancel": "Anulează",

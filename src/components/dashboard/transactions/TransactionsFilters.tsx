@@ -3,6 +3,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
   Select,
   SelectContent,
   SelectGroup,
@@ -11,7 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Download, Search, X } from "lucide-react";
+import { Download, Search, SlidersHorizontal, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { Category } from "@/api/budget";
 import { daysInMonth, type TransactionFilters } from "./filters";
@@ -27,13 +32,15 @@ const monthNames = (locale: string) =>
 
 const TYPES = ["income", "expense", "savings"] as const;
 
-const SORTS = ["date-desc", "date-asc", "amount-desc", "amount-asc"] as const;
-
 // Active filter chips: tinted so they stand out, with a clear remove button
 const CHIP_CLASS =
   "gap-1.5 rounded-full border-finance-primary/30 bg-finance-primary/10 py-1 pl-3 pr-1 text-sm font-normal text-foreground";
 const CHIP_REMOVE_CLASS =
   "inline-flex size-5 cursor-pointer items-center justify-center rounded-full bg-foreground/10 text-foreground/70 transition-colors hover:bg-destructive hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive/50";
+
+// Long lists (days, categories) scroll instead of filling the screen
+const LONG_LIST_CLASS =
+  "**:data-radix-select-viewport:max-h-[min(22rem,var(--radix-select-content-available-height))]";
 
 // Category types use "expenses", the type filter uses "expense"
 const CATEGORY_GROUPS: {
@@ -96,6 +103,27 @@ export default function TransactionsFilters({
     filters.minAmount !== "" ||
     filters.maxAmount !== "";
 
+  // Filters inside the popover; the button shows how many are set
+  const moreFilters = [
+    filters.type !== "all",
+    filters.year !== "all",
+    filters.month !== "all",
+    filters.day !== "all",
+    filters.categoryId !== "all",
+    filters.minAmount !== "" || filters.maxAmount !== "",
+  ].filter(Boolean).length;
+
+  const clearMoreFilters = () =>
+    onChange({
+      type: "all",
+      year: "all",
+      month: "all",
+      day: "all",
+      categoryId: "all",
+      minAmount: "",
+      maxAmount: "",
+    });
+
   const typeLabel = (type: string) =>
     TYPES.includes(type as (typeof TYPES)[number])
       ? t(
@@ -148,11 +176,11 @@ export default function TransactionsFilters({
 
   return (
     <>
-      {/* SEARCH + EXPORT */}
-      <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
-        <div className="relative max-w-sm flex-1 min-w-50">
+      {/* Search, all the filters in a popover, export; sorting is in the table headers */}
+      <div className="mb-4 flex flex-wrap items-center gap-2">
+        <div className="relative min-w-50 max-w-sm flex-1">
           <Search
-            className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"
+            className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
             aria-hidden="true"
           />
           <Input
@@ -164,12 +192,222 @@ export default function TransactionsFilters({
             onChange={(e) => onChange({ search: e.target.value })}
           />
         </div>
+
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="outline" className="cursor-pointer gap-2">
+              <SlidersHorizontal className="h-4 w-4" aria-hidden="true" />
+              {t("dashboard.transactions.filters.more")}
+              {moreFilters > 0 && (
+                <span className="flex size-5 items-center justify-center rounded-full bg-finance-primary text-xs text-white tabular-nums">
+                  {moreFilters}
+                </span>
+              )}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent
+            align="start"
+            className="w-[min(22rem,calc(100vw-2rem))] space-y-4"
+          >
+            <div className="flex flex-col gap-1.5">
+              <Label
+                htmlFor="filter-type"
+                className="text-xs text-muted-foreground"
+              >
+                {t("dashboard.transactions.filters.type")}
+              </Label>
+              <Select value={filters.type} onValueChange={changeType}>
+                <SelectTrigger id="filter-type" className="w-full">
+                  <SelectValue
+                    placeholder={t("dashboard.transactions.filters.allTypes")}
+                  />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">
+                    {t("dashboard.transactions.filters.allTypes")}
+                  </SelectItem>
+                  {TYPES.map((type) => (
+                    <SelectItem key={type} value={type}>
+                      {typeLabel(type)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="grid grid-cols-3 gap-2">
+              <div className="flex min-w-0 flex-col gap-1.5">
+                <Label
+                  htmlFor="filter-year"
+                  className="text-xs text-muted-foreground"
+                >
+                  {t("dashboard.transactions.filters.year")}
+                </Label>
+                <Select
+                  value={filters.year}
+                  onValueChange={(v) => onChange({ year: v })}
+                >
+                  <SelectTrigger id="filter-year" className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">
+                      {t("dashboard.transactions.filters.allYears")}
+                    </SelectItem>
+                    {years.map((y) => (
+                      <SelectItem key={y} value={y}>
+                        {y}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="flex min-w-0 flex-col gap-1.5">
+                <Label
+                  htmlFor="filter-month"
+                  className="text-xs text-muted-foreground"
+                >
+                  {t("dashboard.transactions.filters.month")}
+                </Label>
+                <Select
+                  value={filters.month}
+                  onValueChange={(v) => onChange({ month: v })}
+                >
+                  <SelectTrigger id="filter-month" className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">
+                      {t("dashboard.transactions.filters.allMonths")}
+                    </SelectItem>
+                    {months.map((m, i) => (
+                      <SelectItem key={m} value={String(i + 1)}>
+                        {m}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="flex min-w-0 flex-col gap-1.5">
+                <Label
+                  htmlFor="filter-day"
+                  className="text-xs text-muted-foreground"
+                >
+                  {t("dashboard.transactions.filters.day")}
+                </Label>
+                <Select
+                  value={filters.day}
+                  onValueChange={(v) => onChange({ day: v })}
+                >
+                  <SelectTrigger id="filter-day" className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className={LONG_LIST_CLASS}>
+                    <SelectItem value="all">
+                      {t("dashboard.transactions.filters.allDays")}
+                    </SelectItem>
+                    {Array.from(
+                      { length: daysInMonth(filters.year, filters.month) },
+                      (_, i) => i + 1,
+                    ).map((d) => (
+                      <SelectItem key={d} value={String(d)}>
+                        {d}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <Label
+                htmlFor="filter-category"
+                className="text-xs text-muted-foreground"
+              >
+                {t("dashboard.transactions.filters.category")}
+              </Label>
+              <Select
+                value={filters.categoryId}
+                onValueChange={(v) => onChange({ categoryId: v })}
+              >
+                <SelectTrigger id="filter-category" className="w-full">
+                  <SelectValue
+                    placeholder={t(
+                      "dashboard.transactions.filters.allCategories",
+                    )}
+                  />
+                </SelectTrigger>
+                <SelectContent className={LONG_LIST_CLASS}>
+                  <SelectItem value="all">
+                    {t("dashboard.transactions.filters.allCategories")}
+                  </SelectItem>
+                  {categoryGroups.map(({ type }) => {
+                    const items = categories.filter((c) => c.type === type);
+                    if (items.length === 0) return null;
+                    return (
+                      <SelectGroup key={type}>
+                        <SelectLabel>
+                          {t(`dashboard.common.${type}`)}
+                        </SelectLabel>
+                        {items.map((c) => (
+                          <SelectItem key={c.category_id} value={c.category_id}>
+                            {c.name}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    );
+                  })}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <Label
+                htmlFor="filter-min"
+                className="text-xs text-muted-foreground"
+              >
+                {t("dashboard.transactions.filters.amount")}
+              </Label>
+              <div className="flex items-center gap-1.5">
+                <Input
+                  id="filter-min"
+                  type="number"
+                  placeholder={t("dashboard.transactions.filters.min")}
+                  value={filters.minAmount}
+                  onChange={(e) => onChange({ minAmount: e.target.value })}
+                />
+                <span className="text-muted-foreground">–</span>
+                <Input
+                  type="number"
+                  placeholder={t("dashboard.transactions.filters.max")}
+                  aria-label={t("dashboard.transactions.filters.maxAmount")}
+                  value={filters.maxAmount}
+                  onChange={(e) => onChange({ maxAmount: e.target.value })}
+                />
+              </div>
+            </div>
+
+            {moreFilters > 0 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={clearMoreFilters}
+                className="w-full cursor-pointer gap-1.5 text-destructive hover:bg-destructive/10 hover:text-destructive"
+              >
+                <X className="h-4 w-4" aria-hidden="true" />
+                {t("dashboard.transactions.filters.reset")}
+              </Button>
+            )}
+          </PopoverContent>
+        </Popover>
+
         <Button
           variant="outline"
-          size="sm"
           onClick={onExport}
           disabled={exporting}
-          className="cursor-pointer gap-2"
+          className="cursor-pointer gap-2 sm:ml-auto"
         >
           <Download className="h-4 w-4" aria-hidden="true" />
           {exporting
@@ -178,227 +416,9 @@ export default function TransactionsFilters({
         </Button>
       </div>
 
-      {/* FILTRE */}
-      <div className="flex flex-wrap items-end gap-3 mb-6">
-        <div className="flex flex-col gap-1.5 ">
-          <Label
-            htmlFor="filter-year"
-            className="text-xs text-muted-foreground"
-          >
-            {t("dashboard.transactions.filters.year")}
-          </Label>
-          <Select
-            value={filters.year}
-            onValueChange={(v) => onChange({ year: v })}
-          >
-            <SelectTrigger id="filter-year" className="w-27.5">
-              <SelectValue
-                placeholder={t("dashboard.transactions.filters.year")}
-              />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all" className="cursor-pointer">
-                {t("dashboard.transactions.filters.allYears")}
-              </SelectItem>
-              {years.map((y) => (
-                <SelectItem key={y} value={y}>
-                  {y}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="flex flex-col gap-1.5">
-          <Label
-            htmlFor="filter-month"
-            className="text-xs text-muted-foreground"
-          >
-            {t("dashboard.transactions.filters.month")}
-          </Label>
-          <Select
-            value={filters.month}
-            onValueChange={(v) => onChange({ month: v })}
-          >
-            <SelectTrigger id="filter-month" className="w-32.5">
-              <SelectValue
-                placeholder={t("dashboard.transactions.filters.month")}
-              />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">
-                {t("dashboard.transactions.filters.allMonths")}
-              </SelectItem>
-              {months.map((m, i) => (
-                <SelectItem key={m} value={String(i + 1)}>
-                  {m}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="filter-day" className="text-xs text-muted-foreground">
-            {t("dashboard.transactions.filters.day")}
-          </Label>
-          <Select
-            value={filters.day}
-            onValueChange={(v) => onChange({ day: v })}
-          >
-            <SelectTrigger id="filter-day" className="w-25">
-              <SelectValue
-                placeholder={t("dashboard.transactions.filters.day")}
-              />
-            </SelectTrigger>
-            <SelectContent className="**:data-radix-select-viewport:max-h-[min(22rem,var(--radix-select-content-available-height))]">
-              <SelectItem value="all">
-                {t("dashboard.transactions.filters.allDays")}
-              </SelectItem>
-              {Array.from(
-                { length: daysInMonth(filters.year, filters.month) },
-                (_, i) => i + 1,
-              ).map((d) => (
-                <SelectItem key={d} value={String(d)}>
-                  {d}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="flex flex-col gap-1.5">
-          <Label
-            htmlFor="filter-type"
-            className="text-xs text-muted-foreground"
-          >
-            {t("dashboard.transactions.filters.type")}
-          </Label>
-          <Select value={filters.type} onValueChange={changeType}>
-            <SelectTrigger id="filter-type" className="w-35">
-              <SelectValue
-                placeholder={t("dashboard.transactions.filters.allTypes")}
-              />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">
-                {t("dashboard.transactions.filters.allTypes")}
-              </SelectItem>
-              {TYPES.map((type) => (
-                <SelectItem key={type} value={type}>
-                  {typeLabel(type)}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="flex flex-col gap-1.5">
-          <Label
-            htmlFor="filter-category"
-            className="text-xs text-muted-foreground"
-          >
-            {t("dashboard.transactions.filters.category")}
-          </Label>
-          <Select
-            value={filters.categoryId}
-            onValueChange={(v) => onChange({ categoryId: v })}
-          >
-            <SelectTrigger id="filter-category" className="w-45">
-              <SelectValue
-                placeholder={t("dashboard.transactions.filters.allCategories")}
-              />
-            </SelectTrigger>
-            <SelectContent className="**:data-radix-select-viewport:max-h-[min(22rem,var(--radix-select-content-available-height))]">
-              <SelectItem value="all">
-                {t("dashboard.transactions.filters.allCategories")}
-              </SelectItem>
-              {categoryGroups.map(({ type }) => {
-                const items = categories.filter((c) => c.type === type);
-                if (items.length === 0) return null;
-                return (
-                  <SelectGroup key={type}>
-                    <SelectLabel>{t(`dashboard.common.${type}`)}</SelectLabel>
-                    {items.map((c) => (
-                      <SelectItem key={c.category_id} value={c.category_id}>
-                        {c.name}
-                      </SelectItem>
-                    ))}
-                  </SelectGroup>
-                );
-              })}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="filter-min" className="text-xs text-muted-foreground">
-            {t("dashboard.transactions.filters.amount")}
-          </Label>
-          <div className="flex items-center gap-1.5">
-            <Input
-              id="filter-min"
-              type="number"
-              placeholder={t("dashboard.transactions.filters.min")}
-              className="w-22.5"
-              value={filters.minAmount}
-              onChange={(e) => onChange({ minAmount: e.target.value })}
-            />
-            <span className="text-muted-foreground">–</span>
-            <Input
-              type="number"
-              placeholder={t("dashboard.transactions.filters.max")}
-              className="w-22.5"
-              aria-label={t("dashboard.transactions.filters.maxAmount")}
-              value={filters.maxAmount}
-              onChange={(e) => onChange({ maxAmount: e.target.value })}
-            />
-          </div>
-        </div>
-
-        {hasActiveFilters && (
-          <Button
-            variant="outline"
-            className="cursor-pointer gap-1.5 border-destructive/40 text-destructive hover:bg-destructive/10 hover:text-destructive"
-            onClick={onClear}
-          >
-            <X className="h-4 w-4" aria-hidden="true" />
-            {t("dashboard.transactions.filters.clear")}
-          </Button>
-        )}
-
-        <div className="flex flex-col gap-1.5 sm:ml-auto">
-          <Label
-            htmlFor="filter-sort"
-            className="text-xs text-muted-foreground"
-          >
-            {t("dashboard.transactions.filters.sort")}
-          </Label>
-          <Select
-            value={filters.sort}
-            onValueChange={(v) => onChange({ sort: v })}
-          >
-            <SelectTrigger id="filter-sort" className="w-45">
-              <SelectValue
-                placeholder={t(
-                  "dashboard.transactions.filters.sorts.date-desc",
-                )}
-              />
-            </SelectTrigger>
-            <SelectContent>
-              {SORTS.map((sort) => (
-                <SelectItem key={sort} value={sort}>
-                  {t(`dashboard.transactions.filters.sorts.${sort}`)}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
-      {/* ACTIVE FILTERS */}
+      {/* ACTIVE FILTERS: one chip per filter, plus clearing all of them */}
       {hasActiveFilters && (
-        <div className="flex flex-wrap items-center gap-2 mb-6">
+        <div className="mb-6 flex flex-wrap items-center gap-2">
           <span className="text-xs text-muted-foreground">
             {t("dashboard.transactions.filters.active")}
           </span>
@@ -416,6 +436,15 @@ export default function TransactionsFilters({
               </button>
             </Badge>
           ))}
+
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onClear}
+            className="cursor-pointer text-destructive hover:bg-destructive/10 hover:text-destructive"
+          >
+            {t("dashboard.transactions.filters.clear")}
+          </Button>
         </div>
       )}
     </>

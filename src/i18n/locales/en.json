@@ -1175,7 +1175,9 @@
           "type": "Remove type filter",
           "category": "Remove category filter",
           "amount": "Remove amount filter"
-        }
+        },
+        "more": "Filters",
+        "reset": "Reset these filters"
       },
       "table": {
         "caption": "A list of your recent transactions.",
@@ -1192,7 +1194,6 @@
         "delete": "Delete transaction",
         "netTotal": "Net total",
         "showing": "Showing <bold>{{from}}–{{to}}</bold> of <bold>{{total}}</bold> transactions",
-        "perPage": "Per page",
         "deleteTitle": "Delete transaction",
         "deleteConfirm": "Are you sure you want to delete <bold>{{category}}</bold> ({{amount}}, {{date}})? This action cannot be undone.",
         "cancel": "Cancel",

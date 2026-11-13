@@ -54,6 +54,9 @@ const SORTS: Record<string, TransactionsParams["sort"]> = {
   "amount-asc": "lowest",
 };
 
+// Rows per page, fixed
+const PAGE_SIZE = 15;
+
 // Wait for a pause in typing before searching
 const SEARCH_DELAY = 300;
 
@@ -76,7 +79,6 @@ export default function TransactionsPage() {
   // Years with transactions, from the backend (newest first)
   const [years, setYears] = useState<string[]>([]);
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState<number>(15);
   const [pagination, setPagination] = useState<PaginationInfo | null>(null);
   // Key of the last request that finished; loading while it differs from the current one
   const [loadedKey, setLoadedKey] = useState<string | null>(null);
@@ -160,8 +162,8 @@ export default function TransactionsPage() {
   }, [filters, search, setSearchParams]);
 
   const request = useMemo(
-    () => ({ ...params, page, limit }),
-    [params, page, limit],
+    () => ({ ...params, page, limit: PAGE_SIZE }),
+    [params, page],
   );
   // refreshKey is part of the key, so a refetch after a delete shows loading too
   const requestKey = `${JSON.stringify(request)}#${refreshKey}`;
@@ -277,12 +279,6 @@ export default function TransactionsPage() {
     }
   }
 
-  function changeLimit(newLimit: number) {
-    setLimit(newLimit);
-    // The current page may not exist with the new size
-    setPage(1);
-  }
-
   function changeFilters(patch: Partial<TransactionFilters>) {
     // Typing in the search waits for the debounce above
     const onlySearch = Object.keys(patch).every((key) => key === "search");
@@ -358,11 +354,12 @@ export default function TransactionsPage() {
         onRetry={() => setRefreshKey((k) => k + 1)}
         pagination={pagination}
         onPageChange={setPage}
-        onLimitChange={changeLimit}
         onDelete={handleDelete}
         categories={categories}
         onCategoryCreated={addCategory}
         onUpdate={handleUpdate}
+        sort={filters.sort}
+        onSortChange={(sort) => changeFilters({ sort })}
       />
     </section>
   );

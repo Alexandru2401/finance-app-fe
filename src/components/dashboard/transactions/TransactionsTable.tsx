@@ -18,13 +18,6 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
   AlertDialog,
   AlertDialogCancel,
   AlertDialogContent,
@@ -34,7 +27,6 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Transaction } from "@/api/transactions";
 import type { Category, UpdateTransactionPayload } from "@/api/budget";
@@ -48,7 +40,16 @@ import {
   TYPE_STYLES,
 } from "@/components/dashboard/transactions/styles";
 import type { PaginationInfo } from "@/pages/dashboard/TransactionsPage";
-import { AlertCircle, FileText, Pencil, RotateCw, Trash2 } from "lucide-react";
+import {
+  AlertCircle,
+  ArrowDown,
+  ArrowUp,
+  ArrowUpDown,
+  FileText,
+  Pencil,
+  RotateCw,
+  Trash2,
+} from "lucide-react";
 import { useState, type MouseEvent } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import { useCurrency } from "@/hooks/useCurrency";
@@ -61,7 +62,6 @@ const fmtDate = (date: string, locale: string) =>
   });
 
 // The backend allows at most 15 per page
-const PAGE_SIZES = [5, 10, 15];
 
 // First, last and the pages around the current one; gaps become an ellipsis
 function getPageItems(page: number, totalPages: number) {
@@ -76,7 +76,17 @@ function getPageItems(page: number, totalPages: number) {
   return items;
 }
 
+// Shorter rows than the default table cell (p-2)
+const COMPACT = "[&>td]:py-1";
+
 const BOLD = { bold: <span className="font-medium text-foreground" /> };
+
+// Sortable columns: a click sorts descending, a second click ascending
+type SortColumn = "date" | "amount";
+type Sort = `${SortColumn}-${"desc" | "asc"}`;
+
+const nextSort = (column: SortColumn, current: string): Sort =>
+  current === `${column}-desc` ? `${column}-asc` : `${column}-desc`;
 
 interface Props {
   transactions: Transaction[] | null;
@@ -87,7 +97,6 @@ interface Props {
   // null until the first page is loaded
   pagination: PaginationInfo | null;
   onPageChange: (page: number) => void;
-  onLimitChange: (limit: number) => void;
   // Resolves to false if the delete failed, so the dialog stays open
   onDelete: (id: string) => Promise<boolean>;
   // For the edit dialog (only the categories of the transaction's type are shown)
@@ -98,6 +107,9 @@ interface Props {
     tx: Transaction,
     payload: UpdateTransactionPayload,
   ) => Promise<boolean>;
+  // e.g. "date-desc"; changed from the Date and Amount headers
+  sort: string;
+  onSortChange: (sort: Sort) => void;
 }
 
 export default function TransactionsTable({
@@ -107,13 +119,46 @@ export default function TransactionsTable({
   onRetry,
   pagination,
   onPageChange,
-  onLimitChange,
   onDelete,
   categories,
   onCategoryCreated,
   onUpdate,
+  sort,
+  onSortChange,
 }: Props) {
   const { t, i18n } = useTranslation();
+
+  // Header button with an arrow for the current direction
+  function sortHeader(column: SortColumn, label: string) {
+    const active = sort.startsWith(`${column}-`);
+    const Icon = !active
+      ? ArrowUpDown
+      : sort.endsWith("-asc")
+        ? ArrowUp
+        : ArrowDown;
+    const next = nextSort(column, sort);
+    return (
+      <button
+        type="button"
+        onClick={() => onSortChange(next)}
+        title={t(`dashboard.transactions.filters.sorts.${next}`)}
+        className={`inline-flex cursor-pointer items-center gap-1 rounded-md px-1.5 py-1 -mx-1.5 hover:bg-accent ${active ? "text-foreground" : "text-muted-foreground"}`}
+      >
+        {label}
+        <Icon
+          className={`h-3.5 w-3.5 ${active ? "" : "opacity-50"}`}
+          aria-hidden="true"
+        />
+      </button>
+    );
+  }
+
+  const ariaSort = (column: SortColumn) =>
+    !sort.startsWith(`${column}-`)
+      ? "none"
+      : sort.endsWith("-asc")
+        ? "ascending"
+        : "descending";
   const { format } = useCurrency();
   const fmtAmount = (amount: number, type: Transaction["type"]) =>
     `${AMOUNT_SIGNS[type]}${format(Math.abs(amount))}`;
@@ -175,11 +220,14 @@ export default function TransactionsTable({
               <TableHead className="min-w-40">
                 {t("dashboard.transactions.table.category")}
               </TableHead>
-              <TableHead className="min-w-40">
-                {t("dashboard.transactions.table.date")}
+              <TableHead className="min-w-40" aria-sort={ariaSort("date")}>
+                {sortHeader("date", t("dashboard.transactions.table.date"))}
               </TableHead>
-              <TableHead className="min-w-40 text-right">
-                {t("dashboard.transactions.table.amount")}
+              <TableHead
+                className="min-w-40 text-right"
+                aria-sort={ariaSort("amount")}
+              >
+                {sortHeader("amount", t("dashboard.transactions.table.amount"))}
               </TableHead>
               <TableHead className="w-32 text-right">
                 {t("dashboard.transactions.table.actions")}
@@ -220,7 +268,7 @@ export default function TransactionsTable({
               </TableRow>
             ) : loading || !transactions ? (
               [0, 1, 2, 3, 4].map((i) => (
-                <TableRow key={i}>
+                <TableRow key={i} className={COMPACT}>
                   <TableCell>
                     <Skeleton className="h-4 w-5" />
                   </TableCell>
@@ -237,7 +285,7 @@ export default function TransactionsTable({
                     <Skeleton className="ml-auto h-4 w-16" />
                   </TableCell>
                   <TableCell>
-                    <Skeleton className="ml-auto h-8 w-24 rounded-md" />
+                    <Skeleton className="ml-auto h-7 w-22 rounded-md" />
                   </TableCell>
                 </TableRow>
               ))
@@ -254,13 +302,13 @@ export default function TransactionsTable({
               </TableRow>
             ) : (
               transactions.map((tx, index) => (
-                <TableRow key={tx.item_id}>
+                <TableRow key={tx.item_id} className={COMPACT}>
                   <TableCell className="text-muted-foreground tabular-nums">
                     {offset + index + 1}
                   </TableCell>
                   <TableCell>
                     <span
-                      className={`text-xs font-medium px-2.5 py-1 rounded-full ${TYPE_STYLES[tx.type]}`}
+                      className={`text-xs font-medium px-2 py-0.5 rounded-full ${TYPE_STYLES[tx.type]}`}
                     >
                       {t(
                         `dashboard.overview.recentTransactions.types.${tx.type}`,
@@ -283,7 +331,7 @@ export default function TransactionsTable({
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="size-8 cursor-pointer text-muted-foreground hover:bg-finance-warning-bg hover:text-finance-warning"
+                        className="size-7 cursor-pointer text-muted-foreground hover:bg-finance-warning-bg hover:text-finance-warning"
                         aria-label={t("dashboard.transactions.table.notes")}
                         title={t("dashboard.transactions.table.notes")}
                         onClick={() => setNotesId(tx.item_id)}
@@ -293,7 +341,7 @@ export default function TransactionsTable({
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="size-8 cursor-pointer text-muted-foreground hover:bg-finance-primary-bg hover:text-finance-primary"
+                        className="size-7 cursor-pointer text-muted-foreground hover:bg-finance-primary-bg hover:text-finance-primary"
                         aria-label={t("dashboard.transactions.table.edit")}
                         title={t("dashboard.transactions.table.edit")}
                         onClick={() => setEditingId(tx.item_id)}
@@ -303,7 +351,7 @@ export default function TransactionsTable({
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="size-8 cursor-pointer text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                        className="size-7 cursor-pointer text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
                         aria-label={t("dashboard.transactions.table.delete")}
                         title={t("dashboard.transactions.table.delete")}
                         onClick={() => setDeleting(tx)}
@@ -353,29 +401,6 @@ export default function TransactionsTable({
               components={BOLD}
             />
           </p>
-          <div className="flex items-center gap-2">
-            <Label
-              htmlFor="page-size"
-              className="text-xs text-muted-foreground"
-            >
-              {t("dashboard.transactions.table.perPage")}
-            </Label>
-            <Select
-              value={String(limit)}
-              onValueChange={(value) => onLimitChange(Number(value))}
-            >
-              <SelectTrigger id="page-size" className="w-20 h-8">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {PAGE_SIZES.map((size) => (
-                  <SelectItem key={size} value={String(size)}>
-                    {size}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
         </div>
 
         {totalPages > 1 && !error && (
