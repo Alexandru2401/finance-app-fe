@@ -899,7 +899,9 @@
       "uncategorized": "Uncategorized",
       "income": "Income",
       "expenses": "Expenses",
-      "savings": "Savings"
+      "savings": "Savings",
+      "tooManyRequests_one": "Too many requests. Try again in {{count}} minute.",
+      "tooManyRequests_other": "Too many requests. Try again in {{count}} minutes."
     },
     "overview": {
       "welcome": "Welcome back, {{name}}!",
@@ -1062,27 +1064,19 @@
       },
       "extraInfo": {
         "income": {
-          "title": "Recurring income sources",
-          "badge": "Recurring"
+          "title": "Where your income came from",
+          "empty": "No income this month."
         },
         "expenses": {
-          "title": "Fixed monthly expenses",
-          "badge": "Recurring"
+          "title": "Where your money went",
+          "empty": "No expenses this month."
         },
         "savings": {
-          "title": "Savings goals",
-          "badge": "Goals"
+          "title": "Where you saved",
+          "empty": "No savings this month."
         },
-        "monthlyTotal": "Monthly total:",
-        "items": {
-          "salary": "Salary",
-          "investments": "Investments",
-          "internet": "Internet",
-          "rent": "Rent",
-          "utilities": "Utilities",
-          "emergency": "Emergency fund",
-          "vacation": "Vacation"
-        }
+        "other": "Other",
+        "total": "Total:"
       },
       "insights": {
         "title": "Insights",

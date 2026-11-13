@@ -406,3 +406,37 @@ async function getBudgetTrend(period?: string) {
 }
 
 export { getBudgetTrend };
+
+export interface CategoryTotal {
+  // null = transactions whose category was deleted
+  category_id: string | null;
+  category: string | null;
+  total: number;
+}
+
+interface CategoryTotalsResponse {
+  success: boolean;
+  categories: CategoryTotal[];
+}
+
+// Total per category for one type in the period, biggest first
+async function getCategoryTotals(
+  type: BudgetType,
+  period: string = DEFAULT_PERIOD,
+) {
+  const response = await get<CategoryTotalsResponse>(
+    `/budget/by-category?type=${toApiType(type)}&period=${period}`,
+  );
+
+  return {
+    ok: response.ok,
+    data: response.ok
+      ? response.data.categories.map((row) => ({
+          ...row,
+          total: Number(row.total),
+        }))
+      : null,
+  };
+}
+
+export { getCategoryTotals };

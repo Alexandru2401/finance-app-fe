@@ -441,7 +441,11 @@ export default function BudgetPage() {
               month={selectedMonth}
               refreshKey={refreshKey}
             />
-            <ExtraInfo activeTab={activeTab} />
+            <ExtraInfo
+              activeTab={activeTab}
+              month={selectedMonth}
+              refreshKey={refreshKey}
+            />
           </div>
         )}
       </div>

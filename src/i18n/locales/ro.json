@@ -900,7 +900,10 @@
       "uncategorized": "Fără categorie",
       "income": "Venituri",
       "expenses": "Cheltuieli",
-      "savings": "Economii"
+      "savings": "Economii",
+      "tooManyRequests_one": "Prea multe cereri. Încearcă din nou peste {{count}} minut.",
+      "tooManyRequests_few": "Prea multe cereri. Încearcă din nou peste {{count}} minute.",
+      "tooManyRequests_other": "Prea multe cereri. Încearcă din nou peste {{count}} de minute."
     },
     "overview": {
       "welcome": "Bine ai revenit, {{name}}!",
@@ -1064,27 +1067,19 @@
       },
       "extraInfo": {
         "income": {
-          "title": "Surse de venit recurente",
-          "badge": "Recurente"
+          "title": "De unde au venit banii",
+          "empty": "Niciun venit luna aceasta."
         },
         "expenses": {
-          "title": "Cheltuieli fixe lunare",
-          "badge": "Recurente"
+          "title": "Unde s-au dus banii",
+          "empty": "Nicio cheltuială luna aceasta."
         },
         "savings": {
-          "title": "Obiective de economisire",
-          "badge": "Obiective"
+          "title": "Unde ai pus deoparte",
+          "empty": "Nicio economie luna aceasta."
         },
-        "monthlyTotal": "Total lunar:",
-        "items": {
-          "salary": "Salariu",
-          "investments": "Investiții",
-          "internet": "Internet",
-          "rent": "Chirie",
-          "utilities": "Utilități",
-          "emergency": "Fond urgență",
-          "vacation": "Vacanță"
-        }
+        "other": "Altele",
+        "total": "Total:"
       },
       "insights": {
         "title": "Observații",

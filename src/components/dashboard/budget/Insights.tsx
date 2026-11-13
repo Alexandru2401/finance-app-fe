@@ -39,6 +39,9 @@ interface Insight {
 // Income of the month and of the one before, from the trend endpoint
 type IncomePair = { current: number; previous: number };
 
+// Shown when a request fails (e.g. 429); the toast from api/client explains why
+const ERROR = "—";
+
 const percent = (part: number, total: number) =>
   Math.round((part / total) * 100);
 
@@ -55,9 +58,11 @@ export default function Insights({
   });
 
   // undefined = loading, null = no expenses in the month
-  const [topExpense, setTopExpense] = useState<TopExpense | null | undefined>();
-  // undefined = loading, null = the request failed
-  const [income, setIncome] = useState<IncomePair | null | undefined>();
+  const [topExpense, setTopExpense] = useState<
+    TopExpense | null | "error" | undefined
+  >();
+  // undefined = loading
+  const [income, setIncome] = useState<IncomePair | "error" | undefined>();
 
   useEffect(() => {
     let ignore = false;
@@ -65,8 +70,11 @@ export default function Insights({
     const current = month.slice(0, 7);
 
     getTopExpenses(monthPeriod(month))
-      .then((res) => !ignore && setTopExpense(res.data?.[0] ?? null))
-      .catch(() => !ignore && setTopExpense(null));
+      .then(
+        (res) =>
+          !ignore && setTopExpense(res.data ? (res.data[0] ?? null) : "error"),
+      )
+      .catch(() => !ignore && setTopExpense("error"));
 
     getBudgetTrend(`${previous}:${current}`)
       .then((res) => {
@@ -75,10 +83,10 @@ export default function Insights({
         setIncome(
           points && points.length === 2
             ? { previous: points[0].income, current: points[1].income }
-            : null,
+            : "error",
         );
       })
-      .catch(() => !ignore && setIncome(null));
+      .catch(() => !ignore && setIncome("error"));
 
     return () => {
       ignore = true;
@@ -135,6 +143,7 @@ export default function Insights({
       label: k("topExpense"),
     };
     if (topExpense === undefined) return { ...base, value: undefined };
+    if (topExpense === "error") return { ...base, tone: "", value: ERROR };
     if (topExpense === null)
       return {
         ...base,
@@ -149,8 +158,9 @@ export default function Insights({
     const base = { label: k("incomeTrend") };
     const up = { ...base, icon: <TrendingUp className="h-4 w-4" /> };
     if (income === undefined) return { ...up, tone: "", value: undefined };
+    if (income === "error") return { ...up, tone: "", value: ERROR };
     // Nothing to compare with
-    if (income === null || income.previous === 0)
+    if (income.previous === 0)
       return {
         ...up,
         tone: "text-muted-foreground",

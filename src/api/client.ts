@@ -1,4 +1,6 @@
 // api/client.ts
+import { toast } from "sonner";
+import i18n from "@/i18n";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api/v1";
 
@@ -42,8 +44,22 @@ function request(path: string, options: RequestOptions) {
   });
 }
 
+// 429 = the rate limit of the backend was hit. One toast for all the requests
+// that fail (same id), with the wait time from the RateLimit header
+// (e.g. `"100-in-15min"; r=0; t=840`, t = seconds until the reset)
+function notifyRateLimit(response: Response) {
+  const seconds = Number(
+    /t=(\d+)/.exec(response.headers.get("RateLimit") ?? "")?.[1],
+  );
+  const minutes = seconds > 0 ? Math.ceil(seconds / 60) : 1;
+  toast.error(i18n.t("dashboard.common.tooManyRequests", { count: minutes }), {
+    id: "rate-limit",
+  });
+}
+
 async function send(path: string, options: RequestOptions): Promise<Response> {
   const response = await request(path, options);
+  if (response.status === 429) notifyRateLimit(response);
 
   // 401 = access token missing (cookie expired), 403 = token invalid/expired.
   // Get a new access token from the refresh cookie and retry once.
