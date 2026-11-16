@@ -14,8 +14,7 @@ import { useChangeLanguage } from "@/hooks/useChangeLanguage";
 import { useTheme } from "@/hooks/useTheme";
 import { SUPPORTED_LANGUAGES } from "@/i18n";
 import { cn } from "@/lib/utils";
-import { Bell, Coins, Languages, Moon, Sun } from "lucide-react";
-import { useState } from "react";
+import { Coins, Languages, Moon, Sun } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 // Language and theme are also in the profile badge, for quick access
@@ -24,8 +23,6 @@ export default function PreferencesSettings() {
   const { user } = useAuth();
   const { dark, toggleTheme } = useTheme();
   const changeLanguage = useChangeLanguage();
-  // UI only for now: nothing is saved
-  const [notifications, setNotifications] = useState(true);
 
   return (
     <div className="flex flex-col gap-6">
@@ -101,22 +98,6 @@ export default function PreferencesSettings() {
             description={t("dashboard.settings.currency.description")}
           >
             {user && <CurrencySettings user={user} />}
-          </SettingsRow>
-
-          <Separator />
-
-          <SettingsRow
-            icon={Bell}
-            title={t("dashboard.profileBadge.notifications")}
-            description={t("dashboard.settings.general.notificationsHint")}
-            htmlFor="settings-notifications"
-          >
-            <Switch
-              id="settings-notifications"
-              checked={notifications}
-              onCheckedChange={setNotifications}
-              className="cursor-pointer"
-            />
           </SettingsRow>
         </CardContent>
       </Card>

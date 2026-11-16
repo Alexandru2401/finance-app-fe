@@ -14,6 +14,7 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { useState } from "react";
 import LoginSchema, { type LoginErrorKey } from "@/schemas/login.schema";
 import { useNavigate } from "react-router";
@@ -74,15 +75,12 @@ export function LoginForm({
       return;
     }
 
-    console.log("Valid form data:", result.data);
     setErrors({});
 
     setIsSubmiting(true);
 
     try {
       const response = await loginUser(formData.email, formData.password);
-
-      console.log("Raspuns request din form:", response);
 
       if (!response.ok) {
         toast.error(response.data.message || t("auth.login.failed"));
@@ -93,7 +91,6 @@ export function LoginForm({
       toast.success(response.data.message || t("auth.login.success"));
       navigate("/dashboard", { replace: true });
     } catch (err) {
-      console.log(err);
       const errorMessage =
         err instanceof Error ? err.message : t("auth.errors.unknown");
       toast.error(t("auth.errors.generic", { message: errorMessage }));
@@ -132,21 +129,9 @@ export function LoginForm({
 
               {/* Password Field */}
               <Field className="mt-2 max-h-16">
-                <div className="flex items-center">
-                  <FieldLabel htmlFor="password">
-                    {t("auth.password")}
-                  </FieldLabel>
-
-                  <a
-                    href="#"
-                    className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
-                  >
-                    {t("auth.login.forgotPassword")}
-                  </a>
-                </div>
-                <Input
+                <FieldLabel htmlFor="password">{t("auth.password")}</FieldLabel>
+                <PasswordInput
                   id="password"
-                  type="password"
                   value={formData.password}
                   onChange={(e) => handleChange("password", e)}
                   className={errors.password ? "border-red-500" : ""}

@@ -1,4 +1,6 @@
 // api/client.ts
+import { toast } from "sonner";
+import i18n from "@/i18n";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api/v1";
 
@@ -42,22 +44,40 @@ function request(path: string, options: RequestOptions) {
   });
 }
 
-async function api<T = unknown>(
-  path: string,
-  options: RequestOptions = {},
-): Promise<ApiResponse<T>> {
-  let response = await request(path, options);
+// 429 = the rate limit of the backend was hit. One toast for all the requests
+// that fail (same id), with the wait time from the RateLimit header
+// (e.g. `"100-in-15min"; r=0; t=840`, t = seconds until the reset)
+function notifyRateLimit(response: Response) {
+  const seconds = Number(
+    /t=(\d+)/.exec(response.headers.get("RateLimit") ?? "")?.[1],
+  );
+  const minutes = seconds > 0 ? Math.ceil(seconds / 60) : 1;
+  toast.error(i18n.t("dashboard.common.tooManyRequests", { count: minutes }), {
+    id: "rate-limit",
+  });
+}
+
+async function send(path: string, options: RequestOptions): Promise<Response> {
+  const response = await request(path, options);
+  if (response.status === 429) notifyRateLimit(response);
 
   // 401 = access token missing (cookie expired), 403 = token invalid/expired.
   // Get a new access token from the refresh cookie and retry once.
   if (
     (response.status === 401 || response.status === 403) &&
-    !NO_REFRESH_PATHS.includes(path)
+    !NO_REFRESH_PATHS.includes(path) &&
+    (await refreshAccessToken())
   ) {
-    if (await refreshAccessToken()) {
-      response = await request(path, options);
-    }
+    return request(path, options);
   }
+  return response;
+}
+
+async function api<T = unknown>(
+  path: string,
+  options: RequestOptions = {},
+): Promise<ApiResponse<T>> {
+  const response = await send(path, options);
 
   if (response.status === 204) {
     return { ok: true, status: 204, data: null as T };
@@ -73,6 +93,17 @@ async function api<T = unknown>(
   return { ok: response.ok, status: response.status, data };
 }
 
+// A file instead of JSON (e.g. a CSV export), with the same token refresh
+export async function getFile(
+  path: string,
+): Promise<{ ok: boolean; status: number; blob: Blob | null }> {
+  const response = await send(path, { method: "GET" });
+  if (!response.ok) {
+    return { ok: false, status: response.status, blob: null };
+  }
+  return { ok: true, status: response.status, blob: await response.blob() };
+}
+
 export const get = <T = unknown>(path: string) =>
   api<T>(path, { method: "GET" });
 
@@ -85,5 +116,9 @@ export const put = <T = unknown>(path: string, body: unknown) =>
 export const patch = <T = unknown>(path: string, body: unknown) =>
   api<T>(path, { method: "PATCH", body: JSON.stringify(body) });
 
-export const del = <T = unknown>(path: string) =>
-  api<T>(path, { method: "DELETE" });
+// The body is optional (e.g. the password for DELETE /auth/account)
+export const del = <T = unknown>(path: string, body?: unknown) =>
+  api<T>(path, {
+    method: "DELETE",
+    ...(body !== undefined && { body: JSON.stringify(body) }),
+  });

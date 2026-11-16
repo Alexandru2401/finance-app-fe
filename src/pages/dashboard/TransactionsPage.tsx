@@ -13,13 +13,20 @@ import {
 import { Plus } from "lucide-react";
 import {
   DEFAULT_FILTERS,
+  daysInMonth,
+  filtersFromParams,
+  filtersToParams,
   type TransactionFilters,
 } from "@/components/dashboard/transactions/filters";
 
 import { useEffect, useMemo, useState } from "react";
+import { useLocation, useSearchParams } from "react-router";
+import type { SearchNavigationState } from "@/components/dashboard/shared/RemountOnSearch";
 import { useTranslation } from "react-i18next";
 import {
+  exportTransactions,
   getTransactions,
+  getTransactionYears,
   type Transaction,
   type TransactionsParams,
 } from "@/api/transactions";
@@ -48,13 +55,11 @@ const SORTS: Record<string, TransactionsParams["sort"]> = {
   "amount-asc": "lowest",
 };
 
+// Rows per page, fixed
+const PAGE_SIZE = 15;
+
 // Wait for a pause in typing before searching
 const SEARCH_DELAY = 300;
-
-// No endpoint lists the years with data, so offer the last few
-const YEARS = Array.from({ length: 6 }, (_, i) =>
-  String(new Date().getFullYear() - i),
-);
 
 const toNumber = (value: string) =>
   value === "all" ? undefined : Number(value);
@@ -62,26 +67,59 @@ const toAmount = (value: string) =>
   value.trim() === "" ? undefined : Number(value);
 
 export default function TransactionsPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [transactions, setTransactions] = useState<Transaction[] | null>(null);
-  const [filters, setFilters] = useState<TransactionFilters>(DEFAULT_FILTERS);
+  const [searchParams, setSearchParams] = useSearchParams();
+  // Read from the URL once, so the filters survive a refresh / Back
+  const [filters, setFilters] = useState<TransactionFilters>(() =>
+    filtersFromParams(searchParams),
+  );
   // Debounced copy of filters.search, the one sent to the backend
-  const [search, setSearch] = useState(DEFAULT_FILTERS.search);
+  const [search, setSearch] = useState(filters.search);
   const [categories, setCategories] = useState<Category[]>([]);
+  // Years with transactions, from the backend (newest first)
+  const [years, setYears] = useState<string[]>([]);
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState<number>(15);
   const [pagination, setPagination] = useState<PaginationInfo | null>(null);
   // Key of the last request that finished; loading while it differs from the current one
   const [loadedKey, setLoadedKey] = useState<string | null>(null);
+  // Key of the last request that failed; shows the error instead of the table
+  const [failedKey, setFailedKey] = useState<string | null>(null);
   // Bumped after a delete so the current page is fetched again
   const [refreshKey, setRefreshKey] = useState(0);
-  const [showAddForm, setShowAddForm] = useState(false);
+  // ?add=1 (the "Add transaction" action of the global search) opens the form
+  const [showAddForm, setShowAddForm] = useState(
+    () => searchParams.get("add") === "1",
+  );
+  const [exporting, setExporting] = useState(false);
 
   useEffect(() => {
     getCategories()
       .then(setCategories)
       .catch(() => setCategories([]));
   }, []);
+
+  // Fetched again after every change (add / edit / delete), since a
+  // transaction can add or remove a year
+  useEffect(() => {
+    let ignore = false;
+    getTransactionYears()
+      .then((data) => !ignore && setYears(data.map(String)))
+      .catch(() => {});
+    return () => {
+      ignore = true;
+    };
+  }, [refreshKey]);
+
+  // The selected year stays in the list even if it no longer has transactions
+  const yearOptions =
+    filters.year !== "all" && !years.includes(filters.year)
+      ? [...years, filters.year].sort((a, b) => Number(b) - Number(a))
+      : years;
+
+  function addCategory(category: Category) {
+    setCategories((prev) => [...prev, category]);
+  }
 
   // The search only reaches the backend after the user stops typing
   useEffect(() => {
@@ -121,20 +159,40 @@ export default function TransactionsPage() {
     ],
   );
 
+  // Filters -> URL; replace, so every change does not add a history entry.
+  // The debounced search is used, so the URL does not change on every key.
+  // The global search nonce is kept in the navigation state: dropping it would
+  // mount the page again (RemountOnSearch). Only the number is a dependency;
+  // the state object is a new copy after every URL change
+  const searchNonce = (useLocation().state as SearchNavigationState | null)
+    ?.searchNonce;
+  useEffect(() => {
+    setSearchParams(filtersToParams({ ...filters, search }), {
+      replace: true,
+      state: searchNonce === undefined ? undefined : { searchNonce },
+    });
+  }, [filters, search, setSearchParams, searchNonce]);
+
   const request = useMemo(
-    () => ({ ...params, page, limit }),
-    [params, page, limit],
+    () => ({ ...params, page, limit: PAGE_SIZE }),
+    [params, page],
   );
   // refreshKey is part of the key, so a refetch after a delete shows loading too
   const requestKey = `${JSON.stringify(request)}#${refreshKey}`;
   const loading = loadedKey !== requestKey;
+  const error = !loading && failedKey === requestKey;
 
   useEffect(() => {
     let ignore = false;
 
     getTransactions(request)
       .then((res) => {
-        if (ignore || !res.ok) return;
+        if (ignore) return;
+        if (!res.ok) {
+          setFailedKey(requestKey);
+          return;
+        }
+        setFailedKey(null);
         setTransactions(res.data.transactions);
         setPagination({
           page: res.data.page,
@@ -144,6 +202,8 @@ export default function TransactionsPage() {
           net: res.data.net,
         });
       })
+      // Network error (the backend is unreachable)
+      .catch(() => !ignore && setFailedKey(requestKey))
       // Also on failure, so the skeleton does not stay forever
       .finally(() => !ignore && setLoadedKey(requestKey));
 
@@ -210,17 +270,42 @@ export default function TransactionsPage() {
     return true;
   }
 
-  function changeLimit(newLimit: number) {
-    setLimit(newLimit);
-    // The current page may not exist with the new size
-    setPage(1);
+  // Same filters as the table, without pagination
+  async function handleExport() {
+    if (exporting) return;
+    setExporting(true);
+    try {
+      const blob = await exportTransactions(params, i18n.language);
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `transactions-${new Date().toISOString().slice(0, 10)}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    } catch {
+      toast.error(t("dashboard.transactions.filters.exportError"));
+    } finally {
+      setExporting(false);
+    }
   }
 
   function changeFilters(patch: Partial<TransactionFilters>) {
     // Typing in the search waits for the debounce above
     const onlySearch = Object.keys(patch).every((key) => key === "search");
     if (!onlySearch) setPage(1);
-    setFilters((prev) => ({ ...prev, ...patch }));
+    setFilters((prev) => {
+      const next = { ...prev, ...patch };
+      // e.g. day 31 and then February: the day no longer exists
+      if (
+        next.day !== "all" &&
+        Number(next.day) > daysInMonth(next.year, next.month)
+      ) {
+        next.day = "all";
+      }
+      return next;
+    });
   }
 
   function clearFilters() {
@@ -257,7 +342,10 @@ export default function TransactionsPage() {
           <div className="px-4 pb-6">
             {/* The list is fetched again, so the new transaction shows up
                 if it matches the current filters */}
-            <BudgetForm onCreated={() => setRefreshKey((k) => k + 1)} />
+            <BudgetForm
+              onCreated={() => setRefreshKey((k) => k + 1)}
+              onCategoryCreated={addCategory}
+            />
           </div>
         </SheetContent>
       </Sheet>
@@ -265,18 +353,25 @@ export default function TransactionsPage() {
         filters={filters}
         onChange={changeFilters}
         onClear={clearFilters}
-        years={YEARS}
+        years={yearOptions}
+        onExport={handleExport}
+        exporting={exporting}
         categories={categories}
       />
       <TransactionsTable
         transactions={transactions}
         loading={loading}
+        error={error}
+        // A new refreshKey means a new request for the same filters
+        onRetry={() => setRefreshKey((k) => k + 1)}
         pagination={pagination}
         onPageChange={setPage}
-        onLimitChange={changeLimit}
         onDelete={handleDelete}
         categories={categories}
+        onCategoryCreated={addCategory}
         onUpdate={handleUpdate}
+        sort={filters.sort}
+        onSortChange={(sort) => changeFilters({ sort })}
       />
     </section>
   );

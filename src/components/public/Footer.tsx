@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 import { Facebook, Instagram, Twitter, Youtube } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
@@ -31,6 +31,11 @@ export default function PublicFooter() {
               <li>
                 <Link to="/#about" className="hover:text-white transition">
                   {t("footer.about")}
+                </Link>
+              </li>
+              <li>
+                <Link to="/roadmap" className="hover:text-white transition">
+                  {t("footer.roadmap")}
                 </Link>
               </li>
               <li>

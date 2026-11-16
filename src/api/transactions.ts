@@ -1,4 +1,4 @@
-import { get } from "./client";
+import { get, getFile } from "./client";
 
 export interface Transaction {
   item_id: string;
@@ -8,6 +8,9 @@ export interface Transaction {
   category_id: string | null;
   category_name: string | null;
   notes: string | null;
+  // The recurring rule that created it; null = added by hand. Optional, since
+  // rows built in the frontend (e.g. right after an edit) may not have it
+  recurring_id?: string | null;
 }
 
 interface TransactionsResponse {
@@ -29,7 +32,7 @@ export interface TransactionsParams {
   limit?: number;
   page?: number;
   sort?: "newest" | "oldest" | "highest" | "lowest";
-  // The backend searches the category name
+  // The backend searches the category name and the notes (case-insensitive)
   search?: string;
   categoryId?: string;
   year?: number;
@@ -40,15 +43,12 @@ export interface TransactionsParams {
   maxAmount?: number;
 }
 
-async function getTransactions(
-  params: TransactionsParams = {},
-): Promise<Result<TransactionsResponse>> {
+// Same filters for the list and the CSV export
+function filtersQuery(params: TransactionsParams): URLSearchParams {
   const qs = new URLSearchParams();
   // The backend uses "expense" (singular); the frontend uses "expenses"
   if (params.type)
     qs.set("type", params.type === "expenses" ? "expense" : params.type);
-  if (params.limit) qs.set("limit", String(params.limit));
-  if (params.page) qs.set("page", String(params.page));
   if (params.sort) qs.set("sort", params.sort);
   if (params.year) qs.set("year", String(params.year));
   if (params.month) qs.set("month", String(params.month));
@@ -59,10 +59,42 @@ async function getTransactions(
     qs.set("minAmount", String(params.minAmount));
   if (params.maxAmount !== undefined)
     qs.set("maxAmount", String(params.maxAmount));
+  return qs;
+}
+
+async function getTransactions(
+  params: TransactionsParams = {},
+): Promise<Result<TransactionsResponse>> {
+  const qs = filtersQuery(params);
+  if (params.limit) qs.set("limit", String(params.limit));
+  if (params.page) qs.set("page", String(params.page));
 
   const response = await get<TransactionsResponse>(`/transactions?${qs}`);
   if (!response.ok) return { ok: false, error: "Could not load transactions" };
   return { ok: true, data: response.data };
 }
 
-export { getTransactions };
+// Years in which the user has at least one transaction, newest first
+async function getTransactionYears(): Promise<number[]> {
+  const response = await get<{ success: boolean; years: number[] }>(
+    "/transactions/years",
+  );
+  if (!response.ok) throw new Error("Could not load transaction years");
+  return response.data.years;
+}
+
+// CSV with every transaction matching the filters (no pagination).
+// lang picks the language of the header and of the types
+async function exportTransactions(
+  params: TransactionsParams,
+  lang: string,
+): Promise<Blob> {
+  const qs = filtersQuery(params);
+  qs.set("lang", lang);
+  const response = await getFile(`/transactions/export?${qs}`);
+  if (!response.ok || !response.blob)
+    throw new Error("Could not export transactions");
+  return response.blob;
+}
+
+export { getTransactions, getTransactionYears, exportTransactions };

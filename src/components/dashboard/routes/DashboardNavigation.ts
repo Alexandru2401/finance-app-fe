@@ -1,6 +1,6 @@
+import { FEATURES } from "@/lib/features";
 import {
   ChartNoAxesCombined,
-  CircleFadingArrowUp,
   LayoutDashboard,
   PiggyBank,
   Settings,
@@ -17,7 +17,6 @@ export type DashboardNavItem = {
     | "budget"
     | "transactions"
     | "analytics"
-    | "upgrade"
     | "profile"
     | "settings";
   to: string;
@@ -53,21 +52,20 @@ export const dashboardNavigation: DashboardNavSection[] = [
         to: "/dashboard/transactions",
         icon: UserRoundPen,
       },
-      {
-        label: "analytics",
-        to: "/dashboard/analytics",
-        icon: ChartNoAxesCombined,
-      },
+      ...(FEATURES.analytics
+        ? [
+            {
+              label: "analytics" as const,
+              to: "/dashboard/analytics",
+              icon: ChartNoAxesCombined,
+            },
+          ]
+        : []),
     ],
     title: "budgetInfo",
   },
   {
     items: [
-      {
-        label: "upgrade",
-        to: "/dashboard/upgrade-plans",
-        icon: CircleFadingArrowUp,
-      },
       {
         label: "profile",
         to: "/dashboard/profile",

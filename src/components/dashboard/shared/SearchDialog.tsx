@@ -5,11 +5,21 @@ import clsx from "clsx";
 import {
   ArrowDownLeft,
   ArrowUpRight,
+  Bell,
+  Coins,
   CornerDownLeft,
+  Download,
   FileSearch,
+  Languages,
+  Lock,
+  Moon,
+  PenLine,
   PiggyBank,
+  Plus,
   Search,
+  Sun,
   Tag,
+  Tags,
   type LucideIcon,
 } from "lucide-react";
 
@@ -20,16 +30,29 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Spinner } from "@/components/ui/spinner";
+import RecurringBadge from "@/components/dashboard/shared/RecurringBadge";
+import type { SearchNavigationState } from "@/components/dashboard/shared/RemountOnSearch";
 import { dashboardNavigation } from "@/components/dashboard/routes/DashboardNavigation";
-import { normalize, searchAll, type SearchResults } from "@/api/search";
+import {
+  MAX_RESULTS,
+  filterCategories,
+  loadSearchCategories,
+  normalize,
+  searchTransactions,
+  type SearchCategory,
+} from "@/api/search";
+import type { Transaction } from "@/api/transactions";
 import { useCurrency } from "@/hooks/useCurrency";
+import { useTheme } from "@/hooks/useTheme";
+import { FEATURES } from "@/lib/features";
 
 interface SearchDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-type GroupKey = "pages" | "transactions" | "categories";
+type GroupKey = "pages" | "actions" | "transactions" | "categories";
+const GROUPS: GroupKey[] = ["pages", "actions", "transactions", "categories"];
 
 // One row in the list; all rows are flattened so arrow keys move across groups
 interface ResultItem {
@@ -40,18 +63,21 @@ interface ResultItem {
   title: string;
   subtitle?: string;
   meta?: ReactNode;
-  to: string;
+  // A page to open, or something to do right away
+  to?: string;
+  run?: () => void;
 }
 
-const EMPTY_RESULTS: SearchResults = { transactions: [], categories: [] };
 const DEBOUNCE_MS = 250;
+const PAGE_TONE = "text-muted-foreground bg-muted";
+const ACTION_TONE = "text-finance-primary bg-finance-primary-bg";
 
 const TYPE_ICON = {
   income: {
     icon: ArrowDownLeft,
     tone: "text-finance-success bg-finance-success-bg",
   },
-  expenses: {
+  expense: {
     icon: ArrowUpRight,
     tone: "text-finance-danger bg-finance-danger-bg",
   },
@@ -60,6 +86,37 @@ const TYPE_ICON = {
     tone: "text-finance-primary bg-finance-primary-bg",
   },
 } as const;
+
+// Actions: label + extra words to find them (dashboard.search.actions.<id>)
+type ActionId =
+  | "addTransaction"
+  | "categories"
+  | "currency"
+  | "language"
+  | "theme"
+  | "changeName"
+  | "changePassword"
+  | "export";
+
+const ACTIONS: { id: ActionId; icon: LucideIcon; to?: string }[] = [
+  { id: "addTransaction", icon: Plus, to: "/dashboard/transactions?add=1" },
+  { id: "categories", icon: Tags, to: "/dashboard/settings?tab=categories" },
+  { id: "currency", icon: Coins, to: "/dashboard/settings" },
+  { id: "language", icon: Languages, to: "/dashboard/settings" },
+  // Runs right away (toggles the theme), no page
+  { id: "theme", icon: Moon },
+  { id: "changeName", icon: PenLine, to: "/dashboard/profile?action=name" },
+  {
+    id: "changePassword",
+    icon: Lock,
+    to: "/dashboard/profile?action=password",
+  },
+  { id: "export", icon: Download, to: "/dashboard/transactions" },
+];
+
+// Title + extra words, so "cont" finds Profile and "monedă" finds Settings
+const matches = (q: string, ...texts: string[]) =>
+  !q || texts.some((text) => normalize(text).includes(q));
 
 export default function SearchDialog({
   open,
@@ -78,38 +135,58 @@ export default function SearchDialog({
   );
 }
 
-// The response is kept together with the query it belongs to, so loading /
-// error / results are derived from the current query instead of synced by hand
-interface SearchResponse {
+// The transactions are kept together with the query they belong to, so
+// loading / error / results are derived from the current query
+interface TransactionsResponse {
   query: string;
-  data?: SearchResults;
+  data?: Transaction[];
   error?: boolean;
 }
 
 function SearchPanel({ onClose }: { onClose: () => void }) {
   const { t, i18n } = useTranslation();
   const { format } = useCurrency();
+  const { dark, toggleTheme } = useTheme();
   const navigate = useNavigate();
 
   const [query, setQuery] = useState("");
-  const [response, setResponse] = useState<SearchResponse | null>(null);
+  const [response, setResponse] = useState<TransactionsResponse | null>(null);
+  // Loaded once per dialog; null = request failed (the group is left out)
+  const [categories, setCategories] = useState<
+    SearchCategory[] | null | undefined
+  >(undefined);
   const [activeIndex, setActiveIndex] = useState(0);
   const listRef = useRef<HTMLDivElement>(null);
 
   const trimmed = query.trim();
+  const q = normalize(trimmed);
   const current = response?.query === trimmed ? response : null;
-  const results = (trimmed && current?.data) || EMPTY_RESULTS;
+  const currentData = current?.data;
+  const transactions = useMemo(
+    () => (trimmed && currentData) || [],
+    [trimmed, currentData],
+  );
   const error = Boolean(trimmed && current?.error);
   const loading = Boolean(trimmed) && !current;
 
-  // Debounced search; the previous request is cancelled on every keystroke
+  useEffect(() => {
+    let ignore = false;
+    loadSearchCategories()
+      .then((list) => !ignore && setCategories(list))
+      .catch(() => !ignore && setCategories(null));
+    return () => {
+      ignore = true;
+    };
+  }, []);
+
+  // Debounced transactions search; an outdated answer is dropped
   useEffect(() => {
     if (!trimmed) return;
 
     const controller = new AbortController();
     const timer = setTimeout(async () => {
       try {
-        const data = await searchAll(trimmed, controller.signal);
+        const data = await searchTransactions(trimmed, controller.signal);
         setResponse({ query: trimmed, data });
         setActiveIndex(0);
       } catch (err) {
@@ -124,29 +201,66 @@ function SearchPanel({ onClose }: { onClose: () => void }) {
     };
   }, [trimmed]);
 
-  // Pages are searched locally, they don't need the backend
-  const pageItems = useMemo<ResultItem[]>(() => {
-    const q = normalize(trimmed);
-    return dashboardNavigation
-      .flatMap((section) => section.items)
-      .map((item) => ({
-        id: `page-${item.to}`,
-        group: "pages" as const,
-        icon: item.icon ?? Search,
-        iconTone: "text-muted-foreground bg-muted",
-        title: t(`dashboard.nav.${item.label}`),
-        to: item.to,
-      }))
-      .filter((item) => !q || normalize(item.title).includes(q));
-  }, [trimmed, t]);
-
   const items = useMemo<ResultItem[]>(() => {
-    const transactions: ResultItem[] = results.transactions.map((tr) => ({
-      id: `tr-${tr.id}`,
+    // Pages: the sidebar + Notifications (searched locally)
+    const pages = [
+      ...dashboardNavigation.flatMap((section) => section.items),
+      ...(FEATURES.notifications
+        ? [
+            {
+              label: "notifications" as const,
+              to: "/dashboard/notifications",
+              icon: Bell,
+            },
+          ]
+        : []),
+    ]
+      .map((page) => ({
+        id: `page-${page.to}`,
+        group: "pages" as const,
+        icon: page.icon ?? Search,
+        iconTone: PAGE_TONE,
+        title:
+          page.label === "notifications"
+            ? t("dashboard.notifications.title")
+            : t(`dashboard.nav.${page.label}`),
+        keywords: t(`dashboard.search.pageKeywords.${page.label}`),
+        to: page.to,
+      }))
+      .filter((page) => matches(q, page.title, page.keywords))
+      .slice(0, MAX_RESULTS);
+
+    // Actions: things to do, searched locally
+    const actions = ACTIONS.map(({ id, icon, to }) => {
+      const label =
+        id === "theme"
+          ? t(
+              dark
+                ? "dashboard.search.actions.theme.toLight"
+                : "dashboard.search.actions.theme.toDark",
+            )
+          : t(`dashboard.search.actions.${id}.label`);
+      return {
+        id: `action-${id}`,
+        group: "actions" as const,
+        icon: id === "theme" ? (dark ? Sun : Moon) : icon,
+        iconTone: ACTION_TONE,
+        title: label,
+        keywords: t(`dashboard.search.actions.${id}.keywords`),
+        to,
+        run: id === "theme" ? toggleTheme : undefined,
+      };
+    })
+      .filter((action) => matches(q, action.title, action.keywords))
+      .slice(0, MAX_RESULTS);
+
+    // Transactions: from the backend, already at most MAX_RESULTS
+    const transactionItems: ResultItem[] = transactions.map((tr) => ({
+      id: `tr-${tr.item_id}`,
       group: "transactions",
       icon: TYPE_ICON[tr.type].icon,
       iconTone: TYPE_ICON[tr.type].tone,
-      title: tr.category,
+      title: tr.category_name ?? t("dashboard.common.uncategorized"),
       subtitle: [
         new Date(tr.date).toLocaleDateString(i18n.language, {
           day: "numeric",
@@ -158,37 +272,61 @@ function SearchPanel({ onClose }: { onClose: () => void }) {
         .filter(Boolean)
         .join(" · "),
       meta: (
-        <span
-          className={clsx(
-            "text-sm font-semibold tabular-nums",
-            tr.type === "expenses"
-              ? "text-finance-danger"
-              : "text-finance-success",
-          )}
-        >
-          {format(tr.amount, tr.type === "expenses" ? "-" : "+")}
+        <span className="flex items-center gap-1.5">
+          {tr.recurring_id && <RecurringBadge compact />}
+          <span
+            className={clsx(
+              "text-sm font-semibold tabular-nums",
+              tr.type === "expense"
+                ? "text-finance-danger"
+                : tr.type === "savings"
+                  ? "text-finance-primary"
+                  : "text-finance-success",
+            )}
+          >
+            {format(
+              tr.amount,
+              tr.type === "expense" ? "-" : tr.type === "income" ? "+" : "auto",
+            )}
+          </span>
         </span>
       ),
-      to: "/dashboard/transactions",
+      // Opens Transactions with the same search applied
+      to: `/dashboard/transactions?search=${encodeURIComponent(trimmed)}`,
     }));
 
-    const categories: ResultItem[] = results.categories.map((c) => ({
+    // Categories: filtered locally, with the recurring badge
+    const categoryItems: ResultItem[] = filterCategories(
+      categories ?? [],
+      trimmed,
+    ).map((c) => ({
       id: `cat-${c.id}`,
       group: "categories",
       icon: Tag,
       iconTone: "text-finance-warning bg-finance-warning-bg",
       title: c.name,
       subtitle: t(`dashboard.search.types.${c.type}`),
-      meta: c.custom ? (
-        <span className="rounded-full border px-2 py-0.5 text-[11px] text-muted-foreground">
-          {t("dashboard.search.custom")}
-        </span>
-      ) : undefined,
+      meta: c.recurring ? <RecurringBadge compact /> : undefined,
       to: "/dashboard/settings?tab=categories",
     }));
 
-    return [...pageItems, ...transactions, ...categories];
-  }, [pageItems, results, format, i18n.language, t]);
+    // Without a query: only pages and actions, as shortcuts
+    return [
+      ...pages,
+      ...actions,
+      ...(trimmed ? [...transactionItems, ...categoryItems] : []),
+    ];
+  }, [
+    q,
+    trimmed,
+    transactions,
+    categories,
+    dark,
+    toggleTheme,
+    format,
+    i18n.language,
+    t,
+  ]);
 
   // Kept inside the list when it gets shorter
   const active = Math.min(activeIndex, Math.max(items.length - 1, 0));
@@ -202,7 +340,16 @@ function SearchPanel({ onClose }: { onClose: () => void }) {
 
   function select(item: ResultItem) {
     onClose();
-    navigate(item.to);
+    if (item.run) {
+      item.run();
+      return;
+    }
+    if (item.to) {
+      // A new nonce mounts the page again, so the result works even when the
+      // user is already on it (RemountOnSearch)
+      const state: SearchNavigationState = { searchNonce: Date.now() };
+      navigate(item.to, { state });
+    }
   }
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
@@ -220,7 +367,6 @@ function SearchPanel({ onClose }: { onClose: () => void }) {
     }
   }
 
-  const groups: GroupKey[] = ["pages", "transactions", "categories"];
   const noResults =
     Boolean(trimmed) && !loading && !error && items.length === 0;
 
@@ -268,7 +414,7 @@ function SearchPanel({ onClose }: { onClose: () => void }) {
         className="max-h-[min(60vh,420px)] overflow-y-auto p-2"
       >
         {error && (
-          <p className="px-3 py-8 text-center text-sm text-finance-danger">
+          <p className="px-3 pb-1 pt-2 text-xs text-finance-danger">
             {t("dashboard.search.error")}
           </p>
         )}
@@ -282,64 +428,63 @@ function SearchPanel({ onClose }: { onClose: () => void }) {
           </div>
         )}
 
-        {!error &&
-          groups.map((group) => {
-            const groupItems = items.filter((item) => item.group === group);
-            if (!groupItems.length) return null;
+        {GROUPS.map((group) => {
+          const groupItems = items.filter((item) => item.group === group);
+          if (!groupItems.length) return null;
 
-            return (
-              <div key={group} className="mb-2 last:mb-0">
-                <p className="px-3 pb-1 pt-2 text-xs font-medium text-muted-foreground">
-                  {t(`dashboard.search.groups.${group}`)}
-                </p>
-                {groupItems.map((item) => {
-                  const index = items.indexOf(item);
-                  const isActive = index === active;
-                  const Icon = item.icon;
+          return (
+            <div key={group} className="mb-2 last:mb-0">
+              <p className="px-3 pb-1 pt-2 text-xs font-medium text-muted-foreground">
+                {t(`dashboard.search.groups.${group}`)}
+              </p>
+              {groupItems.map((item) => {
+                const index = items.indexOf(item);
+                const isActive = index === active;
+                const Icon = item.icon;
 
-                  return (
-                    <button
-                      key={item.id}
-                      id={item.id}
-                      type="button"
-                      role="option"
-                      aria-selected={isActive}
-                      data-index={index}
-                      onMouseMove={() => setActiveIndex(index)}
-                      onClick={() => select(item)}
+                return (
+                  <button
+                    key={item.id}
+                    id={item.id}
+                    type="button"
+                    role="option"
+                    aria-selected={isActive}
+                    data-index={index}
+                    onMouseMove={() => setActiveIndex(index)}
+                    onClick={() => select(item)}
+                    className={clsx(
+                      "flex w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-left transition-colors",
+                      isActive ? "bg-accent" : "hover:bg-accent/60",
+                    )}
+                  >
+                    <span
                       className={clsx(
-                        "flex w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-left transition-colors",
-                        isActive ? "bg-accent" : "hover:bg-accent/60",
+                        "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg",
+                        item.iconTone,
                       )}
                     >
-                      <span
-                        className={clsx(
-                          "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg",
-                          item.iconTone,
-                        )}
-                      >
-                        <Icon className="h-4 w-4" />
+                      <Icon className="h-4 w-4" />
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-sm font-medium text-foreground">
+                        {item.title}
                       </span>
-                      <span className="min-w-0 flex-1">
-                        <span className="block truncate text-sm font-medium text-foreground">
-                          {item.title}
+                      {item.subtitle && (
+                        <span className="block truncate text-xs text-muted-foreground">
+                          {item.subtitle}
                         </span>
-                        {item.subtitle && (
-                          <span className="block truncate text-xs text-muted-foreground">
-                            {item.subtitle}
-                          </span>
-                        )}
-                      </span>
-                      {item.meta}
-                      {isActive && (
-                        <CornerDownLeft className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
                       )}
-                    </button>
-                  );
-                })}
-              </div>
-            );
-          })}
+                    </span>
+                    {item.meta}
+                    {isActive && (
+                      <CornerDownLeft className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          );
+        })}
       </div>
 
       {/* ===== FOOTER ===== */}

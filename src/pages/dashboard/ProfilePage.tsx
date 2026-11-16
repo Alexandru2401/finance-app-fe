@@ -1,15 +1,6 @@
 import UserAvatar from "@/components/dashboard/shared/UserAvatar";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+import DangerActionPanel from "@/components/dashboard/profile/DangerActionPanel";
+import ChangeNamePanel from "@/components/dashboard/profile/ChangeNamePanel";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -19,6 +10,7 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
@@ -27,7 +19,7 @@ import {
   Lock,
   LogOut,
   Mail,
-  PlusCircle,
+  PenLine,
   RefreshCw,
   Settings,
   SlidersHorizontal,
@@ -36,11 +28,18 @@ import {
   Trash2,
   UserRoundCog,
 } from "lucide-react";
-import { useEffect, useState, type ComponentProps } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import {
+  useEffect,
+  useState,
+  type ComponentProps,
+  type FormEvent,
+} from "react";
+import { Link, useNavigate, useSearchParams } from "react-router";
 import { useTranslation } from "react-i18next";
 
-import { logoutUser, getUserInfo } from "@/api/user";
+import { logoutUser, getUserInfo, updatePassword } from "@/api/user";
+import { isValidPassword } from "@/lib/password";
+import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import type { User } from "@/context/AuthContext";
 
@@ -49,15 +48,24 @@ type Plan = (typeof PLANS)[number];
 const isPlan = (value: unknown): value is Plan => PLANS.includes(value as Plan);
 
 type ActionId =
-  "plan" | "email" | "password" | "add-account" | "reset" | "delete" | null;
+  "name" | "plan" | "email" | "password" | "reset" | "delete" | null;
 
 const actions = [
+  {
+    id: "name",
+    // Label and description: dashboard.profile.actions.<key>
+    key: "name",
+    icon: PenLine,
+    danger: false,
+  },
   {
     id: "plan",
     // Label and description: dashboard.profile.actions.<key>
     key: "plan",
     icon: Star,
     danger: false,
+    // No payments yet (Stripe postponed)
+    comingSoon: true,
   },
   {
     id: "email",
@@ -65,19 +73,14 @@ const actions = [
     key: "email",
     icon: Mail,
     danger: false,
+    // No backend route yet: shown greyed out with a "Coming soon" badge
+    comingSoon: true,
   },
   {
     id: "password",
     // Label and description: dashboard.profile.actions.<key>
     key: "password",
     icon: Lock,
-    danger: false,
-  },
-  {
-    id: "add-account",
-    // Label and description: dashboard.profile.actions.<key>
-    key: "addAccount",
-    icon: PlusCircle,
     danger: false,
   },
   {
@@ -121,7 +124,12 @@ function formatMemberSince(createdAt?: string, locale?: string) {
 }
 
 export default function ProfilePage() {
-  const [openSection, setOpenSection] = useState<ActionId>(null);
+  // ?action=name | password (the global search) opens that panel
+  const [searchParams] = useSearchParams();
+  const [openSection, setOpenSection] = useState<ActionId>(() => {
+    const action = searchParams.get("action");
+    return action === "name" || action === "password" ? action : null;
+  });
   const { user, setUser, loading } = useAuth();
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
@@ -138,8 +146,8 @@ export default function ProfilePage() {
         if (active && res.ok) {
           setUser(res.data.user ?? null);
         }
-      } catch (err) {
-        console.log(err);
+      } catch {
+        // daca cererea esueaza, ramane userul din context
       }
     })();
 
@@ -151,14 +159,11 @@ export default function ProfilePage() {
   async function handleLogout() {
     try {
       const res = await logoutUser();
-      if (!res.ok) {
-        console.error("Logout failed:", res.data?.message);
-        return;
-      }
+      if (!res.ok) return;
       setUser(null);
       navigate("/login", { replace: true });
-    } catch (err) {
-      console.log(err);
+    } catch {
+      // eroare de retea: userul ramane logat
     }
   }
 
@@ -288,63 +293,91 @@ export default function ProfilePage() {
               <ChevronRight className="w-4 h-4 text-muted-foreground" />
             </Link>
 
-            {actions.map(({ id, key, icon: Icon, danger }) => (
-              <Collapsible
-                key={id}
-                open={openSection === id}
-                onOpenChange={() => toggle(id as ActionId)}
-              >
-                <CollapsibleTrigger asChild className="cursor-pointer">
-                  <button
-                    className={cn(
-                      "w-full flex items-center justify-between px-2 py-3 rounded-xl border text-left",
-                      "bg-card border-border",
-                      danger
-                        ? "hover:border-finance-danger/50 hover:bg-finance-danger-bg"
-                        : "hover:border-finance-warning/60 hover:bg-finance-warning-bg/50",
-                    )}
-                  >
-                    <div className="flex items-center gap-2">
-                      <div
-                        className={cn(
-                          "p-2 rounded-lg",
-                          danger
-                            ? "bg-finance-danger-bg text-finance-danger"
-                            : "bg-background text-muted-foreground",
-                        )}
-                      >
-                        <Icon className="w-4 h-4" />
-                      </div>
-                      <div>
-                        <p
+            {actions.map(({ id, key, icon: Icon, danger, ...action }) =>
+              "comingSoon" in action && action.comingSoon ? (
+                // Not clickable yet; the panel code below stays for later
+                <div
+                  key={id}
+                  aria-disabled="true"
+                  className="w-full flex items-center justify-between px-2 py-3 rounded-xl border border-border bg-card text-left opacity-60 cursor-not-allowed select-none"
+                >
+                  <div className="flex items-center gap-2">
+                    <div className="p-2 rounded-lg bg-muted text-muted-foreground">
+                      <Icon className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">
+                        {t(`dashboard.profile.actions.${key}.label`)}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {t(`dashboard.profile.actions.${key}.description`)}
+                      </p>
+                    </div>
+                  </div>
+                  <Badge variant="secondary" className="text-xs shrink-0">
+                    {t("dashboard.profile.comingSoon")}
+                  </Badge>
+                </div>
+              ) : (
+                <Collapsible
+                  key={id}
+                  open={openSection === id}
+                  onOpenChange={() => toggle(id as ActionId)}
+                >
+                  <CollapsibleTrigger asChild className="cursor-pointer">
+                    <button
+                      className={cn(
+                        "w-full flex items-center justify-between px-2 py-3 rounded-xl border text-left",
+                        "bg-card border-border",
+                        danger
+                          ? "hover:border-finance-danger/50 hover:bg-finance-danger-bg"
+                          : "hover:border-finance-warning/60 hover:bg-finance-warning-bg/50",
+                      )}
+                    >
+                      <div className="flex items-center gap-2">
+                        <div
                           className={cn(
-                            "text-sm font-medium",
-                            danger ? "text-finance-danger" : "text-foreground",
+                            "p-2 rounded-lg",
+                            danger
+                              ? "bg-finance-danger-bg text-finance-danger"
+                              : "bg-background text-muted-foreground",
                           )}
                         >
-                          {t(`dashboard.profile.actions.${key}.label`)}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {t(`dashboard.profile.actions.${key}.description`)}
-                        </p>
+                          <Icon className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <p
+                            className={cn(
+                              "text-sm font-medium",
+                              danger
+                                ? "text-finance-danger"
+                                : "text-foreground",
+                            )}
+                          >
+                            {t(`dashboard.profile.actions.${key}.label`)}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {t(`dashboard.profile.actions.${key}.description`)}
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                    <ChevronRight
-                      className={cn(
-                        "w-4 h-4 text-muted-foreground transition-transform duration-200",
-                        openSection === id && "rotate-90",
-                      )}
-                    />
-                  </button>
-                </CollapsibleTrigger>
+                      <ChevronRight
+                        className={cn(
+                          "w-4 h-4 text-muted-foreground transition-transform duration-200",
+                          openSection === id && "rotate-90",
+                        )}
+                      />
+                    </button>
+                  </CollapsibleTrigger>
 
-                <CollapsibleContent>
-                  <div className="mt-1 ml-4 border-l-2 border-border pl-4 py-3 pr-2">
-                    <ActionPanel id={id as ActionId} user={user} />
-                  </div>
-                </CollapsibleContent>
-              </Collapsible>
-            ))}
+                  <CollapsibleContent>
+                    <div className="mt-1 ml-4 border-l-2 border-border pl-4 py-3 pr-2">
+                      <ActionPanel id={id as ActionId} user={user} />
+                    </div>
+                  </CollapsibleContent>
+                </Collapsible>
+              ),
+            )}
           </div>
         </div>
 
@@ -391,141 +424,151 @@ function ActionPanel({ id, user }: { id: ActionId; user: User }) {
       </div>
     );
 
-  if (id === "password")
-    return (
-      <div className="space-y-3">
-        <div className="space-y-1">
-          <Label className="text-muted-foreground text-xs">
-            {t("dashboard.profile.passwordPanel.current")}
-          </Label>
-          <Input type="password" placeholder="••••••••" />
-        </div>
-        <div className="space-y-1">
-          <Label className="text-muted-foreground text-xs">
-            {t("dashboard.profile.passwordPanel.new")}
-          </Label>
-          <Input type="password" placeholder="••••••••" />
-        </div>
-        <div className="space-y-1">
-          <Label className="text-muted-foreground text-xs">
-            {t("dashboard.profile.passwordPanel.confirm")}
-          </Label>
-          <Input type="password" placeholder="••••••••" />
-        </div>
-        <ProfileBtn label={t("dashboard.profile.passwordPanel.submit")} />
-      </div>
-    );
+  if (id === "name") return <ChangeNamePanel />;
 
-  if (id === "add-account")
-    return (
-      <div className="space-y-3">
-        <div className="space-y-1">
-          <Label className="text-muted-foreground text-xs">
-            {t("dashboard.profile.accountPanel.name")}
-          </Label>
-          <Input
-            placeholder={t("dashboard.profile.accountPanel.namePlaceholder")}
-          />
-        </div>
-        <div className="space-y-1">
-          <Label className="text-muted-foreground text-xs">
-            {t("dashboard.profile.accountPanel.balance")}
-          </Label>
-          <Input type="number" placeholder="0.00" />
-        </div>
-        <ProfileBtn label={t("dashboard.profile.accountPanel.submit")} />
-      </div>
-    );
+  if (id === "password") return <ChangePasswordPanel />;
 
-  if (id === "reset")
-    return (
-      <div className="space-y-3">
-        <p className="text-xs text-muted-foreground">
-          {t("dashboard.profile.resetPanel.textBefore")}
-          <span className="text-foreground font-medium">
-            {t("dashboard.profile.resetPanel.textHighlight")}
-          </span>
-          {t("dashboard.profile.resetPanel.textAfter")}
-        </p>
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <Button
-              size="sm"
-              variant="outline"
-              className="border-finance-danger/40 text-finance-danger hover:bg-finance-danger-bg hover:text-finance-danger hover:border-finance-danger/60"
-            >
-              {t("dashboard.profile.resetPanel.button")}
-            </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>
-                {t("dashboard.profile.resetPanel.title")}
-              </AlertDialogTitle>
-              <AlertDialogDescription>
-                {t("dashboard.profile.resetPanel.description")}
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>
-                {t("dashboard.profile.resetPanel.cancel")}
-              </AlertDialogCancel>
-              <AlertDialogAction
-                variant="destructive"
-                className="bg-finance-danger hover:bg-finance-danger/90 text-white border-0"
-              >
-                {t("dashboard.profile.resetPanel.confirm")}
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-      </div>
-    );
+  if (id === "reset") return <DangerActionPanel kind="reset" />;
 
-  if (id === "delete")
-    return (
-      <div className="space-y-3">
-        <p className="text-xs text-muted-foreground">
-          {t("dashboard.profile.deletePanel.textBefore")}
-          <span className="text-foreground font-medium">
-            {t("dashboard.profile.deletePanel.textHighlight")}
-          </span>
-          {t("dashboard.profile.deletePanel.textAfter")}
-        </p>
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <Button
-              size="sm"
-              variant="outline"
-              className="border-finance-danger/40 text-finance-danger hover:bg-finance-danger-bg hover:text-finance-danger hover:border-finance-danger/60"
-            >
-              {t("dashboard.profile.deletePanel.button")}
-            </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>
-                {t("dashboard.profile.deletePanel.title")}
-              </AlertDialogTitle>
-              <AlertDialogDescription>
-                {t("dashboard.profile.deletePanel.description")}
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>
-                {t("dashboard.profile.deletePanel.cancel")}
-              </AlertDialogCancel>
-              <AlertDialogAction
-                variant="destructive"
-                className="bg-finance-danger hover:bg-finance-danger/90 text-white border-0"
-              >
-                {t("dashboard.profile.deletePanel.confirm")}
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-      </div>
-    );
+  if (id === "delete") return <DangerActionPanel kind="delete" />;
 
   return null;
+}
+
+type PasswordError =
+  "required" | "length" | "mismatch" | "same" | "currentIncorrect" | "failed";
+
+const EMPTY_PASSWORDS = { current: "", next: "", confirm: "" };
+
+function ChangePasswordPanel() {
+  const { t } = useTranslation();
+  const [values, setValues] = useState(EMPTY_PASSWORDS);
+  const [error, setError] = useState<PasswordError | null>(null);
+  // Message from the backend for errors without a translation (e.g. rate limit)
+  const [serverMessage, setServerMessage] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+
+  const change = (field: keyof typeof EMPTY_PASSWORDS, value: string) => {
+    setValues((prev) => ({ ...prev, [field]: value }));
+    setError(null);
+    setServerMessage(null);
+  };
+
+  // Same rules as the backend, checked first so most mistakes need no request
+  function validate(): PasswordError | null {
+    if (!values.current || !values.next || !values.confirm) return "required";
+    if (!isValidPassword(values.next)) return "length";
+    if (values.next !== values.confirm) return "mismatch";
+    if (values.next === values.current) return "same";
+    return null;
+  }
+
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (saving) return;
+
+    const invalid = validate();
+    if (invalid) {
+      setError(invalid);
+      return;
+    }
+
+    setSaving(true);
+    try {
+      const res = await updatePassword(values.current, values.next);
+      if (res.ok) {
+        toast.success(t("dashboard.profile.passwordPanel.success"));
+        setValues(EMPTY_PASSWORDS);
+        return;
+      }
+      const message = res.data?.message;
+      if (message === "Current password is incorrect") {
+        setError("currentIncorrect");
+      } else {
+        setError("failed");
+        // 5xx only says "Server error", which does not help the user
+        if (res.status < 500 && message) setServerMessage(message);
+      }
+    } catch {
+      setError("failed");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  // Which field the error belongs to, for aria-invalid
+  const invalidCurrent = error === "currentIncorrect";
+  const invalidNext = error === "length" || error === "same";
+  const invalidConfirm = error === "mismatch";
+
+  return (
+    <form className="space-y-3" onSubmit={handleSubmit} noValidate>
+      <div className="space-y-1">
+        <Label
+          htmlFor="current-password"
+          className="text-muted-foreground text-xs"
+        >
+          {t("dashboard.profile.passwordPanel.current")}
+        </Label>
+        <PasswordInput
+          id="current-password"
+          placeholder="••••••••"
+          autoComplete="current-password"
+          value={values.current}
+          onChange={(e) => change("current", e.target.value)}
+          aria-invalid={invalidCurrent}
+          aria-describedby={error ? "password-panel-error" : undefined}
+        />
+      </div>
+      <div className="space-y-1">
+        <Label htmlFor="new-password" className="text-muted-foreground text-xs">
+          {t("dashboard.profile.passwordPanel.new")}
+        </Label>
+        <PasswordInput
+          id="new-password"
+          placeholder="••••••••"
+          autoComplete="new-password"
+          value={values.next}
+          onChange={(e) => change("next", e.target.value)}
+          aria-invalid={invalidNext}
+          aria-describedby={error ? "password-panel-error" : undefined}
+        />
+      </div>
+      <div className="space-y-1">
+        <Label
+          htmlFor="confirm-new-password"
+          className="text-muted-foreground text-xs"
+        >
+          {t("dashboard.profile.passwordPanel.confirm")}
+        </Label>
+        <PasswordInput
+          id="confirm-new-password"
+          placeholder="••••••••"
+          autoComplete="new-password"
+          value={values.confirm}
+          onChange={(e) => change("confirm", e.target.value)}
+          aria-invalid={invalidConfirm}
+          aria-describedby={error ? "password-panel-error" : undefined}
+        />
+      </div>
+      {error && (
+        <p
+          id="password-panel-error"
+          role="alert"
+          className="text-xs text-finance-danger"
+        >
+          {serverMessage ?? t(`dashboard.profile.passwordPanel.${error}`)}
+        </p>
+      )}
+      <ProfileBtn
+        type="submit"
+        disabled={saving}
+        label={
+          saving
+            ? t("dashboard.profile.passwordPanel.submitting")
+            : t("dashboard.profile.passwordPanel.submit")
+        }
+      />
+    </form>
+  );
 }

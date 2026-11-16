@@ -14,9 +14,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { format } from "date-fns/format";
 import { parseISO } from "date-fns/parseISO";
-import { ChevronDownIcon, Loader2, Plus } from "lucide-react";
+import { ChevronDownIcon, Loader2, Plus, Repeat } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -28,13 +29,15 @@ import BudgetItemSchema, {
   type BudgetItemInput,
   type BudgetItemPayload,
 } from "@/schemas/budget-item.schema";
+import { addNewTransaction, getCategories, type Category } from "@/api/budget";
 import {
-  addNewTransaction,
-  ApiRequestError,
-  createCategory,
-  getCategories,
-  type Category,
-} from "@/api/budget";
+  createRecurring,
+  getRecurring,
+  RecurringRequestError,
+} from "@/api/recurring";
+import NewCategoryField from "@/components/dashboard/shared/NewCategoryField";
+import { FEATURES } from "@/lib/features";
+import { firstRunDate } from "@/lib/recurring";
 
 type BudgetType = BudgetItemInput["type"];
 
@@ -46,6 +49,18 @@ type FormErrors = {
   category?: SchemaErrorKey;
   amount?: SchemaErrorKey;
   notes?: SchemaErrorKey;
+  dayOfMonth?: SchemaErrorKey;
+};
+
+// The recurring fields as they are when the form opens / after a save
+const emptyRecurring = (recurring: boolean) => ({ recurring, dayOfMonth: "" });
+
+// 1-31 typed in the "day of the month" input, otherwise null (= the 1st)
+const parseDay = (value: string) => {
+  const day = Number(value);
+  return value.trim() !== "" && Number.isInteger(day) && day >= 1 && day <= 31
+    ? day
+    : null;
 };
 
 const NOTES_WARNING_THRESHOLD = 100;
@@ -53,13 +68,19 @@ const NOTES_WARNING_THRESHOLD = 100;
 // yyyy-MM-dd in local time (toISOString would shift the day in UTC+ timezones)
 const toDateString = (d: Date) => format(d, "yyyy-MM-dd");
 
-const CATEGORY_NAME_MAX_LENGTH = 40;
-
 interface BudgetFormProps {
   onCreated?: (type: BudgetItemPayload["type"]) => void;
+  onCategoryCreated?: (category: Category) => void;
+  // "Recurring" switched on when the form opens (and after each save), e.g.
+  // when adding from Settings → Recurring
+  defaultRecurring?: boolean;
 }
 
-export default function BudgetForm({ onCreated }: BudgetFormProps) {
+export default function BudgetForm({
+  onCreated,
+  onCategoryCreated,
+  defaultRecurring = false,
+}: BudgetFormProps) {
   const { t } = useTranslation();
   const dateLocale = useDateLocale();
   const [formData, setFormData] = useState<BudgetItemInput>({
@@ -68,6 +89,7 @@ export default function BudgetForm({ onCreated }: BudgetFormProps) {
     amount: "",
     notes: "",
     date: toDateString(new Date()),
+    ...emptyRecurring(defaultRecurring),
   });
 
   const amountRef = useRef<HTMLInputElement>(null);
@@ -76,25 +98,27 @@ export default function BudgetForm({ onCreated }: BudgetFormProps) {
   const [submitting, setSubmitting] = useState(false);
   const [dateOpen, setDateOpen] = useState(false);
 
-  // Categories for the currently selected type
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [categoriesLoading, setCategoriesLoading] = useState(true);
+  // Categories of the type they were loaded for; while that differs from the
+  // selected type, the new list is still loading
+  const [categoriesResult, setCategoriesResult] = useState<{
+    type: BudgetType;
+    categories: Category[];
+  } | null>(null);
+  const categoriesLoading = categoriesResult?.type !== formData.type;
+  const categories = categoriesLoading
+    ? []
+    : (categoriesResult?.categories ?? []);
   const [newCategoryOpen, setNewCategoryOpen] = useState(false);
-  const [newCategoryName, setNewCategoryName] = useState("");
-  const [newCategoryError, setNewCategoryError] = useState<string>();
-  const [creatingCategory, setCreatingCategory] = useState(false);
 
   // Refetch categories whenever the type changes
   useEffect(() => {
     let cancelled = false;
+    const type = formData.type;
 
-    setCategoriesLoading(true);
-    setCategories([]);
-
-    getCategories(formData.type)
+    getCategories(type)
       .then((data) => {
         if (cancelled) return;
-        setCategories(data);
+        setCategoriesResult({ type, categories: data });
         setFormData((prev) => ({
           ...prev,
           category: data[0]?.category_id ?? "",
@@ -103,9 +127,7 @@ export default function BudgetForm({ onCreated }: BudgetFormProps) {
       .catch(() => {
         if (cancelled) return;
         toast.error(t("dashboard.budget.form.toasts.categoriesError"));
-      })
-      .finally(() => {
-        if (!cancelled) setCategoriesLoading(false);
+        setCategoriesResult({ type, categories: [] });
       });
 
     return () => {
@@ -113,9 +135,47 @@ export default function BudgetForm({ onCreated }: BudgetFormProps) {
     };
   }, [formData.type, t]);
 
+  // Categories that already have a recurring rule (at most one per category);
+  // their recurrence is changed from Settings → Categories, not from here.
+  // Fetched again after each save, since a save can add one
+  const [recurringCategoryIds, setRecurringCategoryIds] = useState<Set<string>>(
+    new Set(),
+  );
+  const [recurringReloadKey, setRecurringReloadKey] = useState(0);
+
+  useEffect(() => {
+    if (!FEATURES.recurring) return;
+    let cancelled = false;
+    getRecurring()
+      .then(
+        (list) =>
+          !cancelled &&
+          setRecurringCategoryIds(new Set(list.map((r) => r.category_id))),
+      )
+      // Without the list the switch stays enabled; the backend answers 409
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [recurringReloadKey]);
+
+  const categoryHasRecurring = recurringCategoryIds.has(formData.category);
+  // A category that already recurs cannot get a second rule
+  const recurringOn = formData.recurring && !categoryHasRecurring;
+
   const notesRemaining = NOTES_MAX_LENGTH - formData.notes.length;
   const notesNearLimit = notesRemaining <= NOTES_WARNING_THRESHOLD;
   const selectedDate = formData.date ? parseISO(formData.date) : undefined;
+  // Shown under the recurring fields, so the user knows when it starts.
+  // Same as the backend: after today and after this transaction's date, so the
+  // same day is never added twice
+  const today = toDateString(new Date());
+  const firstRun = parseISO(
+    firstRunDate(
+      parseDay(formData.dayOfMonth),
+      formData.date > today ? parseISO(formData.date) : new Date(),
+    ),
+  );
 
   function handleChange(
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -129,56 +189,14 @@ export default function BudgetForm({ onCreated }: BudgetFormProps) {
     setFormData((prev) => ({ ...prev, type: value, category: "" }));
   }
 
-  function handleNewCategoryOpenChange(open: boolean) {
-    setNewCategoryOpen(open);
-    if (!open) {
-      setNewCategoryName("");
-      setNewCategoryError(undefined);
-    }
-  }
-
-  async function handleAddCategory() {
-    if (creatingCategory) return;
-
-    const name = newCategoryName.trim();
-
-    if (!name) {
-      setNewCategoryError(
-        t("dashboard.budget.form.errors.categoryNameRequired"),
-      );
-      return;
-    }
-
-    const exists = categories.some(
-      (cat) => cat.name.toLowerCase() === name.toLowerCase(),
+  function handleCategoryCreated(category: Category) {
+    setCategoriesResult((prev) =>
+      prev ? { ...prev, categories: [...prev.categories, category] } : prev,
     );
-    if (exists) {
-      setNewCategoryError(t("dashboard.budget.form.errors.categoryExists"));
-      return;
-    }
-
-    setCreatingCategory(true);
-    try {
-      const category = await createCategory({ type: formData.type, name });
-
-      setCategories((prev) => [...prev, category]);
-      setFormData((prev) => ({ ...prev, category: category.category_id }));
-      handleNewCategoryOpenChange(false);
-      toast.success(
-        t("dashboard.budget.form.toasts.categoryAdded", {
-          name: category.name,
-        }),
-      );
-    } catch (err) {
-      // 409 = same name already exists (e.g. a default category of this type)
-      setNewCategoryError(
-        err instanceof ApiRequestError && err.status === 409
-          ? t("dashboard.budget.form.errors.categoryExists")
-          : t("dashboard.budget.form.toasts.categoryError"),
-      );
-    } finally {
-      setCreatingCategory(false);
-    }
+    setFormData((prev) => ({ ...prev, category: category.category_id }));
+    setFormErrors((prev) => ({ ...prev, category: undefined }));
+    setNewCategoryOpen(false);
+    onCategoryCreated?.(category);
   }
 
   function handleDateSelect(d: Date | undefined) {
@@ -191,7 +209,11 @@ export default function BudgetForm({ onCreated }: BudgetFormProps) {
     e.preventDefault();
     if (submitting) return;
 
-    const result = BudgetItemSchema.safeParse(formData);
+    // A category that already recurs is saved as a normal transaction
+    const result = BudgetItemSchema.safeParse({
+      ...formData,
+      recurring: recurringOn,
+    });
 
     if (!result.success) {
       const fieldErrors = z.flattenError(result.error).fieldErrors;
@@ -199,6 +221,7 @@ export default function BudgetForm({ onCreated }: BudgetFormProps) {
         category: fieldErrors.category?.[0] as SchemaErrorKey | undefined,
         amount: fieldErrors.amount?.[0] as SchemaErrorKey | undefined,
         notes: fieldErrors.notes?.[0] as SchemaErrorKey | undefined,
+        dayOfMonth: fieldErrors.dayOfMonth?.[0] as SchemaErrorKey | undefined,
       });
       if (fieldErrors.amount) amountRef.current?.focus();
       return;
@@ -206,25 +229,63 @@ export default function BudgetForm({ onCreated }: BudgetFormProps) {
 
     setFormErrors({});
 
+    const item = result.data;
+    const isRecurring = FEATURES.recurring && item.recurring;
+
+    // Recurring: one request saves the rule and this transaction together
+    // (linked, so it shows the recurring badge); otherwise a normal transaction
+    let recurringStart: string | null = null;
     setSubmitting(true);
     try {
-      await addNewTransaction(result.data);
-
-      toast.success(t("dashboard.budget.form.toasts.added"));
-      onCreated?.(result.data.type);
-
-      setFormData((prev) => ({
-        ...prev,
-        category: categories[0]?.category_id ?? "",
-        amount: "",
-        notes: "",
-        date: toDateString(new Date()),
-      }));
-    } catch {
-      toast.error(t("dashboard.budget.form.toasts.addError"));
-    } finally {
+      if (isRecurring) {
+        const { recurring } = await createRecurring({
+          type: item.type,
+          category_id: item.category,
+          amount: item.amount,
+          notes: item.notes || undefined,
+          day_of_month: item.dayOfMonth,
+          date: item.date,
+        });
+        recurringStart = recurring.next_run;
+        setRecurringReloadKey((k) => k + 1);
+      } else {
+        await addNewTransaction(item);
+      }
+    } catch (err) {
+      // 409 = the category got a recurring rule meanwhile (e.g. another tab)
+      const taken = err instanceof RecurringRequestError && err.status === 409;
+      toast.error(
+        t(
+          taken
+            ? "dashboard.budget.form.recurring.alreadyRecurring"
+            : "dashboard.budget.form.toasts.addError",
+        ),
+      );
+      if (taken) setRecurringReloadKey((k) => k + 1);
       setSubmitting(false);
+      return;
     }
+
+    toast.success(t("dashboard.budget.form.toasts.added"), {
+      description: recurringStart
+        ? t("dashboard.budget.form.toasts.recurringAdded", {
+            date: format(parseISO(recurringStart), "PPP", {
+              locale: dateLocale,
+            }),
+          })
+        : undefined,
+    });
+    onCreated?.(item.type);
+
+    setFormData((prev) => ({
+      ...prev,
+      category: categories[0]?.category_id ?? "",
+      amount: "",
+      notes: "",
+      date: toDateString(new Date()),
+      ...emptyRecurring(defaultRecurring),
+    }));
+    setSubmitting(false);
   }
 
   return (
@@ -258,113 +319,75 @@ export default function BudgetForm({ onCreated }: BudgetFormProps) {
             <Label htmlFor="category">
               {t("dashboard.budget.form.category")}
             </Label>
-            <Popover
-              open={newCategoryOpen}
-              onOpenChange={handleNewCategoryOpenChange}
-            >
-              <PopoverTrigger asChild>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="h-6 cursor-pointer gap-1 px-2 text-xs text-muted-foreground"
-                >
-                  <Plus className="h-3 w-3" aria-hidden="true" />
-                  {t("dashboard.budget.form.addCategory")}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-64 space-y-2" align="end">
-                <Label htmlFor="new-category">
-                  {t("dashboard.budget.form.newCategory")}
-                </Label>
-                {/* Not a nested <form>: submit events would bubble to the parent form through the portal */}
-                <div className="flex gap-2">
-                  <Input
-                    id="new-category"
-                    autoFocus
-                    value={newCategoryName}
-                    disabled={creatingCategory}
-                    maxLength={CATEGORY_NAME_MAX_LENGTH}
-                    onChange={(e) => {
-                      setNewCategoryName(e.target.value);
-                      setNewCategoryError(undefined);
-                    }}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        e.preventDefault();
-                        handleAddCategory();
-                      }
-                    }}
-                    placeholder={t(
-                      "dashboard.budget.form.newCategoryPlaceholder",
-                    )}
-                    aria-invalid={!!newCategoryError}
-                    aria-describedby={
-                      newCategoryError ? "new-category-error" : undefined
-                    }
-                  />
+            {categories.length > 0 && (
+              <Popover open={newCategoryOpen} onOpenChange={setNewCategoryOpen}>
+                <PopoverTrigger asChild>
                   <Button
                     type="button"
+                    variant="ghost"
                     size="sm"
-                    className="h-9 cursor-pointer"
-                    onClick={handleAddCategory}
-                    disabled={creatingCategory}
-                    aria-busy={creatingCategory}
+                    className="h-6 cursor-pointer gap-1 px-2 text-xs text-muted-foreground"
                   >
-                    {creatingCategory ? (
-                      <Loader2
-                        className="h-4 w-4 animate-spin"
-                        aria-hidden="true"
-                      />
-                    ) : (
-                      t("dashboard.budget.form.add")
-                    )}
+                    <Plus className="h-3 w-3" aria-hidden="true" />
+                    {t("dashboard.budget.form.addCategory")}
                   </Button>
-                </div>
-                {newCategoryError && (
-                  <p
-                    id="new-category-error"
-                    role="alert"
-                    className="text-xs text-destructive"
-                  >
-                    {newCategoryError}
-                  </p>
-                )}
-              </PopoverContent>
-            </Popover>
+                </PopoverTrigger>
+                <PopoverContent className="w-64" align="end">
+                  <NewCategoryField
+                    autoFocus
+                    type={formData.type}
+                    categories={categories}
+                    onCreated={handleCategoryCreated}
+                  />
+                </PopoverContent>
+              </Popover>
+            )}
           </div>
-          <Select
-            value={formData.category}
-            onValueChange={(v) => {
-              setFormData((prev) => ({ ...prev, category: v }));
-              setFormErrors((prev) => ({ ...prev, category: undefined }));
-            }}
-          >
-            <SelectTrigger
-              id="category"
-              className="w-full"
-              disabled={categoriesLoading}
-              aria-invalid={!!formErrors.category}
-              aria-describedby={
-                formErrors.category ? "category-error" : undefined
-              }
-            >
-              <SelectValue
-                placeholder={
-                  categoriesLoading
-                    ? t("dashboard.budget.form.loadingCategories")
-                    : t("dashboard.budget.form.selectCategory")
-                }
+          {!categoriesLoading && categories.length === 0 ? (
+            <>
+              <p className="text-sm text-muted-foreground">
+                {t("dashboard.budget.form.noCategories")}
+              </p>
+              <NewCategoryField
+                type={formData.type}
+                categories={categories}
+                onCreated={handleCategoryCreated}
               />
-            </SelectTrigger>
-            <SelectContent>
-              {categories.map((cat) => (
-                <SelectItem key={cat.category_id} value={cat.category_id}>
-                  {cat.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            </>
+          ) : (
+            <Select
+              value={formData.category}
+              onValueChange={(v) => {
+                setFormData((prev) => ({ ...prev, category: v }));
+                setFormErrors((prev) => ({ ...prev, category: undefined }));
+              }}
+            >
+              <SelectTrigger
+                id="category"
+                className="w-full"
+                disabled={categoriesLoading}
+                aria-invalid={!!formErrors.category}
+                aria-describedby={
+                  formErrors.category ? "category-error" : undefined
+                }
+              >
+                <SelectValue
+                  placeholder={
+                    categoriesLoading
+                      ? t("dashboard.budget.form.loadingCategories")
+                      : t("dashboard.budget.form.selectCategory")
+                  }
+                />
+              </SelectTrigger>
+              <SelectContent>
+                {categories.map((cat) => (
+                  <SelectItem key={cat.category_id} value={cat.category_id}>
+                    {cat.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
           {formErrors.category && (
             <p
               id="category-error"
@@ -435,6 +458,102 @@ export default function BudgetForm({ onCreated }: BudgetFormProps) {
             </Popover>
           </div>
         </div>
+
+        {/* Recurring: added again automatically every month */}
+        {FEATURES.recurring && (
+          <div className="space-y-4 rounded-lg border p-4">
+            <div className="flex items-start justify-between gap-4">
+              <div className="space-y-1">
+                <Label
+                  htmlFor="recurring"
+                  className="flex items-center gap-1.5"
+                >
+                  <Repeat className="h-4 w-4" aria-hidden="true" />
+                  {t("dashboard.budget.form.recurring.label")}
+                </Label>
+                <p
+                  id="recurring-description"
+                  className="text-xs text-muted-foreground"
+                >
+                  {categoryHasRecurring
+                    ? t("dashboard.budget.form.recurring.alreadyRecurring")
+                    : t("dashboard.budget.form.recurring.description")}
+                </p>
+              </div>
+              <Switch
+                id="recurring"
+                checked={recurringOn}
+                disabled={categoryHasRecurring}
+                onCheckedChange={(checked) => {
+                  // Turned off: the day is cleared, nothing recurring is sent
+                  setFormData((prev) => ({
+                    ...prev,
+                    recurring: checked,
+                    dayOfMonth: checked ? prev.dayOfMonth : "",
+                  }));
+                  setFormErrors((prev) => ({ ...prev, dayOfMonth: undefined }));
+                }}
+                aria-describedby="recurring-description"
+                className="cursor-pointer"
+              />
+            </div>
+
+            {recurringOn && (
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="dayOfMonth">
+                    {t("dashboard.budget.form.recurring.dayOfMonth")}
+                  </Label>
+                  <Input
+                    id="dayOfMonth"
+                    name="dayOfMonth"
+                    type="number"
+                    inputMode="numeric"
+                    min="1"
+                    max="31"
+                    step="1"
+                    value={formData.dayOfMonth}
+                    onChange={handleChange}
+                    onKeyDown={(e) =>
+                      [".", ",", "e", "E", "-", "+"].includes(e.key) &&
+                      e.preventDefault()
+                    }
+                    placeholder={t(
+                      "dashboard.budget.form.recurring.dayOfMonthPlaceholder",
+                    )}
+                    aria-invalid={!!formErrors.dayOfMonth}
+                    aria-describedby={
+                      formErrors.dayOfMonth
+                        ? "dayOfMonth-error dayOfMonth-hint"
+                        : "dayOfMonth-hint"
+                    }
+                  />
+                  <p
+                    id="dayOfMonth-hint"
+                    className="text-xs text-muted-foreground"
+                  >
+                    {t("dashboard.budget.form.recurring.dayOfMonthHint")}
+                  </p>
+                  {formErrors.dayOfMonth && (
+                    <p
+                      id="dayOfMonth-error"
+                      role="alert"
+                      className="text-sm text-destructive"
+                    >
+                      {t(formErrors.dayOfMonth)}
+                    </p>
+                  )}
+                </div>
+
+                <p className="text-sm text-muted-foreground" aria-live="polite">
+                  {t("dashboard.budget.form.recurring.firstRun", {
+                    date: format(firstRun, "PPP", { locale: dateLocale }),
+                  })}
+                </p>
+              </>
+            )}
+          </div>
+        )}
 
         {/* Notes */}
         <div className="space-y-2">

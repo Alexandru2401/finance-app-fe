@@ -1,3 +1,4 @@
+import { FEATURES } from "@/lib/features";
 import { createBrowserRouter, RouterProvider } from "react-router";
 import { lazy } from "react";
 import Login from "./pages/auth/Login";
@@ -6,6 +7,7 @@ import SignIn from "./pages/auth/Signin";
 import AnalyticsPage from "./pages/dashboard/AnalyticsPage";
 const BudgetPage = lazy(() => import("./pages/dashboard/BudgetPage"));
 import DashboardHomePage from "./pages/dashboard/DashboardHomePage";
+import NotificationsPage from "./pages/dashboard/NotificationsPage";
 import ProfilePage from "./pages/dashboard/ProfilePage";
 import SettingsPage from "./pages/dashboard/SettingsPage";
 import TransactionsPage from "./pages/dashboard/TransactionsPage";
@@ -16,6 +18,7 @@ import PublicPricesPersonalPage from "./pages/public/PublicPricesPersonalPage";
 import PublicPricesEnterprisePage from "./pages/public/PublicPricesEnterprisePage";
 import BlogPage from "./pages/public/blog/BlogPage";
 import PayPage from "./pages/public/paypage/PayPage";
+import RoadmapPage from "./pages/public/roadmap/RoadmapPage";
 import PrivacyPolicy from "./pages/public/terms-and-policy/PrivacyPolicy";
 import TermsAndConditions from "./pages/public/terms-and-policy/TermsAndConditions";
 import ErrorPage from "./routes/Error";
@@ -25,17 +28,39 @@ import PublicRootLayout from "./layout/PublicRootLayout";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/context/AuthProvider";
 import ErrorBoundary from "./components/dashboard/shared/ErrorBoundary";
+import RemountOnSearch from "./components/dashboard/shared/RemountOnSearch";
 import UserInfoForm from "./components/public/auth/userInfoForm";
 
 const dashboardRoutes = [
   { index: true, element: <DashboardHomePage /> },
-  { path: "user-info", element: <UserInfoForm /> },
   { path: "budget", element: <BudgetPage /> },
-  { path: "transactions", element: <TransactionsPage /> },
-  { path: "profile", element: <ProfilePage /> },
-  { path: "analytics", element: <AnalyticsPage /> },
-  { path: "upgrade-plans", element: <UpgradePlansPage /> },
+  // Mounted again on a global search result (RemountOnSearch)
+  {
+    path: "transactions",
+    element: (
+      <RemountOnSearch>
+        <TransactionsPage />
+      </RemountOnSearch>
+    ),
+  },
+  {
+    path: "profile",
+    element: (
+      <RemountOnSearch>
+        <ProfilePage />
+      </RemountOnSearch>
+    ),
+  },
+  ...(FEATURES.analytics
+    ? [{ path: "analytics", element: <AnalyticsPage /> }]
+    : []),
+  ...(FEATURES.payments
+    ? [{ path: "upgrade-plans", element: <UpgradePlansPage /> }]
+    : []),
   { path: "settings", element: <SettingsPage /> },
+  ...(FEATURES.notifications
+    ? [{ path: "notifications", element: <NotificationsPage /> }]
+    : []),
 ];
 
 const publicRoutes = [
@@ -44,7 +69,10 @@ const publicRoutes = [
   { path: "prices/personal", element: <PublicPricesPersonalPage /> },
   { path: "prices/enterprise", element: <PublicPricesEnterprisePage /> },
   { path: "blog", element: <BlogPage /> },
-  { path: "paypage/:type", element: <PayPage /> },
+  { path: "roadmap", element: <RoadmapPage /> },
+  ...(FEATURES.payments
+    ? [{ path: "paypage/:type", element: <PayPage /> }]
+    : []),
   { path: "terms-and-services", element: <TermsAndConditions /> },
   { path: "privacy-policy", element: <PrivacyPolicy /> },
   { path: "signin", element: <SignIn /> },

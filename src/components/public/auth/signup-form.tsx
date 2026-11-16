@@ -9,16 +9,20 @@ import {
 import {
   Field,
   FieldDescription,
+  FieldError,
   FieldGroup,
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
+import { isValidPassword } from "@/lib/password";
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 
 import { createUser } from "@/api/user";
+import type { Language } from "@/i18n";
 import { useAuth } from "@/hooks/useAuth";
 
 export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
@@ -29,11 +33,15 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
   });
 
   const { setUser } = useAuth();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const [loading, setLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
 
   const navigate = useNavigate();
+
+  const passwordInvalid = !isValidPassword(formData.password);
+  const passwordMismatch = formData.password !== formData.confirmPassword;
 
   function handleChange(
     field: keyof typeof formData,
@@ -49,21 +57,29 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
     e.preventDefault();
     if (loading) return;
 
+    // The errors show up after the first submit and update while typing
+    setSubmitted(true);
+    if (passwordInvalid || passwordMismatch) return;
+
     try {
       setLoading(true);
 
-      const response = await createUser(formData.email, formData.password);
+      const response = await createUser(
+        formData.email,
+        formData.password,
+        i18n.language as Language,
+      );
 
       if (!response.ok) {
-        toast.error(response.data.message || t("auth.signup.failed"));
+        // e.g. "Email already exists"
+        toast.error(response.data?.message || t("auth.signup.failed"));
         return;
       }
 
       setUser(response.data.user ?? null); // userul are username: null → onboarding
 
-      navigate("/dashboard/user-info");
-    } catch (err) {
-      console.log(err);
+      navigate("/dashboard/user-info", { replace: true });
+    } catch {
       toast.error(t("auth.signup.failed")); // aici doar erori de retea
     } finally {
       setLoading(false);
@@ -94,33 +110,53 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
             </Field>
             <Field>
               <FieldLabel htmlFor="password">{t("auth.password")}</FieldLabel>
-              <Input
+              <PasswordInput
                 id="password"
-                type="password"
                 placeholder="••••••••"
                 required
+                autoComplete="new-password"
                 value={formData.password}
                 onChange={(e) => handleChange("password", e)}
+                aria-invalid={submitted && passwordInvalid}
+                aria-describedby={
+                  submitted && passwordInvalid ? "password-error" : undefined
+                }
               />
               <FieldDescription>
                 {t("auth.signup.passwordHint")}
               </FieldDescription>
+              {submitted && passwordInvalid && (
+                <FieldError id="password-error">
+                  {t("auth.signup.passwordLength")}
+                </FieldError>
+              )}
             </Field>
             <Field>
               <FieldLabel htmlFor="confirm-password">
                 {t("auth.signup.confirmPassword")}
               </FieldLabel>
-              <Input
+              <PasswordInput
                 id="confirm-password"
-                type="password"
                 placeholder="••••••••"
                 required
+                autoComplete="new-password"
                 value={formData.confirmPassword}
                 onChange={(e) => handleChange("confirmPassword", e)}
+                aria-invalid={submitted && passwordMismatch}
+                aria-describedby={
+                  submitted && passwordMismatch
+                    ? "confirm-password-error"
+                    : undefined
+                }
               />
               <FieldDescription>
                 {t("auth.signup.confirmPasswordHint")}
               </FieldDescription>
+              {submitted && passwordMismatch && (
+                <FieldError id="confirm-password-error">
+                  {t("auth.signup.passwordMismatch")}
+                </FieldError>
+              )}
             </Field>
             <FieldGroup>
               <Field>
@@ -128,9 +164,6 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
                   {loading
                     ? t("auth.signup.submitting")
                     : t("auth.signup.submit")}
-                </Button>
-                <Button variant="outline" type="button">
-                  {t("auth.signup.google")}
                 </Button>
                 <FieldDescription className="px-6 text-center">
                   {t("auth.signup.hasAccount")}{" "}

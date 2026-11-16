@@ -1,9 +1,12 @@
+import { FEATURES } from "@/lib/features";
 import { Link, useLocation } from "react-router";
 import { Menu, PanelLeftOpen, Search, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { dashboardNavigation } from "@/components/dashboard/routes/DashboardNavigation";
 import SearchDialog from "@/components/dashboard/shared/SearchDialog";
 import SidebarUserMenu from "@/components/dashboard/shared/SidebarUserMenu";
+import NotificationBell from "@/components/dashboard/notifications/NotificationBell";
+import { refreshUnreadNotifications } from "@/hooks/useUnreadNotifications";
 import {
   Tooltip,
   TooltipContent,
@@ -17,6 +20,13 @@ const isMac =
   /Mac|iPhone|iPad/.test(navigator.platform);
 const shortcutLabel = isMac ? "⌘ K" : "Ctrl K";
 
+// Global search: the field, the mobile button and the Ctrl+K shortcut
+const SEARCH_ENABLED = FEATURES.globalSearch;
+
+// The bell in the mobile top bar; on desktop it is in the top bar of the
+// content (DashboardRootLayout)
+const NOTIFICATIONS_ENABLED = FEATURES.notifications;
+
 export default function DashboardMainNavigation() {
   const [open, setOpen] = useState(true);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -26,6 +36,7 @@ export default function DashboardMainNavigation() {
 
   // Ctrl+K (Windows/Linux) or ⌘+K (Mac) opens the search from anywhere in the dashboard
   useEffect(() => {
+    if (!SEARCH_ENABLED) return;
     function onKeyDown(e: KeyboardEvent) {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
@@ -35,6 +46,12 @@ export default function DashboardMainNavigation() {
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, []);
+
+  // The unread count is fetched again on every page change (F9); here and not
+  // in the bells, so both bells share one request
+  useEffect(() => {
+    if (NOTIFICATIONS_ENABLED) refreshUnreadNotifications();
+  }, [location.pathname]);
 
   const renderNav = (showLabels: boolean, onNavigate?: () => void) => (
     <nav className="flex h-full flex-col text-sm bg-accent">
@@ -63,44 +80,46 @@ export default function DashboardMainNavigation() {
 
       {/* ===== SEARCH ===== */}
       {/* Looks like an input, but opens the search modal */}
-      <div className={clsx("px-3 pb-4", !showLabels && "px-2")}>
-        {showLabels ? (
-          <button
-            type="button"
-            onClick={() => {
-              onNavigate?.();
-              setSearchOpen(true);
-            }}
-            aria-label={t("dashboard.nav.search")}
-            aria-haspopup="dialog"
-            className="flex h-10 w-full cursor-pointer items-center gap-2 rounded-lg border bg-background px-3 text-sm text-muted-foreground outline-none transition-colors hover:border-finance-warning/60 focus-visible:border-finance-warning focus-visible:ring-2 focus-visible:ring-finance-warning/40"
-          >
-            <Search className="h-4 w-4 shrink-0" aria-hidden="true" />
-            <span className="flex-1 truncate text-left">
-              {t("dashboard.nav.search")}
-            </span>
-            <kbd className="text-[11px] font-medium">{shortcutLabel}</kbd>
-          </button>
-        ) : (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                type="button"
-                onClick={() => setSearchOpen(true)}
-                aria-label={t("dashboard.nav.search")}
-                aria-haspopup="dialog"
-                className="flex h-10 w-full cursor-pointer items-center justify-center rounded-lg border bg-background transition-colors hover:bg-accent"
-              >
-                <Search className="h-4 w-4 text-muted-foreground" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent side="right" sideOffset={8}>
-              {t("dashboard.nav.search")}
-              <kbd className="ml-2 opacity-70">{shortcutLabel}</kbd>
-            </TooltipContent>
-          </Tooltip>
-        )}
-      </div>
+      {SEARCH_ENABLED && (
+        <div className={clsx("px-3 pb-4", !showLabels && "px-2")}>
+          {showLabels ? (
+            <button
+              type="button"
+              onClick={() => {
+                onNavigate?.();
+                setSearchOpen(true);
+              }}
+              aria-label={t("dashboard.nav.search")}
+              aria-haspopup="dialog"
+              className="flex h-10 w-full cursor-pointer items-center gap-2 rounded-lg border bg-background px-3 text-sm text-muted-foreground outline-none transition-colors hover:border-finance-warning/60 focus-visible:border-finance-warning focus-visible:ring-2 focus-visible:ring-finance-warning/40"
+            >
+              <Search className="h-4 w-4 shrink-0" aria-hidden="true" />
+              <span className="flex-1 truncate text-left">
+                {t("dashboard.nav.search")}
+              </span>
+              <kbd className="text-[11px] font-medium">{shortcutLabel}</kbd>
+            </button>
+          ) : (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  onClick={() => setSearchOpen(true)}
+                  aria-label={t("dashboard.nav.search")}
+                  aria-haspopup="dialog"
+                  className="flex h-10 w-full cursor-pointer items-center justify-center rounded-lg border bg-background transition-colors hover:bg-accent"
+                >
+                  <Search className="h-4 w-4 text-muted-foreground" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="right" sideOffset={8}>
+                {t("dashboard.nav.search")}
+                <kbd className="ml-2 opacity-70">{shortcutLabel}</kbd>
+              </TooltipContent>
+            </Tooltip>
+          )}
+        </div>
+      )}
 
       {/* ===== SECTIUNI ===== */}
       <div className="flex flex-1 flex-col gap-6 overflow-y-auto px-3 pb-6">
@@ -215,15 +234,21 @@ export default function DashboardMainNavigation() {
           />
         </Link>
 
-        <button
-          type="button"
-          onClick={() => setSearchOpen(true)}
-          aria-label={t("dashboard.nav.search")}
-          aria-haspopup="dialog"
-          className="ml-auto flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-finance-warning/60"
-        >
-          <Search className="h-5 w-5" />
-        </button>
+        <div className="ml-auto flex items-center gap-1">
+          {NOTIFICATIONS_ENABLED && <NotificationBell />}
+
+          {SEARCH_ENABLED && (
+            <button
+              type="button"
+              onClick={() => setSearchOpen(true)}
+              aria-label={t("dashboard.nav.search")}
+              aria-haspopup="dialog"
+              className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-finance-warning/60"
+            >
+              <Search className="h-5 w-5" />
+            </button>
+          )}
+        </div>
       </header>
 
       {/* Sidebar desktop */}
@@ -277,7 +302,9 @@ export default function DashboardMainNavigation() {
         {renderNav(true, () => setMobileOpen(false))}
       </aside>
 
-      <SearchDialog open={searchOpen} onOpenChange={setSearchOpen} />
+      {SEARCH_ENABLED && (
+        <SearchDialog open={searchOpen} onOpenChange={setSearchOpen} />
+      )}
     </>
   );
 }

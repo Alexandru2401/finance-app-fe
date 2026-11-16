@@ -5,6 +5,8 @@
     "about": "About",
     "prices": "Prices",
     "blog": "Blog",
+    "roadmap": "Roadmap",
+    "roadmapDescription": "See what's coming and tell us what you'd like in the app.",
     "info": "Info",
     "personalUse": "Personal use",
     "personalUseDescription": "Unlock the full potential and control for your finances.",
@@ -171,6 +173,7 @@
     "product": "Product",
     "home": "Home",
     "about": "About",
+    "roadmap": "Roadmap",
     "startFree": "Start for free",
     "login": "Log in",
     "social": "Social",
@@ -186,6 +189,8 @@
     "email": "Email",
     "emailPlaceholder": "m@example.com",
     "password": "Password",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
     "errors": {
       "emailRequired": "Email is required.",
       "emailInvalid": "Please enter a valid email.",
@@ -196,7 +201,6 @@
     "login": {
       "title": "Login to your account",
       "description": "Enter your email below to login to your account",
-      "forgotPassword": "Forgot your password?",
       "submit": "Login",
       "submitting": "Loading...",
       "noAccount": "Don't have an account?",
@@ -208,12 +212,13 @@
       "title": "Create an account",
       "description": "Enter your information below to create your account",
       "emailHint": "We'll use this to contact you. We will not share your email with anyone else.",
-      "passwordHint": "Must be at least 8 characters long.",
+      "passwordHint": "Must be between 8 and 72 characters.",
+      "passwordLength": "The password must be between 8 and 72 characters.",
       "confirmPassword": "Confirm Password",
       "confirmPasswordHint": "Please confirm your password.",
+      "passwordMismatch": "Passwords do not match.",
       "submit": "Create Account",
       "submitting": "Creating Account...",
-      "google": "Sign up with Google",
       "hasAccount": "Already have an account?",
       "signIn": "Sign in",
       "failed": "Failed to create account."
@@ -298,7 +303,8 @@
           "a": "We offer a 30-day money-back guarantee. If you're not satisfied, contact us for a full refund."
         }
       }
-    }
+    },
+    "comingSoon": "Coming soon"
   },
   "pricesEnterprise": {
     "badge": "For teams & companies",
@@ -800,13 +806,92 @@
       }
     }
   },
+  "roadmap": {
+    "badge": "FinanceApp Roadmap",
+    "title": "What's coming to the app",
+    "subtitle": "Vote for what you want most and tell us what you'd like to see. Your ideas help us set our priorities.",
+    "cta": "Suggest an idea",
+    "statuses": {
+      "next": {
+        "title": "Up next",
+        "description": "First on the list."
+      },
+      "planned": {
+        "title": "Planned",
+        "description": "On the list, after the first column."
+      },
+      "later": {
+        "title": "Later",
+        "description": "We'd like to get here too."
+      }
+    },
+    "items": {
+      "changePassword": {
+        "title": "Change password",
+        "description": "You'll be able to change your password right from your profile."
+      },
+      "csvExport": {
+        "title": "CSV export",
+        "description": "Download your transactions and target history to use them in other apps."
+      },
+      "accountManagement": {
+        "title": "Account management",
+        "description": "Change your email, reset your data and delete your account, right from the app."
+      },
+      "analytics": {
+        "title": "Full analytics",
+        "description": "Charts and statistics built from your real data."
+      },
+      "globalSearch": {
+        "title": "App-wide search",
+        "description": "Quickly find transactions and categories from any page."
+      },
+      "googleLogin": {
+        "title": "Sign in with Google",
+        "description": "Log in with one click, with no extra password."
+      },
+      "guidedTour": {
+        "title": "Guided tour",
+        "description": "A short walkthrough of the app for your first steps."
+      },
+      "paidPlans": {
+        "title": "Payments and plans",
+        "description": "Choose and change your plan right from the app."
+      }
+    },
+    "vote": {
+      "count_one": "{{count}} vote",
+      "count_other": "{{count}} votes",
+      "add": "Vote: {{title}}",
+      "remove": "Remove vote: {{title}}",
+      "loginRequired": "Log in to vote.",
+      "failed": "We couldn't save your vote. Please try again."
+    },
+    "feedback": {
+      "title": "What would you like to see?",
+      "text": "Tell us what's missing or what you'd improve. We read every message.",
+      "messageLabel": "Your idea",
+      "messagePlaceholder": "I'd like the app to...",
+      "submit": "Send idea",
+      "submitting": "Sending...",
+      "success": "Thank you! Your idea has been sent.",
+      "failed": "We couldn't send your idea. Please try again.",
+      "errors": {
+        "messageTooShort": "Write at least 10 characters.",
+        "messageTooLong": "The message can have at most 1000 characters."
+      },
+      "loginRequired": "Log in to send us an idea."
+    }
+  },
   "dashboard": {
     "periods": {
       "this-month": "This month",
       "last-month": "Last month",
       "last-3": "Last 3 months",
       "last-6": "Last 6 months",
-      "last-12": "Last 12 months"
+      "last-12": "Last 12 months",
+      "all": "All time",
+      "custom": "Custom range…"
     },
     "common": {
       "seeAll": "See all",
@@ -814,12 +899,15 @@
       "tryAgain": "Try again",
       "loadError": "Could not load data.",
       "uncategorized": "Uncategorized",
+      "recurring": "Recurring",
+      "recurringHint": "Added automatically every month",
       "income": "Income",
       "expenses": "Expenses",
-      "savings": "Savings"
+      "savings": "Savings",
+      "tooManyRequests_one": "Too many requests. Try again in {{count}} minute.",
+      "tooManyRequests_other": "Too many requests. Try again in {{count}} minutes."
     },
     "overview": {
-      "welcome": "Welcome back, {{name}}!",
       "defaultUser": "User",
       "subtitle": "Take a look over your financial dashboard.",
       "selectPeriod": "Select period",
@@ -874,6 +962,14 @@
           "expense": "Expense",
           "savings": "Savings"
         }
+      },
+      "greeting": {
+        "morning": "Good morning, {{name}}!",
+        "afternoon": "Good afternoon, {{name}}!",
+        "evening": "Good evening, {{name}}!",
+        "night": "Good night, {{name}}!",
+        "welcome": "Welcome, {{name}}!",
+        "welcomeSubtitle": "Start by adding your first transaction; the rest fills in as you go."
       }
     },
     "budget": {
@@ -898,6 +994,7 @@
         "addCategory": "Add new category",
         "newCategory": "New category",
         "newCategoryPlaceholder": "e.g. Gym",
+        "noCategories": "You have no categories for this type. Create one to continue.",
         "add": "Add",
         "loadingCategories": "Loading categories...",
         "selectCategory": "Select category",
@@ -908,13 +1005,25 @@
         "notesPlaceholder": "Optional notes about this entry...",
         "saving": "Saving...",
         "save": "Save item",
+        "recurring": {
+          "label": "Recurring",
+          "description": "Added automatically every month.",
+          "dayOfMonth": "Day of the month",
+          "dayOfMonthPlaceholder": "1",
+          "dayOfMonthHint": "Leave empty for the 1st. In shorter months, 29–31 become the last day of the month.",
+          "firstRun": "First automatic entry: {{date}}",
+          "alreadyRecurring": "This category is already recurring. Change its amount and day in Settings → Categories."
+        },
         "errors": {
+          "dayOfMonthInvalid": "Pick a day between 1 and 31.",
           "categoryNameRequired": "Please enter a category name.",
           "categoryExists": "This category already exists.",
           "categoryRequired": "Category is required.",
           "amountRequired": "Amount is required.",
           "amountInvalid": "Please enter a valid amount.",
           "amountPositive": "Amount must be greater than 0.",
+          "amountDecimals": "The amount can have at most 2 decimals.",
+          "amountTooLarge": "The amount is too large.",
           "notesTooLong": "Notes can't be longer than {{max}} characters."
         },
         "toasts": {
@@ -922,7 +1031,8 @@
           "categoryError": "Could not create category.",
           "categoriesError": "Could not load categories.",
           "added": "Budget item added successfully!",
-          "addError": "Could not save the item. Please try again."
+          "addError": "Could not save the item. Please try again.",
+          "recurringAdded": "It will be added automatically starting {{date}}."
         }
       },
       "items": {
@@ -934,21 +1044,7 @@
         "viewDetails": "View details",
         "edit": "Edit",
         "delete": "Delete",
-        "detailsTitle": "Item details",
-        "entryOf": "{{type}} entry",
-        "category": "Category",
-        "date": "Date",
-        "notes": "Notes",
-        "noNotes": "No notes added.",
-        "close": "Close",
-        "editTitle": "Edit item",
-        "editSubtitle": "Update the details for this {{type}} entry.",
-        "amount": "Amount",
-        "selectCategory": "Select category",
-        "pickDate": "Pick a date",
-        "notesPlaceholder": "Add a note for this item...",
         "cancel": "Cancel",
-        "saveChanges": "Save changes",
         "deleteTitle": "Delete item",
         "deleteConfirm": "Are you sure you want to delete <bold>{{category}}</bold> ({{amount}})? The action cannot be undone."
       },
@@ -976,7 +1072,9 @@
         "title": "Target history",
         "loadError": "Could not load target history.",
         "empty": "No targets saved yet.",
-        "download": "Download",
+        "download": "Export CSV",
+        "downloading": "Exporting...",
+        "downloadError": "Could not export the target history.",
         "month": "Month",
         "net": "Net"
       },
@@ -988,40 +1086,39 @@
       },
       "extraInfo": {
         "income": {
-          "title": "Recurring income sources",
-          "badge": "Recurring"
+          "title": "Where your income came from",
+          "empty": "No income this month."
         },
         "expenses": {
-          "title": "Fixed monthly expenses",
-          "badge": "Recurring"
+          "title": "Where your money went",
+          "empty": "No expenses this month."
         },
         "savings": {
-          "title": "Savings goals",
-          "badge": "Goals"
+          "title": "Where you saved",
+          "empty": "No savings this month."
         },
-        "monthlyTotal": "Monthly total:",
-        "items": {
-          "salary": "Salary",
-          "investments": "Investments",
-          "internet": "Internet",
-          "rent": "Rent",
-          "utilities": "Utilities",
-          "emergency": "Emergency fund",
-          "vacation": "Vacation"
-        }
+        "other": "Other",
+        "total": "Total:"
       },
       "insights": {
         "title": "Insights",
-        "doingGreat": "You're doing great!",
-        "doingGreatValue": "You've saved {{pct}}% of your goal this month.",
+        "goal": "Savings target",
+        "goalNoTarget": "No savings target set for this month.",
+        "goalReached": "Target reached!",
+        "goalReachedValue": "You saved {{pct}}% of your savings target.",
+        "goalClose": "Getting close to your target",
+        "goalKeepGoing": "Still some work to do",
+        "goalValue": "You saved {{pct}}% of your savings target.",
+        "goalNotStarted": "Nothing saved yet",
+        "goalNotStartedValue": "Add a saving to start towards your target.",
         "topExpense": "Top expense",
+        "topExpenseNone": "No expenses this month.",
         "incomeTrend": "Income trend",
         "incomeTrendValue": "{{pct}}% vs last month",
+        "incomeTrendNoData": "No income last month to compare with.",
         "savingsRate": "Savings rate",
         "savingsRateValue": "{{pct}}% of income",
-        "daysLeft": "Days left in period",
-        "daysLeftValue_one": "{{count}} day",
-        "daysLeftValue_other": "{{count}} days"
+        "savingsRateNoIncome": "No income this month."
       },
       "categories": {
         "button": "Categories",
@@ -1037,21 +1134,18 @@
       "updated": "Transaction updated.",
       "updateError": "Could not update transaction.",
       "details": {
-        "title": "Transaction details",
-        "subtitle": "Everything about this transaction.",
         "noNotes": "No notes added.",
         "addNotes": "Add note",
         "editNotes": "Edit note",
         "saveNotes": "Save note",
-        "uncategorizedHint": "The category of this transaction was deleted. Pick a new category from Edit to be able to change it.",
-        "close": "Close"
+        "uncategorizedHint": "The category of this transaction was deleted. You can pick a new one from Edit."
       },
       "edit": {
         "title": "Edit transaction",
         "subtitle": "Change the type, amount, category, date or note.",
         "selectCategory": "Select a category",
         "categoryRequired": "Select a category.",
-        "invalidAmount": "The amount must be a number greater than 0.",
+        "invalidAmount": "Enter an amount greater than 0, with at most 2 decimals.",
         "pickDate": "Pick a date",
         "notesPlaceholder": "Add a note for this transaction...",
         "cancel": "Cancel",
@@ -1059,8 +1153,10 @@
         "saving": "Saving..."
       },
       "filters": {
-        "searchPlaceholder": "Search category...",
+        "searchPlaceholder": "Search categories and notes...",
         "exportCsv": "Export CSV",
+        "exporting": "Exporting...",
+        "exportError": "Could not export the transactions.",
         "year": "Year",
         "allYears": "All years",
         "month": "Month",
@@ -1101,7 +1197,9 @@
           "type": "Remove type filter",
           "category": "Remove category filter",
           "amount": "Remove amount filter"
-        }
+        },
+        "more": "Filters",
+        "reset": "Reset these filters"
       },
       "table": {
         "caption": "A list of your recent transactions.",
@@ -1112,17 +1210,18 @@
         "actions": "Actions",
         "emptyTitle": "No transactions found",
         "emptyHint": "Try adjusting your filters or search term.",
+        "errorTitle": "Could not load transactions",
+        "errorHint": "Check your connection and try again.",
+        "retry": "Try again",
         "delete": "Delete transaction",
         "netTotal": "Net total",
         "showing": "Showing <bold>{{from}}–{{to}}</bold> of <bold>{{total}}</bold> transactions",
-        "perPage": "Per page",
         "deleteTitle": "Delete transaction",
         "deleteConfirm": "Are you sure you want to delete <bold>{{category}}</bold> ({{amount}}, {{date}})? This action cannot be undone.",
         "cancel": "Cancel",
         "deleting": "Deleting...",
         "confirmDelete": "Delete",
         "notes": "Notes",
-        "view": "View details",
         "edit": "Edit",
         "previous": "Previous",
         "next": "Next",
@@ -1140,7 +1239,6 @@
       "budget": "Budget",
       "transactions": "Transactions",
       "analytics": "Analytics",
-      "upgrade": "Upgrade to Pro",
       "profile": "Profile",
       "search": "Search",
       "openMenu": "Open menu",
@@ -1151,13 +1249,13 @@
     },
     "search": {
       "title": "Search",
-      "hint": "Search transactions, categories or pages",
-      "placeholder": "Search transactions, categories or pages...",
+      "hint": "Search pages, actions, transactions or categories",
+      "placeholder": "Search pages, actions, transactions, categories or an amount...",
       "empty": "No results for “{{query}}”",
-      "error": "Search failed. Please try again.",
-      "custom": "Custom",
+      "error": "Could not search the transactions.",
       "groups": {
         "pages": "Pages",
+        "actions": "Actions",
         "transactions": "Transactions",
         "categories": "Categories"
       },
@@ -1170,6 +1268,50 @@
         "navigate": "to navigate",
         "select": "to select",
         "close": "to close"
+      },
+      "pageKeywords": {
+        "overview": "home dashboard summary balance",
+        "budget": "budget targets month",
+        "transactions": "transactions expenses income savings history list",
+        "analytics": "analytics charts stats score health reports",
+        "profile": "account password email name avatar",
+        "settings": "settings preferences currency language theme categories",
+        "notifications": "notifications alerts bell"
+      },
+      "actions": {
+        "addTransaction": {
+          "label": "Add transaction",
+          "keywords": "new add expense income saving"
+        },
+        "categories": {
+          "label": "Manage categories",
+          "keywords": "category recurring"
+        },
+        "currency": {
+          "label": "Change currency",
+          "keywords": "currency money ron eur euro usd dollar"
+        },
+        "language": {
+          "label": "Change language",
+          "keywords": "language romanian english"
+        },
+        "theme": {
+          "toDark": "Switch to dark theme",
+          "toLight": "Switch to light theme",
+          "keywords": "theme dark light mode"
+        },
+        "changeName": {
+          "label": "Change name",
+          "keywords": "name profile"
+        },
+        "changePassword": {
+          "label": "Change password",
+          "keywords": "password security"
+        },
+        "export": {
+          "label": "Export transactions (CSV)",
+          "keywords": "export download csv excel"
+        }
       }
     },
     "profileBadge": {
@@ -1178,11 +1320,9 @@
       "defaultName": "User",
       "settings": "Profile settings",
       "darkMode": "Dark mode",
-      "notifications": "Notifications",
       "currentPlan": "Current plan",
       "upgrade": "Upgrade",
       "viewProfile": "View profile",
-      "help": "Get help",
       "logout": "Log out",
       "logoutError": "Could not log out. Please try again.",
       "plans": {
@@ -1218,19 +1358,20 @@
           "label": "Change Password",
           "description": "Keep your account secure"
         },
-        "addAccount": {
-          "label": "Add an Account",
-          "description": "Link a new bank or wallet account"
-        },
         "reset": {
           "label": "Reset Data",
-          "description": "Permanently delete all your transactions"
+          "description": "Delete transactions, targets and recurring items; the account stays"
         },
         "delete": {
           "label": "Delete Account",
-          "description": "Permanently remove your account"
+          "description": "Permanently remove your account and all its data"
+        },
+        "name": {
+          "label": "Change name",
+          "description": "The name shown in the app"
         }
       },
+      "comingSoon": "Coming soon",
       "emailPanel": {
         "newEmail": "New Email Address",
         "submit": "Update email"
@@ -1239,23 +1380,27 @@
         "current": "Current Password",
         "new": "New Password",
         "confirm": "Confirm New Password",
-        "submit": "Change Password"
-      },
-      "accountPanel": {
-        "name": "Account Name",
-        "namePlaceholder": "e.g. Savings, Revolut, ING",
-        "balance": "Initial Balance (optional)",
-        "submit": "Add Account"
+        "submit": "Change Password",
+        "required": "Fill in all the fields.",
+        "length": "The new password must be between 8 and 72 characters.",
+        "mismatch": "The new passwords do not match.",
+        "same": "The new password must be different from the current one.",
+        "currentIncorrect": "The current password is incorrect.",
+        "success": "Password changed. Your other devices have been logged out.",
+        "failed": "Could not change the password.",
+        "submitting": "Saving..."
       },
       "resetPanel": {
-        "textBefore": "This will permanently delete ",
-        "textHighlight": "all your transactions, budgets, and categories",
-        "textAfter": ". Your account will remain active.",
+        "textBefore": "This permanently deletes ",
+        "textHighlight": "all your transactions, targets, recurring transactions, notifications and categories",
+        "textAfter": ". You get the starter categories again; your account and settings stay.",
         "button": "Reset All Data",
         "title": "Reset all data?",
-        "description": "This action cannot be undone. All your transactions, budgets and categories will be permanently deleted.",
+        "description": "This cannot be undone. Enter your password to confirm.",
         "cancel": "Cancel",
-        "confirm": "Yes, Reset Everything"
+        "confirm": "Yes, Reset Everything",
+        "success": "Your data was reset. The starter categories are back.",
+        "failed": "Could not reset your data. Please try again."
       },
       "deletePanel": {
         "textBefore": "Your account and ",
@@ -1263,13 +1408,28 @@
         "textAfter": " will be permanently removed. This cannot be undone.",
         "button": "Delete My Account",
         "title": "Delete your account?",
-        "description": "This is permanent. Your profile, data and subscription will be immediately and irreversibly deleted.",
+        "description": "Your account, all your data and the sessions on your other devices are deleted immediately and permanently. Enter your password to confirm.",
         "cancel": "Cancel",
-        "confirm": "Yes, Delete Account"
+        "confirm": "Yes, Delete Account",
+        "success": "Your account was deleted.",
+        "failed": "Could not delete your account. Please try again."
       },
       "preferencesLink": {
         "label": "Preferences & categories",
         "description": "Currency, language, theme and your categories"
+      },
+      "danger": {
+        "passwordLabel": "Current password",
+        "passwordRequired": "Enter your password.",
+        "passwordIncorrect": "The password is incorrect."
+      },
+      "namePanel": {
+        "label": "Name",
+        "submit": "Save name",
+        "saving": "Saving...",
+        "success": "Your name was changed.",
+        "failed": "Could not change your name. Please try again.",
+        "length": "The name must be between {{min}} and {{max}} characters."
       }
     },
     "settings": {
@@ -1287,8 +1447,7 @@
       },
       "general": {
         "title": "General",
-        "description": "Settings related to your account and amounts.",
-        "notificationsHint": "Get notified about your budget"
+        "description": "Settings related to your account and amounts."
       },
       "currency": {
         "title": "Currency",
@@ -1296,7 +1455,7 @@
         "save": "Save currency",
         "saving": "Saving...",
         "confirmTitle": "Change currency to {{currency}}?",
-        "confirmDescription": "All your amounts (transactions and targets) will be converted from {{from}} to {{to}} at today's BNR exchange rate. Because of rounding, converting back later may not give the exact original amounts.",
+        "confirmDescription": "All your amounts (transactions, targets and recurring transactions) will be converted from {{from}} to {{to}} at today's BNR exchange rate. Because of rounding, converting back later may not give the exact original amounts.",
         "cancel": "Cancel",
         "convert": "Convert",
         "success": "Currency changed to {{currency}}.",
@@ -1306,14 +1465,11 @@
       },
       "categories": {
         "title": "Categories",
-        "description": "Add, rename or delete your categories. Default ones cannot be changed.",
+        "description": "Add, edit or delete your categories. A category can be recurring: it is added automatically every month.",
         "newPlaceholder": "New category name",
         "add": "Add",
         "custom": "Your categories",
-        "defaults": "Default categories",
-        "emptyCustom": "You have no custom categories yet.",
-        "defaultHint": "Default category, cannot be changed",
-        "rename": "Rename",
+        "emptyCustom": "You have no categories yet.",
         "save": "Save",
         "cancel": "Cancel",
         "delete": "Delete",
@@ -1331,8 +1487,149 @@
         "toasts": {
           "added": "Category \"{{name}}\" was added.",
           "deleted": "Category \"{{name}}\" was deleted.",
-          "renamed": "Category renamed to \"{{name}}\"."
+          "renamed": "Category renamed to \"{{name}}\".",
+          "updated": "Category \"{{name}}\" updated."
+        },
+        "edit": "Edit",
+        "editTitle": "Edit \"{{name}}\"",
+        "editDescription": "The name and the recurrence of the category. Recurrence changes apply only to future transactions.",
+        "name": "Name",
+        "recurring": {
+          "hint": "Added automatically every month, with the amount and on the day below.",
+          "day": "day {{day}}",
+          "nextRun": "Next: {{date}}.",
+          "amountError": "Enter an amount greater than 0, with at most 2 decimals.",
+          "saveError": "Could not save the recurrence. Please try again.",
+          "deleteHint": "Its recurrence stops; the transactions already added stay."
         }
+      }
+    },
+    "notifications": {
+      "title": "Notifications",
+      "subtitle": "Transactions added automatically and what is coming up.",
+      "bellUnread_one": "Notifications: {{count}} unread",
+      "bellUnread_other": "Notifications: {{count}} unread",
+      "markAll": "Mark all as read",
+      "markRead": "Mark as read",
+      "delete": "Delete the notification",
+      "deleted": "Notification deleted.",
+      "seeAll": "See all notifications",
+      "unread": "Unread",
+      "empty": "You have no notifications. When a recurring transaction is added automatically, you will see it here.",
+      "emptyUnread": "You have no unread notifications.",
+      "loadError": "Could not load the notifications.",
+      "previous": "Previous",
+      "next": "Next",
+      "pageOf": "Page {{page}} of {{total}}",
+      "filters": {
+        "all": "All",
+        "unread": "Unread"
+      },
+      "errors": {
+        "update": "Could not update the notification. Please try again.",
+        "delete": "Could not delete the notification. Please try again."
+      },
+      "types": {
+        "recurringAdded": {
+          "title": "Added \"{{category}}\"",
+          "description": "{{amount}} · {{date}} · added automatically"
+        },
+        "recurringUpcoming": {
+          "title": "Coming up: \"{{category}}\"",
+          "description": "{{amount}} is added automatically on {{date}}"
+        },
+        "recurringPaused": {
+          "title": "The recurrence \"{{category}}\" was stopped"
+        },
+        "unknown": "New notification"
+      },
+      "newCount_one": "{{count}} new",
+      "newCount_other": "{{count}} new"
+    },
+    "analytics": {
+      "title": "Analytics",
+      "subtitle": "Where the money goes, how the months evolve and what to improve.",
+      "loadError": "Could not load the data.",
+      "charts": {
+        "incomeVsExpenses": "Income vs expenses",
+        "trend": "Trend",
+        "metric": "What the chart shows",
+        "net": "Balance",
+        "empty": "You have no transactions in this period.",
+        "periodNet": "Balance for the period: {{amount}}",
+        "netHint": "Income minus expenses; savings are not subtracted."
+      },
+      "fixed": {
+        "title": "Fixed monthly expenses",
+        "badge": "Recurring",
+        "empty": "You have no recurring expenses.",
+        "emptyLink": "Make a category recurring",
+        "total": "Fixed monthly total:"
+      },
+      "variable": {
+        "title": "Biggest variable expenses",
+        "empty": "You have no variable expenses in this period.",
+        "total": "Total:",
+        "hint": "— the easiest place to cut back."
+      },
+      "forecast": {
+        "title": "Savings + forecast",
+        "description": "What you put aside each month; the forecast is the average of the last 3 months.",
+        "label": "Forecast",
+        "history": "History",
+        "zero": "Zero",
+        "empty": "You have no savings in this period."
+      },
+      "insight": {
+        "up": "Last month you spent {{last}}, {{pct}}% more than the average of the 3 months before ({{average}}).",
+        "down": "Last month you spent {{last}}, {{pct}}% less than the average of the 3 months before ({{average}}).",
+        "same": "Last month you spent {{last}}, the same as the average of the 3 months before.",
+        "notEnoughData": "The comparison shows up once you have at least 4 months with expenses.",
+        "title": "What can you do?",
+        "badge": "Suggestions",
+        "tip": "\"{{category}}\" grew by {{pct}}% compared to your average ({{average}})",
+        "saving": "~{{amount}}/month",
+        "totalSaving": "Going back to the average everywhere:",
+        "noTips": "No category grew significantly last month. Well done!"
+      },
+      "health": {
+        "title": "Budget health",
+        "why": "Why this score",
+        "notEnoughData": "We need at least one complete month with transactions to compute the score.",
+        "earlyMonth": "In the first 5 days of the month the pace and the projection are not counted.",
+        "labels": {
+          "excellent": "Excellent",
+          "good": "Good",
+          "warning": "Warning",
+          "risk": "At risk"
+        },
+        "summary": {
+          "excellent": "You are managing your budget very well. Keep it up!",
+          "good": "Your budget is fine, with some room to improve.",
+          "warning": "A few things need attention. See below what pulls the score down.",
+          "risk": "Your budget is under pressure this month. See below what to adjust."
+        },
+        "reasons": {
+          "fromTarget": "your target",
+          "fromAverage": "your average",
+          "paceUnder": "You spent {{spent}} so far, below the pace of {{expected}} ({{base}} a month, from {{source}}).",
+          "paceOver": "You spent {{spent}} so far, above the pace of {{expected}} ({{base}} a month, from {{source}}).",
+          "savingsDefault": "You saved {{rate}}% of your income last month (recommended: {{goal}}%).",
+          "savingsTarget": "You saved {{rate}}% of your income last month (your target: {{goal}}%).",
+          "noIncome": "You had no income last month.",
+          "positiveMonths": "{{positive}} of {{months}} months with income at least equal to expenses.",
+          "trendAbove": "This month's projected expenses ({{projection}}) are {{pct}}% above your average ({{average}}).",
+          "trendBelow": "This month's projected expenses ({{projection}}) are {{pct}}% below your average ({{average}}).",
+          "trendSame": "This month's projected expenses ({{projection}}) match your average."
+        }
+      },
+      "customRange": {
+        "title": "Custom range",
+        "from": "From",
+        "to": "To",
+        "apply": "Apply",
+        "invalid": "The start month must be before the end month.",
+        "tooLong": "The range can be at most 10 years."
       }
     }
   }

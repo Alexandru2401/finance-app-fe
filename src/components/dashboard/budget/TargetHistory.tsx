@@ -1,4 +1,5 @@
 import {
+  exportTargetHistory,
   getAllBudgetTargets,
   getBudgetSummary,
   type BudgetSummary,
@@ -19,6 +20,7 @@ import { useCurrency } from "@/hooks/useCurrency";
 import { Download } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 
 interface HistoryRow {
   target: MonthlyBudgetTarget;
@@ -69,6 +71,27 @@ export default function TargetHistory() {
   const { t, i18n } = useTranslation();
   // undefined while loading, null if the targets could not be loaded
   const [rows, setRows] = useState<HistoryRow[] | null | undefined>(undefined);
+  const [downloading, setDownloading] = useState(false);
+
+  async function handleDownload() {
+    if (downloading) return;
+    setDownloading(true);
+    try {
+      const blob = await exportTargetHistory(i18n.language);
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `target-history-${new Date().toISOString().slice(0, 10)}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    } catch {
+      toast.error(t("dashboard.budget.history.downloadError"));
+    } finally {
+      setDownloading(false);
+    }
+  }
 
   useEffect(() => {
     let ignore = false;
@@ -138,11 +161,14 @@ export default function TargetHistory() {
         <Button
           variant="outline"
           size="sm"
-          // TODO: download comes from the backend
+          onClick={handleDownload}
+          disabled={downloading}
           className="cursor-pointer gap-1.5"
         >
-          <Download size={14} />
-          {t("dashboard.budget.history.download")}
+          <Download size={14} aria-hidden="true" />
+          {downloading
+            ? t("dashboard.budget.history.downloading")
+            : t("dashboard.budget.history.download")}
         </Button>
       </HistoryHeader>
       <div className="max-h-80 overflow-y-auto rounded-md border">

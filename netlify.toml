@@ -19,3 +19,25 @@
   from = "/*"
   to = "/index.html"
   status = 200
+
+# Security headers for the app (HTML/JS served by Netlify).
+# Same set helmet() sets on the backend, adapted for a React SPA.
+# Netlify does not apply these to proxied responses (/api/*): those keep helmet's headers.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    # Scripts only from our own origin (no inline scripts: the theme script is /theme-init.js).
+    # style-src needs 'unsafe-inline' for the <style> tags injected by UI libraries (sonner, radix).
+    # img-src allows the Unsplash images used on the public pages.
+    Content-Security-Policy = "default-src 'self'; base-uri 'self'; connect-src 'self'; font-src 'self' https: data:; form-action 'self'; frame-ancestors 'self'; img-src 'self' data: blob: https://images.unsplash.com; object-src 'none'; script-src 'self'; script-src-attr 'none'; style-src 'self' https: 'unsafe-inline'; upgrade-insecure-requests"
+    Cross-Origin-Opener-Policy = "same-origin"
+    Cross-Origin-Resource-Policy = "same-origin"
+    Origin-Agent-Cluster = "?1"
+    Referrer-Policy = "no-referrer"
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains"
+    X-Content-Type-Options = "nosniff"
+    X-DNS-Prefetch-Control = "off"
+    X-Download-Options = "noopen"
+    X-Frame-Options = "SAMEORIGIN"
+    X-Permitted-Cross-Domain-Policies = "none"
+    X-XSS-Protection = "0"

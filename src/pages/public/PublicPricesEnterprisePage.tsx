@@ -1,3 +1,4 @@
+import { FEATURES } from "@/lib/features";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -33,7 +34,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 
 const SALES_EMAIL = "sales@financeapp.com";
 const MAX_CALCULATOR_SEATS = 100;
@@ -190,6 +191,16 @@ export default function PublicPricesEnterprisePage() {
                       {t("pricesEnterprise.contactSales")}
                     </Button>
                   </a>
+                ) : !FEATURES.payments ? (
+                  // No payments yet
+                  <Button
+                    className="w-full"
+                    variant="outline"
+                    size="lg"
+                    disabled
+                  >
+                    {t("prices.comingSoon")}
+                  </Button>
                 ) : (
                   <Link
                     to={`/paypage/enterprise?${new URLSearchParams({

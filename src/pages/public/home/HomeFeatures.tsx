@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Check, Coins, Play } from "lucide-react";
 import { Trans, useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 
 const points = [
   "whereMoneyGoes",

@@ -1,8 +1,9 @@
+import { FEATURES } from "@/lib/features";
 import BudgetForm from "@/components/dashboard/budget/BudgetForm";
 import ItemCard from "@/components/dashboard/budget/ItemCard";
 import { Button } from "@/components/ui/button";
 import { CalendarDays, ExternalLink, Plus, Tags, Target } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 import {
   Sheet,
   SheetContent,
@@ -62,6 +63,7 @@ function toBudgetItem(t: Transaction): BudgetItem {
     amount: Number(t.amount),
     date: t.date,
     notes: t.notes ?? undefined,
+    recurringId: t.recurring_id ?? undefined,
   };
 }
 
@@ -101,7 +103,7 @@ function SummaryCardsSkeleton() {
 
 function ItemListSkeleton() {
   return (
-    <Card>
+    <Card className="flex-1">
       <CardHeader>
         <Skeleton className="h-5 w-28" />
         <Skeleton className="mt-1 h-3 w-40" />
@@ -130,8 +132,9 @@ export interface Section {
   items: BudgetItem[];
   total: number;
   section: "income" | "expenses" | "savings";
-  onDelete: (id: string) => void;
-  onEdit: (id: string, payload: UpdateTransactionPayload) => void;
+  // Resolve to false if the request failed, so the dialog stays open
+  onDelete: (id: string) => Promise<boolean>;
+  onEdit: (id: string, payload: UpdateTransactionPayload) => Promise<boolean>;
 }
 
 export default function BudgetPage() {
@@ -249,24 +252,47 @@ export default function BudgetPage() {
     }
   }
 
-  async function deleteItem(id: string) {
+  async function deleteItem(id: string): Promise<boolean> {
     try {
       await deleteTransaction(id);
       toast.success(t("dashboard.budget.toasts.deleted"));
       refresh();
+      return true;
     } catch {
       toast.error(t("dashboard.budget.toasts.deleteError"));
+      return false;
     }
   }
 
-  async function editItem(id: string, payload: UpdateTransactionPayload) {
+  async function editItem(
+    id: string,
+    payload: UpdateTransactionPayload,
+  ): Promise<boolean> {
     try {
       await updateTransaction(id, payload);
-      toast.success(t("dashboard.budget.toasts.updated"));
-      refresh();
-    } catch {
-      toast.error(t("dashboard.budget.toasts.updateError"));
+    } catch (err) {
+      // The backend message explains e.g. a category of another type
+      toast.error(t("dashboard.budget.toasts.updateError"), {
+        description: err instanceof Error ? err.message : undefined,
+      });
+      return false;
     }
+    // The notes dialog stays open and reads the item: show the new note
+    // right away, before the lists are fetched again
+    if (payload.notes !== undefined) {
+      const notes = payload.notes?.trim() || undefined;
+      setItemsByTab((prev) =>
+        Object.fromEntries(
+          Object.entries(prev).map(([tab, items]) => [
+            tab,
+            items?.map((item) => (item.id === id ? { ...item, notes } : item)),
+          ]),
+        ),
+      );
+    }
+    toast.success(t("dashboard.budget.toasts.updated"));
+    refresh();
+    return true;
   }
 
   const totalsByType = {
@@ -349,8 +375,13 @@ export default function BudgetPage() {
         </div>
       </PageHeader>
 
-      <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="col-span-2 space-y-3">
+      {/* Without the side column the lists take the whole width */}
+      <div
+        className={`grid grid-cols-1 gap-6 ${FEATURES.budgetInsights ? "lg:grid-cols-3" : ""}`}
+      >
+        <div
+          className={`${FEATURES.budgetInsights ? "col-span-2" : ""} flex flex-col gap-3`}
+        >
           {!summaryLoaded ? (
             <SummaryCardsSkeleton />
           ) : (
@@ -364,11 +395,13 @@ export default function BudgetPage() {
             />
           )}
 
-          <div className="grid items-start gap-6">
+          {/* On lg the grid stretches this column to the height of the side
+              column, so the list card ends at the same level as the donut */}
+          <div className="flex flex-1 flex-col">
             <Tabs
               value={activeTab}
               onValueChange={(v) => setActiveTab(v as typeof activeTab)}
-              className="w-full"
+              className="w-full flex-1"
             >
               <TabsList>
                 {sections.map((section) => (
@@ -383,14 +416,18 @@ export default function BudgetPage() {
               </TabsList>
 
               {sections.map((section) => (
-                <TabsContent key={section.section} value={section.section}>
+                <TabsContent
+                  key={section.section}
+                  value={section.section}
+                  className="flex flex-col"
+                >
                   {itemsByTab[section.section] ? (
                     <ItemCard
                       section={section}
                       onShowForm={() => setShowForm(true)}
                     />
                   ) : itemsError ? (
-                    <Card>
+                    <Card className="flex-1">
                       <CardContent className="py-6 text-sm text-destructive">
                         {t("dashboard.budget.loadError")}
                       </CardContent>
@@ -404,10 +441,20 @@ export default function BudgetPage() {
           </div>
         </div>
 
-        <div className="flex flex-col md:flex-row md:justify-between lg:flex-col gap-6">
-          <Insights />
-          <ExtraInfo activeTab={activeTab} />
-        </div>
+        {FEATURES.budgetInsights && (
+          <div className="flex flex-col md:flex-row md:justify-between lg:flex-col gap-6">
+            <Insights
+              summary={summaryLoaded ? summary : null}
+              month={selectedMonth}
+              refreshKey={refreshKey}
+            />
+            <ExtraInfo
+              activeTab={activeTab}
+              month={selectedMonth}
+              refreshKey={refreshKey}
+            />
+          </div>
+        )}
       </div>
 
       {showForm && (
