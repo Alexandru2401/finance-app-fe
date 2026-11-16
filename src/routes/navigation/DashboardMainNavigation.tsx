@@ -5,6 +5,8 @@ import { useEffect, useState } from "react";
 import { dashboardNavigation } from "@/components/dashboard/routes/DashboardNavigation";
 import SearchDialog from "@/components/dashboard/shared/SearchDialog";
 import SidebarUserMenu from "@/components/dashboard/shared/SidebarUserMenu";
+import NotificationBell from "@/components/dashboard/notifications/NotificationBell";
+import { refreshUnreadNotifications } from "@/hooks/useUnreadNotifications";
 import {
   Tooltip,
   TooltipContent,
@@ -20,6 +22,10 @@ const shortcutLabel = isMac ? "⌘ K" : "Ctrl K";
 
 // Global search: the field, the mobile button and the Ctrl+K shortcut
 const SEARCH_ENABLED = FEATURES.globalSearch;
+
+// The bell in the mobile top bar; on desktop it is in the top bar of the
+// content (DashboardRootLayout)
+const NOTIFICATIONS_ENABLED = FEATURES.notifications;
 
 export default function DashboardMainNavigation() {
   const [open, setOpen] = useState(true);
@@ -40,6 +46,12 @@ export default function DashboardMainNavigation() {
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, []);
+
+  // The unread count is fetched again on every page change (F9); here and not
+  // in the bells, so both bells share one request
+  useEffect(() => {
+    if (NOTIFICATIONS_ENABLED) refreshUnreadNotifications();
+  }, [location.pathname]);
 
   const renderNav = (showLabels: boolean, onNavigate?: () => void) => (
     <nav className="flex h-full flex-col text-sm bg-accent">
@@ -222,17 +234,21 @@ export default function DashboardMainNavigation() {
           />
         </Link>
 
-        {SEARCH_ENABLED && (
-          <button
-            type="button"
-            onClick={() => setSearchOpen(true)}
-            aria-label={t("dashboard.nav.search")}
-            aria-haspopup="dialog"
-            className="ml-auto flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-finance-warning/60"
-          >
-            <Search className="h-5 w-5" />
-          </button>
-        )}
+        <div className="ml-auto flex items-center gap-1">
+          {NOTIFICATIONS_ENABLED && <NotificationBell />}
+
+          {SEARCH_ENABLED && (
+            <button
+              type="button"
+              onClick={() => setSearchOpen(true)}
+              aria-label={t("dashboard.nav.search")}
+              aria-haspopup="dialog"
+              className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-finance-warning/60"
+            >
+              <Search className="h-5 w-5" />
+            </button>
+          )}
+        </div>
       </header>
 
       {/* Sidebar desktop */}

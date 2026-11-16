@@ -1384,7 +1384,7 @@
         "save": "Salvează moneda",
         "saving": "Se salvează...",
         "confirmTitle": "Schimbi moneda în {{currency}}?",
-        "confirmDescription": "Toate sumele tale (tranzacții și ținte) vor fi convertite din {{from}} în {{to}} la cursul BNR de azi. Din cauza rotunjirilor, o conversie înapoi s-ar putea să nu dea exact sumele inițiale.",
+        "confirmDescription": "Toate sumele tale (tranzacții, ținte și tranzacții recurente) vor fi convertite din {{from}} în {{to}} la cursul BNR de azi. Din cauza rotunjirilor, o conversie înapoi s-ar putea să nu dea exact sumele inițiale.",
         "cancel": "Anulează",
         "convert": "Convertește",
         "success": "Moneda a fost schimbată în {{currency}}.",
@@ -1432,6 +1432,50 @@
           "deleteHint": "Recurența ei se oprește; tranzacțiile adăugate deja rămân."
         }
       }
+    },
+    "notifications": {
+      "title": "Notificări",
+      "subtitle": "Tranzacțiile adăugate automat și ce urmează.",
+      "bellUnread_one": "Notificări: {{count}} necitită",
+      "bellUnread_few": "Notificări: {{count}} necitite",
+      "bellUnread_other": "Notificări: {{count}} de necitite",
+      "markAll": "Marchează tot ca citit",
+      "markRead": "Marchează ca citită",
+      "delete": "Șterge notificarea",
+      "deleted": "Notificarea a fost ștearsă.",
+      "seeAll": "Vezi toate notificările",
+      "unread": "Necitită",
+      "empty": "Nu ai nicio notificare. Când se adaugă automat o tranzacție recurentă, o vezi aici.",
+      "emptyUnread": "Nu ai notificări necitite.",
+      "loadError": "Notificările nu au putut fi încărcate.",
+      "previous": "Înapoi",
+      "next": "Înainte",
+      "pageOf": "Pagina {{page}} din {{total}}",
+      "filters": {
+        "all": "Toate",
+        "unread": "Necitite"
+      },
+      "errors": {
+        "update": "Notificarea nu a putut fi actualizată. Încearcă din nou.",
+        "delete": "Notificarea nu a putut fi ștearsă. Încearcă din nou."
+      },
+      "types": {
+        "recurringAdded": {
+          "title": "Am adăugat „{{category}}”",
+          "description": "{{amount}} · {{date}} · adăugată automat"
+        },
+        "recurringUpcoming": {
+          "title": "Urmează „{{category}}”",
+          "description": "{{amount}} se adaugă automat pe {{date}}"
+        },
+        "recurringPaused": {
+          "title": "Recurența „{{category}}” a fost oprită"
+        },
+        "unknown": "Notificare nouă"
+      },
+      "newCount_one": "{{count}} nouă",
+      "newCount_few": "{{count}} noi",
+      "newCount_other": "{{count}} de noi"
     }
   }
 }

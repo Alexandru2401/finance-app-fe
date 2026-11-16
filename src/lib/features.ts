@@ -19,4 +19,7 @@ export const FEATURES = {
   // "Recurring" inputs in the add form. POST /recurring is not in the backend
   // yet (notification.md, R1-R4): set to false before deploying without it
   recurring: true,
+  // Bell + /dashboard/notifications. The /notifications routes are not in the
+  // backend yet (notification.md, N1-N2): set to false before deploying without them
+  notifications: true,
 } as const;

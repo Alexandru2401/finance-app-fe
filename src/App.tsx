@@ -7,6 +7,7 @@ import SignIn from "./pages/auth/Signin";
 import AnalyticsPage from "./pages/dashboard/AnalyticsPage";
 const BudgetPage = lazy(() => import("./pages/dashboard/BudgetPage"));
 import DashboardHomePage from "./pages/dashboard/DashboardHomePage";
+import NotificationsPage from "./pages/dashboard/NotificationsPage";
 import ProfilePage from "./pages/dashboard/ProfilePage";
 import SettingsPage from "./pages/dashboard/SettingsPage";
 import TransactionsPage from "./pages/dashboard/TransactionsPage";
@@ -41,6 +42,9 @@ const dashboardRoutes = [
     ? [{ path: "upgrade-plans", element: <UpgradePlansPage /> }]
     : []),
   { path: "settings", element: <SettingsPage /> },
+  ...(FEATURES.notifications
+    ? [{ path: "notifications", element: <NotificationsPage /> }]
+    : []),
 ];
 
 const publicRoutes = [

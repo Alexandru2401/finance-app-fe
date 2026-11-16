@@ -1381,7 +1381,7 @@
         "save": "Save currency",
         "saving": "Saving...",
         "confirmTitle": "Change currency to {{currency}}?",
-        "confirmDescription": "All your amounts (transactions and targets) will be converted from {{from}} to {{to}} at today's BNR exchange rate. Because of rounding, converting back later may not give the exact original amounts.",
+        "confirmDescription": "All your amounts (transactions, targets and recurring transactions) will be converted from {{from}} to {{to}} at today's BNR exchange rate. Because of rounding, converting back later may not give the exact original amounts.",
         "cancel": "Cancel",
         "convert": "Convert",
         "success": "Currency changed to {{currency}}.",
@@ -1429,6 +1429,48 @@
           "deleteHint": "Its recurrence stops; the transactions already added stay."
         }
       }
+    },
+    "notifications": {
+      "title": "Notifications",
+      "subtitle": "Transactions added automatically and what is coming up.",
+      "bellUnread_one": "Notifications: {{count}} unread",
+      "bellUnread_other": "Notifications: {{count}} unread",
+      "markAll": "Mark all as read",
+      "markRead": "Mark as read",
+      "delete": "Delete the notification",
+      "deleted": "Notification deleted.",
+      "seeAll": "See all notifications",
+      "unread": "Unread",
+      "empty": "You have no notifications. When a recurring transaction is added automatically, you will see it here.",
+      "emptyUnread": "You have no unread notifications.",
+      "loadError": "Could not load the notifications.",
+      "previous": "Previous",
+      "next": "Next",
+      "pageOf": "Page {{page}} of {{total}}",
+      "filters": {
+        "all": "All",
+        "unread": "Unread"
+      },
+      "errors": {
+        "update": "Could not update the notification. Please try again.",
+        "delete": "Could not delete the notification. Please try again."
+      },
+      "types": {
+        "recurringAdded": {
+          "title": "Added \"{{category}}\"",
+          "description": "{{amount}} · {{date}} · added automatically"
+        },
+        "recurringUpcoming": {
+          "title": "Coming up: \"{{category}}\"",
+          "description": "{{amount}} is added automatically on {{date}}"
+        },
+        "recurringPaused": {
+          "title": "The recurrence \"{{category}}\" was stopped"
+        },
+        "unknown": "New notification"
+      },
+      "newCount_one": "{{count}} new",
+      "newCount_other": "{{count}} new"
     }
   }
 }
