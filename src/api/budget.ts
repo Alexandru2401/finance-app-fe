@@ -381,6 +381,7 @@ export interface BudgetTrendPoint {
   month: string;
   income: number;
   expense: number;
+  savings: number;
 }
 
 interface BudgetTrendResponse {
@@ -402,6 +403,8 @@ async function getBudgetTrend(period?: string) {
           month: point.month,
           income: Number(point.income),
           expense: Number(point.expense),
+          // Older backends do not send it yet
+          savings: Number(point.savings ?? 0),
         }))
       : null,
   };
@@ -442,3 +445,66 @@ async function getCategoryTotals(
 }
 
 export { getCategoryTotals };
+
+// ---- Budget Health (GET /budget/health, analitycs.md) ----
+
+export type HealthLabel = "excellent" | "good" | "warning" | "risk";
+
+// The values behind each component; the frontend builds the sentence from them
+export type HealthComponent =
+  | {
+      key: "pace";
+      points: number;
+      max: number;
+      values: {
+        spent: number;
+        base: number;
+        expected: number;
+        fromTarget: boolean;
+        pace: number;
+      };
+    }
+  | {
+      key: "savingsRate";
+      points: number;
+      max: number;
+      values: {
+        ratePct: number;
+        goalPct: number;
+        fromTarget: boolean;
+        noIncome: boolean;
+      };
+    }
+  | {
+      key: "positiveMonths";
+      points: number;
+      max: number;
+      values: { positive: number; months: number };
+    }
+  | {
+      key: "trend";
+      points: number;
+      max: number;
+      values: { projection: number; average: number; deltaPct: number };
+    };
+
+export interface BudgetHealth {
+  // null = not one complete month with transactions yet
+  score: number | null;
+  label: HealthLabel | null;
+  // The most problematic first (most points lost)
+  components: HealthComponent[];
+  // "YYYY-MM" and day of the month the score is for
+  month: string;
+  day: number;
+}
+
+// `today` = the user's day ("YYYY-MM-DD"), so the month is not the UTC one
+async function getBudgetHealth(today: string) {
+  const response = await get<{ success: boolean; health: BudgetHealth }>(
+    `/budget/health?today=${today}`,
+  );
+  return { ok: response.ok, data: response.ok ? response.data.health : null };
+}
+
+export { getBudgetHealth };

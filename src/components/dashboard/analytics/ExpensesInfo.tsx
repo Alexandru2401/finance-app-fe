@@ -11,85 +11,120 @@ import {
   ChartTooltip,
   type ChartConfig,
 } from "@/components/ui/chart";
-import type {
-  BudgetItem,
-  NewBudgetItem,
-} from "@/store/dashboardStore/BudgetStoreContext";
-import { AlertTriangle, Pin } from "lucide-react";
-import { CartesianGrid, Line, LineChart, ReferenceLine, XAxis } from "recharts";
+import { Skeleton } from "@/components/ui/skeleton";
+import CardError from "@/components/dashboard/shared/CardError";
+import type { RequestState } from "@/hooks/useRequest";
 import { useCurrency } from "@/hooks/useCurrency";
+import { shortMonth, type CostRow, type SavingsPoint } from "@/lib/analytics";
+import { AlertTriangle, Pin } from "lucide-react";
+import type { ReactNode } from "react";
+import { useTranslation } from "react-i18next";
+import { Link } from "react-router";
+import { CartesianGrid, Line, LineChart, ReferenceLine, XAxis } from "recharts";
 
-const savingsWithForecast = [
-  { month: "Ian", savings: 106, forecast: null },
-  { month: "Feb", savings: 105, forecast: null },
-  { month: "Mar", savings: 117, forecast: null },
-  { month: "Apr", savings: -117, forecast: null },
-  { month: "Mai", savings: 79, forecast: null },
-  { month: "Iun", savings: 74, forecast: null },
-  { month: "Iul", savings: null, forecast: 60 },
-  { month: "Aug", savings: null, forecast: 44 },
-  { month: "Sep", savings: null, forecast: 32 },
-];
-
-const savingsConfig = {
-  savings: { label: "Economii", color: "var(--finance-primary)" },
-  forecast: { label: "Forecast", color: "var(--finance-primary)" },
-} satisfies ChartConfig;
-
-export interface Section {
-  title: string;
-  items: BudgetItem[];
-  total: number;
-  section: "income" | "expenses" | "savings";
-  onDelete: (id: string) => void;
-  onEdit: (id: string, payload: Partial<NewBudgetItem>) => void;
+interface Props {
+  // Active recurring expenses
+  fixed: RequestState<CostRow[]>;
+  // Biggest non-recurring expense categories in the period
+  variable: RequestState<CostRow[]>;
+  // Monthly savings + forecast
+  savings: RequestState<SavingsPoint[]>;
+  periodLabel: string;
 }
 
-const fixedCosts = [
-  { label: "Chirie", amount: 1200, pct: 75 },
-  { label: "Utilități", amount: 300, pct: 19 },
-  { label: "Internet", amount: 60, pct: 4 },
-];
-
-const variableCosts = [
-  { label: "Restaurante", amount: 1200, pct: 75 },
-  { label: "Shopping", amount: 300, pct: 19 },
-  { label: "Concert", amount: 60, pct: 4 },
-];
-
-interface ForecastTooltipProps {
-  active?: boolean;
-  payload?: { value?: number | null; dataKey?: string | number }[];
-  label?: string | number;
-}
-
-const ForecastTooltip = ({ active, payload, label }: ForecastTooltipProps) => {
-  if (!active || !payload?.length) return null;
-  const entry = payload.find((p) => p.value !== null);
-  if (!entry) return null;
-  const isForecast = entry.dataKey === "forecast";
+function ListSkeleton() {
   return (
-    <div className="bg-card border border-border rounded-xl px-3 py-2 shadow-md text-xs">
-      <p className="font-medium text-card-foreground mb-1">{label}</p>
-      <p
-        className={
-          isForecast ? "text-muted-foreground italic" : "text-card-foreground"
-        }
-      >
-        {isForecast ? "Forecast: " : "Economii: "}
-        <span className="font-semibold">${entry.value}</span>
-      </p>
-      {isForecast && (
-        <p className="text-muted-foreground text-[10px] mt-0.5">Estimat</p>
-      )}
+    <div className="space-y-3">
+      {[0, 1, 2].map((i) => (
+        <Skeleton key={i} className="h-8 w-full" />
+      ))}
     </div>
   );
-};
+}
 
-export default function ExpensesInfo() {
+function CostList({
+  rows,
+  barClass,
+  trackClass,
+}: {
+  rows: CostRow[];
+  barClass: string;
+  trackClass: string;
+}) {
   const { format } = useCurrency();
   return (
+    <ul className="space-y-2.5">
+      {rows.map(({ key, label, amount, pct }) => (
+        <li key={key} className="space-y-1">
+          <div className="flex justify-between gap-3 text-sm">
+            <span className="truncate text-muted-foreground">{label}</span>
+            <span className="shrink-0 font-medium tabular-nums">
+              {format(amount)}{" "}
+              <span className="text-xs text-muted-foreground">({pct}%)</span>
+            </span>
+          </div>
+          <div className={`h-1.5 w-full rounded-full ${trackClass}`}>
+            <div
+              className={`h-1.5 rounded-full ${barClass}`}
+              style={{ width: `${pct}%` }}
+            />
+          </div>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+export default function ExpensesInfo({
+  fixed,
+  variable,
+  savings,
+  periodLabel,
+}: Props) {
+  const { t, i18n } = useTranslation();
+  const { format } = useCurrency();
+
+  const fixedTotal = (fixed.data ?? []).reduce((s, r) => s + r.amount, 0);
+  const variableTotal = (variable.data ?? []).reduce((s, r) => s + r.amount, 0);
+
+  const savingsConfig = {
+    savings: {
+      label: t("dashboard.common.savings"),
+      color: "var(--finance-primary)",
+    },
+    forecast: {
+      label: t("dashboard.analytics.forecast.label"),
+      color: "var(--finance-primary)",
+    },
+  } satisfies ChartConfig;
+
+  const savingsData = (savings.data ?? []).map((p) => ({
+    ...p,
+    label: shortMonth(p.month, i18n.language),
+  }));
+
+  // Loading / error / empty for one card, otherwise its content
+  function state<T>(
+    request: RequestState<T[]>,
+    empty: ReactNode,
+    content: ReactNode,
+  ) {
+    if (request.loading) return <ListSkeleton />;
+    if (request.error)
+      return (
+        <CardError
+          message={t("dashboard.analytics.loadError")}
+          onRetry={request.retry}
+        />
+      );
+    if (!request.data?.length)
+      return <p className="text-sm text-muted-foreground">{empty}</p>;
+    return content;
+  }
+
+  return (
     <div className="flex flex-col gap-6 lg:flex-row lg:gap-10">
+      {/* Fixed: the recurring expenses, added automatically every month */}
       <Card className="flex-1">
         <CardHeader>
           <div className="flex items-center gap-2">
@@ -100,44 +135,46 @@ export default function ExpensesInfo() {
                 aria-hidden="true"
               />
             </span>
-            <CardTitle className="text-sm">Cheltuieli fixe lunare</CardTitle>
+            <CardTitle className="text-sm">
+              {t("dashboard.analytics.fixed.title")}
+            </CardTitle>
             <span className="ml-auto rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
-              Recurente
+              {t("dashboard.analytics.fixed.badge")}
             </span>
           </div>
         </CardHeader>
-
         <CardContent>
-          <ul className="space-y-2.5">
-            {fixedCosts.map(({ label, amount, pct }) => (
-              <li key={label} className="space-y-1">
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">{label}</span>
-                  <span className="font-medium tabular-nums">
-                    {format(amount)}
-                  </span>
-                </div>
-                <div className="h-1.5 w-full rounded-full bg-muted">
-                  <div
-                    className="h-1.5 rounded-full bg-finance-primary"
-                    style={{ width: `${pct}%` }}
-                  />
-                </div>
-              </li>
-            ))}
-          </ul>
+          {state(
+            fixed,
+            <>
+              {t("dashboard.analytics.fixed.empty")}{" "}
+              <Link
+                to="/dashboard/settings?tab=categories"
+                className="underline hover:text-foreground"
+              >
+                {t("dashboard.analytics.fixed.emptyLink")}
+              </Link>
+            </>,
+            <CostList
+              rows={fixed.data ?? []}
+              barClass="bg-finance-primary"
+              trackClass="bg-muted"
+            />,
+          )}
         </CardContent>
-
-        <CardFooter className="border-t pt-4">
-          <p className="text-xs text-muted-foreground">
-            Total fix lunar:{" "}
-            <span className="font-semibold text-foreground tabular-nums">
-              {format(1560)}
-            </span>
-          </p>
-        </CardFooter>
+        {!!fixed.data?.length && (
+          <CardFooter className="border-t pt-4">
+            <p className="text-xs text-muted-foreground">
+              {t("dashboard.analytics.fixed.total")}{" "}
+              <span className="font-semibold tabular-nums text-foreground">
+                {format(fixedTotal)}
+              </span>
+            </p>
+          </CardFooter>
+        )}
       </Card>
 
+      {/* Variable: the biggest non-recurring expense categories in the period */}
       <Card className="flex-1 border-finance-warning/30 bg-finance-warning-bg/60">
         <CardHeader>
           <div className="flex items-center gap-2">
@@ -148,109 +185,146 @@ export default function ExpensesInfo() {
                 aria-hidden="true"
               />
             </span>
-            <CardTitle className="text-sm">Cheltuieli variabile mari</CardTitle>
+            <CardTitle className="text-sm">
+              {t("dashboard.analytics.variable.title")}
+            </CardTitle>
             <span className="ml-auto rounded-full bg-finance-warning-bg px-2 py-0.5 text-xs font-medium text-finance-warning">
-              Optimizabile
+              {periodLabel}
             </span>
           </div>
         </CardHeader>
-
         <CardContent>
-          <ul className="space-y-2.5">
-            {variableCosts.map(({ label, amount, pct }) => (
-              <li key={label} className="space-y-1">
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">{label}</span>
-                  <span className="font-medium tabular-nums">
-                    {format(amount)}
-                  </span>
-                </div>
-                <div className="h-1.5 w-full rounded-full bg-finance-warning-bg">
-                  <div
-                    className="h-1.5 rounded-full bg-finance-warning"
-                    style={{ width: `${pct}%` }}
-                  />
-                </div>
-              </li>
-            ))}
-          </ul>
+          {state(
+            variable,
+            t("dashboard.analytics.variable.empty"),
+            <CostList
+              rows={variable.data ?? []}
+              barClass="bg-finance-warning"
+              trackClass="bg-finance-warning-bg"
+            />,
+          )}
         </CardContent>
-
-        <CardFooter className="border-t border-finance-warning/30 pt-4">
-          <p className="text-xs text-muted-foreground">
-            Total variabil:{" "}
-            <span className="font-semibold tabular-nums text-finance-warning">
-              {format(1560)}
-            </span>{" "}
-            — potențial de reducere
-          </p>
-        </CardFooter>
+        {!!variable.data?.length && (
+          <CardFooter className="border-t border-finance-warning/30 pt-4">
+            <p className="text-xs text-muted-foreground">
+              {t("dashboard.analytics.variable.total")}{" "}
+              <span className="font-semibold tabular-nums text-finance-warning">
+                {format(variableTotal)}
+              </span>{" "}
+              {t("dashboard.analytics.variable.hint")}
+            </p>
+          </CardFooter>
+        )}
       </Card>
+
+      {/* Monthly savings + a simple forecast (average of the last 3 months) */}
       <Card className="flex-1">
         <CardHeader>
-          <CardTitle className="text-sm">Economii + Forecast</CardTitle>
-          <CardDescription>Istoric și predicție — Ian–Sep 2024</CardDescription>
+          <CardTitle className="text-sm">
+            {t("dashboard.analytics.forecast.title")}
+          </CardTitle>
+          <CardDescription>
+            {t("dashboard.analytics.forecast.description")}
+          </CardDescription>
         </CardHeader>
         <CardContent>
-          <ChartContainer config={savingsConfig}>
-            <LineChart
-              data={savingsWithForecast}
-              margin={{ top: 8, left: 4, right: 4, bottom: 0 }}
-            >
-              <CartesianGrid vertical={false} stroke="var(--border)" />
-              <XAxis
-                dataKey="month"
-                tickLine={false}
-                tickMargin={8}
-                axisLine={false}
-                tick={{ fontSize: 11 }}
-              />
-              <ChartTooltip cursor={false} content={<ForecastTooltip />} />
-              <ReferenceLine
-                y={0}
-                stroke="var(--destructive)"
-                strokeDasharray="4 2"
-                strokeWidth={1}
-              />
-              <Line
-                dataKey="savings"
-                type="monotone"
-                stroke="var(--color-savings)"
-                strokeWidth={2}
-                dot={{ fill: "var(--color-savings)", r: 4 }}
-                activeDot={{ r: 6 }}
-                connectNulls={false}
-              />
-              <Line
-                dataKey="forecast"
-                type="monotone"
-                stroke="var(--color-savings)"
-                strokeWidth={2}
-                strokeDasharray="5 4"
-                dot={{
-                  fill: "var(--color-savings)",
-                  r: 3,
-                  strokeDasharray: "0",
-                }}
-                activeDot={{ r: 5 }}
-                connectNulls={false}
-              />
-            </LineChart>
-          </ChartContainer>
+          {savings.loading ? (
+            <Skeleton className="h-48 w-full" />
+          ) : savings.error ? (
+            <CardError
+              message={t("dashboard.analytics.loadError")}
+              onRetry={savings.retry}
+            />
+          ) : savingsData.length < 2 || savingsData.every((p) => !p.savings) ? (
+            <p className="text-sm text-muted-foreground">
+              {t("dashboard.analytics.forecast.empty")}
+            </p>
+          ) : (
+            <ChartContainer config={savingsConfig}>
+              <LineChart
+                data={savingsData}
+                margin={{ top: 8, left: 4, right: 4, bottom: 0 }}
+              >
+                <CartesianGrid vertical={false} stroke="var(--border)" />
+                <XAxis
+                  dataKey="label"
+                  tickLine={false}
+                  tickMargin={8}
+                  axisLine={false}
+                  tick={{ fontSize: 11 }}
+                />
+                <ChartTooltip
+                  cursor={false}
+                  content={({ active, payload, label }) => {
+                    const entry = payload?.find((p) => p.value != null);
+                    if (!active || !entry) return null;
+                    const isForecast = entry.dataKey === "forecast";
+                    return (
+                      <div className="rounded-xl border border-border bg-card px-3 py-2 text-xs shadow-md">
+                        <p className="mb-1 font-medium text-card-foreground">
+                          {label}
+                        </p>
+                        <p
+                          className={
+                            isForecast
+                              ? "italic text-muted-foreground"
+                              : "text-card-foreground"
+                          }
+                        >
+                          {isForecast
+                            ? t("dashboard.analytics.forecast.label")
+                            : t("dashboard.common.savings")}
+                          :{" "}
+                          <span className="font-semibold">
+                            {format(Number(entry.value))}
+                          </span>
+                        </p>
+                      </div>
+                    );
+                  }}
+                />
+                <ReferenceLine
+                  y={0}
+                  stroke="var(--destructive)"
+                  strokeDasharray="4 2"
+                  strokeWidth={1}
+                />
+                <Line
+                  dataKey="savings"
+                  type="monotone"
+                  stroke="var(--color-savings)"
+                  strokeWidth={2}
+                  dot={{ fill: "var(--color-savings)", r: 4 }}
+                  activeDot={{ r: 6 }}
+                  connectNulls={false}
+                />
+                <Line
+                  dataKey="forecast"
+                  type="monotone"
+                  stroke="var(--color-forecast)"
+                  strokeWidth={2}
+                  strokeDasharray="5 4"
+                  dot={{ fill: "var(--color-forecast)", r: 3 }}
+                  activeDot={{ r: 5 }}
+                  connectNulls={false}
+                />
+              </LineChart>
+            </ChartContainer>
+          )}
         </CardContent>
-        <CardFooter className="flex-col items-start gap-1 text-xs text-muted-foreground pt-0">
-          <div className="flex items-center gap-3">
+        <CardFooter className="flex-col items-start gap-1 pt-0 text-xs text-muted-foreground">
+          <div className="flex flex-wrap items-center gap-3">
             <span className="flex items-center gap-1.5">
-              <span className="inline-block w-4 h-0.5 rounded bg-finance-primary" />{" "}
-              Istoric
+              <span className="inline-block h-0.5 w-4 rounded bg-finance-primary" />
+              {t("dashboard.analytics.forecast.history")}
             </span>
             <span className="flex items-center gap-1.5">
-              <span className="inline-block w-4 h-0.5 border-t-2 border-dashed border-finance-primary" />{" "}
-              Forecast
+              <span className="inline-block h-0.5 w-4 border-t-2 border-dashed border-finance-primary" />
+              {t("dashboard.analytics.forecast.label")}
             </span>
             <span className="flex items-center gap-1.5">
-              <span className="inline-block w-4 h-0.5 border-t border-dashed border-destructive" />{" "}
-              Zero
+              <span className="inline-block h-0.5 w-4 border-t border-dashed border-destructive" />
+              {t("dashboard.analytics.forecast.zero")}
             </span>
           </div>
         </CardFooter>

@@ -889,7 +889,9 @@
       "last-month": "Last month",
       "last-3": "Last 3 months",
       "last-6": "Last 6 months",
-      "last-12": "Last 12 months"
+      "last-12": "Last 12 months",
+      "all": "All time",
+      "custom": "Custom range…"
     },
     "common": {
       "seeAll": "See all",
@@ -1480,6 +1482,92 @@
       },
       "newCount_one": "{{count}} new",
       "newCount_other": "{{count}} new"
+    },
+    "analytics": {
+      "title": "Analytics",
+      "subtitle": "Where the money goes, how the months evolve and what to improve.",
+      "loadError": "Could not load the data.",
+      "charts": {
+        "incomeVsExpenses": "Income vs expenses",
+        "trend": "Trend",
+        "metric": "What the chart shows",
+        "net": "Balance",
+        "empty": "You have no transactions in this period.",
+        "periodNet": "Balance for the period: {{amount}}",
+        "netHint": "Income minus expenses; savings are not subtracted."
+      },
+      "fixed": {
+        "title": "Fixed monthly expenses",
+        "badge": "Recurring",
+        "empty": "You have no recurring expenses.",
+        "emptyLink": "Make a category recurring",
+        "total": "Fixed monthly total:"
+      },
+      "variable": {
+        "title": "Biggest variable expenses",
+        "empty": "You have no variable expenses in this period.",
+        "total": "Total:",
+        "hint": "— the easiest place to cut back."
+      },
+      "forecast": {
+        "title": "Savings + forecast",
+        "description": "What you put aside each month; the forecast is the average of the last 3 months.",
+        "label": "Forecast",
+        "history": "History",
+        "zero": "Zero",
+        "empty": "You have no savings in this period."
+      },
+      "insight": {
+        "up": "Last month you spent {{last}}, {{pct}}% more than the average of the 3 months before ({{average}}).",
+        "down": "Last month you spent {{last}}, {{pct}}% less than the average of the 3 months before ({{average}}).",
+        "same": "Last month you spent {{last}}, the same as the average of the 3 months before.",
+        "notEnoughData": "The comparison shows up once you have at least 4 months with expenses.",
+        "title": "What can you do?",
+        "badge": "Suggestions",
+        "tip": "\"{{category}}\" grew by {{pct}}% compared to your average ({{average}})",
+        "saving": "~{{amount}}/month",
+        "totalSaving": "Going back to the average everywhere:",
+        "noTips": "No category grew significantly last month. Well done!"
+      },
+      "health": {
+        "title": "Budget health",
+        "why": "Why this score",
+        "notEnoughData": "We need at least one complete month with transactions to compute the score.",
+        "earlyMonth": "In the first 5 days of the month the pace and the projection are not counted.",
+        "labels": {
+          "excellent": "Excellent",
+          "good": "Good",
+          "warning": "Warning",
+          "risk": "At risk"
+        },
+        "summary": {
+          "excellent": "You are managing your budget very well. Keep it up!",
+          "good": "Your budget is fine, with some room to improve.",
+          "warning": "A few things need attention. See below what pulls the score down.",
+          "risk": "Your budget is under pressure this month. See below what to adjust."
+        },
+        "reasons": {
+          "fromTarget": "your target",
+          "fromAverage": "your average",
+          "paceUnder": "You spent {{spent}} so far, below the pace of {{expected}} ({{base}} a month, from {{source}}).",
+          "paceOver": "You spent {{spent}} so far, above the pace of {{expected}} ({{base}} a month, from {{source}}).",
+          "savingsDefault": "You saved {{rate}}% of your income last month (recommended: {{goal}}%).",
+          "savingsTarget": "You saved {{rate}}% of your income last month (your target: {{goal}}%).",
+          "noIncome": "You had no income last month.",
+          "positiveMonths": "{{positive}} of {{months}} months with income at least equal to expenses.",
+          "trendAbove": "This month's projected expenses ({{projection}}) are {{pct}}% above your average ({{average}}).",
+          "trendBelow": "This month's projected expenses ({{projection}}) are {{pct}}% below your average ({{average}}).",
+          "trendSame": "This month's projected expenses ({{projection}}) match your average."
+        }
+      },
+      "customRange": {
+        "title": "Custom range",
+        "from": "From",
+        "to": "To",
+        "apply": "Apply",
+        "invalid": "The start month must be before the end month.",
+        "tooLong": "The range can be at most 10 years."
+      }
     }
   }
 }

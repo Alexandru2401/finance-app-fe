@@ -890,7 +890,9 @@
       "last-month": "Luna trecută",
       "last-3": "Ultimele 3 luni",
       "last-6": "Ultimele 6 luni",
-      "last-12": "Ultimele 12 luni"
+      "last-12": "Ultimele 12 luni",
+      "all": "Toată perioada",
+      "custom": "Interval personalizat…"
     },
     "common": {
       "seeAll": "Vezi tot",
@@ -1485,6 +1487,92 @@
       "newCount_one": "{{count}} nouă",
       "newCount_few": "{{count}} noi",
       "newCount_other": "{{count}} de noi"
+    },
+    "analytics": {
+      "title": "Analize",
+      "subtitle": "Unde se duc banii, cum evoluează lunile și ce poți îmbunătăți.",
+      "loadError": "Datele nu au putut fi încărcate.",
+      "charts": {
+        "incomeVsExpenses": "Venituri vs cheltuieli",
+        "trend": "Evoluție",
+        "metric": "Ce arată graficul",
+        "net": "Sold",
+        "empty": "Nu ai tranzacții în această perioadă.",
+        "periodNet": "Sold pe perioadă: {{amount}}",
+        "netHint": "Venituri minus cheltuieli, economiile nu se scad."
+      },
+      "fixed": {
+        "title": "Cheltuieli fixe lunare",
+        "badge": "Recurente",
+        "empty": "Nu ai cheltuieli recurente.",
+        "emptyLink": "Fă o categorie recurentă",
+        "total": "Total fix lunar:"
+      },
+      "variable": {
+        "title": "Cele mai mari cheltuieli variabile",
+        "empty": "Nu ai cheltuieli variabile în această perioadă.",
+        "total": "Total:",
+        "hint": "— aici poți reduce cel mai ușor."
+      },
+      "forecast": {
+        "title": "Economii + prognoză",
+        "description": "Cât ai pus deoparte pe lună; prognoza e media ultimelor 3 luni.",
+        "label": "Prognoză",
+        "history": "Istoric",
+        "zero": "Zero",
+        "empty": "Nu ai economii în această perioadă."
+      },
+      "insight": {
+        "up": "Luna trecută ai cheltuit {{last}}, cu {{pct}}% mai mult decât media celor 3 luni dinainte ({{average}}).",
+        "down": "Luna trecută ai cheltuit {{last}}, cu {{pct}}% mai puțin decât media celor 3 luni dinainte ({{average}}).",
+        "same": "Luna trecută ai cheltuit {{last}}, cât media celor 3 luni dinainte.",
+        "notEnoughData": "Comparația apare după ce ai cel puțin 4 luni cu cheltuieli.",
+        "title": "Ce poți face?",
+        "badge": "Recomandări",
+        "tip": "„{{category}}” a crescut cu {{pct}}% față de media ta ({{average}})",
+        "saving": "~{{amount}}/lună",
+        "totalSaving": "Revenind la medie la toate:",
+        "noTips": "Nicio categorie nu a crescut semnificativ luna trecută. Bravo!"
+      },
+      "health": {
+        "title": "Sănătatea bugetului",
+        "why": "De ce acest scor",
+        "notEnoughData": "Avem nevoie de cel puțin o lună completă cu tranzacții ca să calculăm scorul.",
+        "earlyMonth": "În primele 5 zile din lună ritmul și proiecția nu se iau în calcul.",
+        "labels": {
+          "excellent": "Excelent",
+          "good": "Bine",
+          "warning": "Atenție",
+          "risk": "Risc"
+        },
+        "summary": {
+          "excellent": "Îți gestionezi foarte bine bugetul. Continuă așa!",
+          "good": "Bugetul e în regulă, dar mai e loc de mai bine.",
+          "warning": "Câteva lucruri au nevoie de atenție. Vezi mai jos ce trage scorul în jos.",
+          "risk": "Bugetul e sub presiune luna aceasta. Vezi mai jos ce poți ajusta."
+        },
+        "reasons": {
+          "fromTarget": "ținta ta",
+          "fromAverage": "media ta",
+          "paceUnder": "Ai cheltuit {{spent}} până azi, sub ritmul de {{expected}} ({{base}} pe lună, din {{source}}).",
+          "paceOver": "Ai cheltuit {{spent}} până azi, peste ritmul de {{expected}} ({{base}} pe lună, din {{source}}).",
+          "savingsDefault": "Ai economisit {{rate}}% din venituri luna trecută (recomandat: {{goal}}%).",
+          "savingsTarget": "Ai economisit {{rate}}% din venituri luna trecută (ținta ta: {{goal}}%).",
+          "noIncome": "Luna trecută nu ai avut venituri.",
+          "positiveMonths": "{{positive}} din {{months}} luni cu venituri cel puțin cât cheltuielile.",
+          "trendAbove": "Cheltuielile proiectate pe luna asta ({{projection}}) sunt cu {{pct}}% peste media ta ({{average}}).",
+          "trendBelow": "Cheltuielile proiectate pe luna asta ({{projection}}) sunt cu {{pct}}% sub media ta ({{average}}).",
+          "trendSame": "Cheltuielile proiectate pe luna asta ({{projection}}) sunt la nivelul mediei tale."
+        }
+      },
+      "customRange": {
+        "title": "Interval personalizat",
+        "from": "De la",
+        "to": "Până la",
+        "apply": "Aplică",
+        "invalid": "Luna de început trebuie să fie înainte de cea de final.",
+        "tooLong": "Intervalul poate avea cel mult 10 ani."
+      }
     }
   }
 }
