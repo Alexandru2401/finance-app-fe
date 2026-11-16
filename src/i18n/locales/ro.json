@@ -1156,7 +1156,7 @@
         "saving": "Se salvează..."
       },
       "filters": {
-        "searchPlaceholder": "Caută categoria...",
+        "searchPlaceholder": "Caută în categorii și notițe...",
         "exportCsv": "Exportă CSV",
         "exporting": "Se exportă...",
         "exportError": "Nu am putut exporta tranzacțiile.",

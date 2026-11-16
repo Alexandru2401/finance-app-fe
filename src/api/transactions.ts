@@ -32,7 +32,7 @@ export interface TransactionsParams {
   limit?: number;
   page?: number;
   sort?: "newest" | "oldest" | "highest" | "lowest";
-  // The backend searches the category name
+  // The backend searches the category name and the notes (case-insensitive)
   search?: string;
   categoryId?: string;
   year?: number;

@@ -1153,7 +1153,7 @@
         "saving": "Saving..."
       },
       "filters": {
-        "searchPlaceholder": "Search category...",
+        "searchPlaceholder": "Search categories and notes...",
         "exportCsv": "Export CSV",
         "exporting": "Exporting...",
         "exportError": "Could not export the transactions.",
