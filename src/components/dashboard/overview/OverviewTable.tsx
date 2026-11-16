@@ -20,6 +20,7 @@ import { useEffect, useState } from "react";
 import { getTransactions, type Transaction } from "@/api/transactions";
 import CardError from "@/components/dashboard/shared/CardError";
 import EmptyState from "@/components/dashboard/shared/EmptyState";
+import RecurringBadge from "@/components/dashboard/shared/RecurringBadge";
 import { useCurrency } from "@/hooks/useCurrency";
 import { ArrowLeftRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -136,7 +137,11 @@ export default function OverviewTable() {
                       </span>
                     </TableCell>
                     <TableCell className="font-medium">
-                      {tx.category_name ?? t("dashboard.common.uncategorized")}
+                      <span className="inline-flex flex-wrap items-center gap-1.5">
+                        {tx.category_name ??
+                          t("dashboard.common.uncategorized")}
+                        {tx.recurring_id && <RecurringBadge compact />}
+                      </span>
                     </TableCell>
                     <TableCell className="whitespace-nowrap text-muted-foreground">
                       {fmtDate(tx.date, i18n.language)}

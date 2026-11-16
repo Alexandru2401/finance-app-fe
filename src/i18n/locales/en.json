@@ -897,6 +897,8 @@
       "tryAgain": "Try again",
       "loadError": "Could not load data.",
       "uncategorized": "Uncategorized",
+      "recurring": "Recurring",
+      "recurringHint": "Added automatically every month",
       "income": "Income",
       "expenses": "Expenses",
       "savings": "Savings",
@@ -1000,7 +1002,8 @@
           "dayOfMonth": "Day of the month",
           "dayOfMonthPlaceholder": "1",
           "dayOfMonthHint": "Leave empty for the 1st. In shorter months, 29–31 become the last day of the month.",
-          "firstRun": "First automatic entry: {{date}}"
+          "firstRun": "First automatic entry: {{date}}",
+          "alreadyRecurring": "This category is already recurring. Change its amount and day in Settings → Categories."
         },
         "errors": {
           "dayOfMonthInvalid": "Pick a day between 1 and 31.",
@@ -1020,8 +1023,7 @@
           "categoriesError": "Could not load categories.",
           "added": "Budget item added successfully!",
           "addError": "Could not save the item. Please try again.",
-          "recurringAdded": "It will be added automatically starting {{date}}.",
-          "recurringError": "The item was saved, but the recurrence wasn't. Please try again."
+          "recurringAdded": "It will be added automatically starting {{date}}."
         }
       },
       "items": {
@@ -1389,12 +1391,11 @@
       },
       "categories": {
         "title": "Categories",
-        "description": "Add, rename or delete your categories.",
+        "description": "Add, edit or delete your categories. A category can be recurring: it is added automatically every month.",
         "newPlaceholder": "New category name",
         "add": "Add",
         "custom": "Your categories",
         "emptyCustom": "You have no categories yet.",
-        "rename": "Rename",
         "save": "Save",
         "cancel": "Cancel",
         "delete": "Delete",
@@ -1412,7 +1413,20 @@
         "toasts": {
           "added": "Category \"{{name}}\" was added.",
           "deleted": "Category \"{{name}}\" was deleted.",
-          "renamed": "Category renamed to \"{{name}}\"."
+          "renamed": "Category renamed to \"{{name}}\".",
+          "updated": "Category \"{{name}}\" updated."
+        },
+        "edit": "Edit",
+        "editTitle": "Edit \"{{name}}\"",
+        "editDescription": "The name and the recurrence of the category. Recurrence changes apply only to future transactions.",
+        "name": "Name",
+        "recurring": {
+          "hint": "Added automatically every month, with the amount and on the day below.",
+          "day": "day {{day}}",
+          "nextRun": "Next: {{date}}.",
+          "amountError": "Enter an amount greater than 0, with at most 2 decimals.",
+          "saveError": "Could not save the recurrence. Please try again.",
+          "deleteHint": "Its recurrence stops; the transactions already added stay."
         }
       }
     }

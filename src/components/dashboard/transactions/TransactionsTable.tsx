@@ -34,6 +34,7 @@ import {
   TransactionEditDialog,
   TransactionNotesDialog,
 } from "@/components/dashboard/transactions/TransactionDialogs";
+import RecurringBadge from "@/components/dashboard/shared/RecurringBadge";
 import {
   AMOUNT_SIGNS,
   AMOUNT_STYLES,
@@ -316,7 +317,10 @@ export default function TransactionsTable({
                     </span>
                   </TableCell>
                   <TableCell className="font-medium">
-                    {categoryName(tx)}
+                    <span className="inline-flex flex-wrap items-center gap-1.5">
+                      {categoryName(tx)}
+                      {tx.recurring_id && <RecurringBadge />}
+                    </span>
                   </TableCell>
                   <TableCell className="text-muted-foreground whitespace-nowrap">
                     {fmtDate(tx.date, i18n.language)}

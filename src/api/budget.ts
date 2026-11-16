@@ -10,6 +10,8 @@ export interface BudgetItem {
   amount: number;
   date?: string;
   notes?: string;
+  // Set when the item was created by a recurring rule
+  recurringId?: string;
 }
 
 type BudgetType = "income" | "expenses" | "savings";

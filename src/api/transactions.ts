@@ -8,6 +8,9 @@ export interface Transaction {
   category_id: string | null;
   category_name: string | null;
   notes: string | null;
+  // The recurring rule that created it; null = added by hand. Optional, since
+  // rows built in the frontend (e.g. right after an edit) may not have it
+  recurring_id?: string | null;
 }
 
 interface TransactionsResponse {

@@ -898,6 +898,8 @@
       "tryAgain": "Încearcă din nou",
       "loadError": "Datele nu au putut fi încărcate.",
       "uncategorized": "Fără categorie",
+      "recurring": "Recurentă",
+      "recurringHint": "Se adaugă automat în fiecare lună",
       "income": "Venituri",
       "expenses": "Cheltuieli",
       "savings": "Economii",
@@ -1002,7 +1004,8 @@
           "dayOfMonth": "Ziua din lună",
           "dayOfMonthPlaceholder": "1",
           "dayOfMonthHint": "Lasă gol pentru ziua 1. În lunile mai scurte, 29–31 devin ultima zi a lunii.",
-          "firstRun": "Prima adăugare automată: {{date}}"
+          "firstRun": "Prima adăugare automată: {{date}}",
+          "alreadyRecurring": "Categoria e deja recurentă. Suma și ziua le modifici din Setări → Categorii."
         },
         "errors": {
           "dayOfMonthInvalid": "Alege o zi între 1 și 31.",
@@ -1022,8 +1025,7 @@
           "categoriesError": "Categoriile nu au putut fi încărcate.",
           "added": "Înregistrarea a fost adăugată!",
           "addError": "Înregistrarea nu a putut fi salvată. Încearcă din nou.",
-          "recurringAdded": "Se va adăuga automat începând cu {{date}}.",
-          "recurringError": "Înregistrarea a fost salvată, dar recurența nu. Încearcă din nou."
+          "recurringAdded": "Se va adăuga automat începând cu {{date}}."
         }
       },
       "items": {
@@ -1392,12 +1394,11 @@
       },
       "categories": {
         "title": "Categorii",
-        "description": "Adaugă, redenumește sau șterge categoriile tale.",
+        "description": "Adaugă, modifică sau șterge categoriile. O categorie poate fi recurentă: se adaugă automat în fiecare lună.",
         "newPlaceholder": "Numele categoriei noi",
         "add": "Adaugă",
         "custom": "Categoriile tale",
         "emptyCustom": "Nu ai nicio categorie.",
-        "rename": "Redenumește",
         "save": "Salvează",
         "cancel": "Anulează",
         "delete": "Șterge",
@@ -1415,7 +1416,20 @@
         "toasts": {
           "added": "Categoria „{{name}}” a fost adăugată.",
           "deleted": "Categoria „{{name}}” a fost ștearsă.",
-          "renamed": "Categoria a fost redenumită în „{{name}}”."
+          "renamed": "Categoria a fost redenumită în „{{name}}”.",
+          "updated": "Categoria „{{name}}” a fost actualizată."
+        },
+        "edit": "Modifică",
+        "editTitle": "Modifică „{{name}}”",
+        "editDescription": "Numele și recurența categoriei. Schimbările de recurență se aplică doar tranzacțiilor viitoare.",
+        "name": "Nume",
+        "recurring": {
+          "hint": "Se adaugă automat în fiecare lună, cu suma și în ziua de mai jos.",
+          "day": "ziua {{day}}",
+          "nextRun": "Următoarea: {{date}}.",
+          "amountError": "Introdu o sumă mai mare decât 0, cu cel mult 2 zecimale.",
+          "saveError": "Recurența nu a putut fi salvată. Încearcă din nou.",
+          "deleteHint": "Recurența ei se oprește; tranzacțiile adăugate deja rămân."
         }
       }
     }

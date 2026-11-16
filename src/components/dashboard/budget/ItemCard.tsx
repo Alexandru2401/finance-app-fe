@@ -23,6 +23,7 @@ import { useEffect, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import { useCurrency } from "@/hooks/useCurrency";
 import { Link } from "react-router";
+import RecurringBadge from "@/components/dashboard/shared/RecurringBadge";
 import type { Section } from "../../../pages/dashboard/BudgetPage";
 import { Button } from "../../ui/button";
 import {
@@ -53,6 +54,7 @@ const toTransaction = (item: BudgetItem): Transaction => ({
   category_id: item.categoryId ?? null,
   category_name: item.category || null,
   notes: item.notes ?? null,
+  recurring_id: item.recurringId ?? null,
 });
 
 interface ItemCardProps {
@@ -194,9 +196,12 @@ export default function ItemCard({ section, onShowForm }: ItemCardProps) {
                     </div>
 
                     <div className="flex min-w-0 flex-col">
-                      <p className="truncate text-sm font-semibold capitalize text-foreground">
-                        {categoryName(item)}
-                      </p>
+                      <div className="flex min-w-0 items-center gap-1.5">
+                        <p className="truncate text-sm font-semibold capitalize text-foreground">
+                          {categoryName(item)}
+                        </p>
+                        {item.recurringId && <RecurringBadge compact />}
+                      </div>
                       {item.date && (
                         <p className="text-xs text-muted-foreground">
                           {formatDate(item.date, i18n.language)}

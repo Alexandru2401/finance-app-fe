@@ -30,6 +30,7 @@ import { Label } from "@/components/ui/label";
 import type { Transaction } from "@/api/transactions";
 import type { Category, UpdateTransactionPayload } from "@/api/budget";
 import NewCategoryField from "@/components/dashboard/shared/NewCategoryField";
+import RecurringBadge from "@/components/dashboard/shared/RecurringBadge";
 import { isValidAmount } from "@/lib/validation";
 import { useDateLocale } from "@/hooks/useDateLocale";
 import { cn } from "@/lib/utils";
@@ -153,8 +154,9 @@ function NotesBody({
     <>
       {/* Only the transaction title (category) and its date */}
       <DialogHeader>
-        <DialogTitle>
+        <DialogTitle className="flex flex-wrap items-center gap-2">
           {tx.category_name ?? t("dashboard.common.uncategorized")}
+          {tx.recurring_id && <RecurringBadge />}
         </DialogTitle>
         <DialogDescription>
           {new Date(tx.date).toLocaleDateString(i18n.language, {

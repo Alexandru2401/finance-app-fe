@@ -63,6 +63,7 @@ function toBudgetItem(t: Transaction): BudgetItem {
     amount: Number(t.amount),
     date: t.date,
     notes: t.notes ?? undefined,
+    recurringId: t.recurring_id ?? undefined,
   };
 }
 

@@ -30,7 +30,11 @@ import BudgetItemSchema, {
   type BudgetItemPayload,
 } from "@/schemas/budget-item.schema";
 import { addNewTransaction, getCategories, type Category } from "@/api/budget";
-import { createRecurring } from "@/api/recurring";
+import {
+  createRecurring,
+  getRecurring,
+  RecurringRequestError,
+} from "@/api/recurring";
 import NewCategoryField from "@/components/dashboard/shared/NewCategoryField";
 import { FEATURES } from "@/lib/features";
 import { firstRunDate } from "@/lib/recurring";
@@ -49,7 +53,7 @@ type FormErrors = {
 };
 
 // The recurring fields as they are when the form opens / after a save
-const EMPTY_RECURRING = { recurring: false, dayOfMonth: "" };
+const emptyRecurring = (recurring: boolean) => ({ recurring, dayOfMonth: "" });
 
 // 1-31 typed in the "day of the month" input, otherwise null (= the 1st)
 const parseDay = (value: string) => {
@@ -67,11 +71,15 @@ const toDateString = (d: Date) => format(d, "yyyy-MM-dd");
 interface BudgetFormProps {
   onCreated?: (type: BudgetItemPayload["type"]) => void;
   onCategoryCreated?: (category: Category) => void;
+  // "Recurring" switched on when the form opens (and after each save), e.g.
+  // when adding from Settings → Recurring
+  defaultRecurring?: boolean;
 }
 
 export default function BudgetForm({
   onCreated,
   onCategoryCreated,
+  defaultRecurring = false,
 }: BudgetFormProps) {
   const { t } = useTranslation();
   const dateLocale = useDateLocale();
@@ -81,7 +89,7 @@ export default function BudgetForm({
     amount: "",
     notes: "",
     date: toDateString(new Date()),
-    ...EMPTY_RECURRING,
+    ...emptyRecurring(defaultRecurring),
   });
 
   const amountRef = useRef<HTMLInputElement>(null);
@@ -127,11 +135,47 @@ export default function BudgetForm({
     };
   }, [formData.type, t]);
 
+  // Categories that already have a recurring rule (at most one per category);
+  // their recurrence is changed from Settings → Categories, not from here.
+  // Fetched again after each save, since a save can add one
+  const [recurringCategoryIds, setRecurringCategoryIds] = useState<Set<string>>(
+    new Set(),
+  );
+  const [recurringReloadKey, setRecurringReloadKey] = useState(0);
+
+  useEffect(() => {
+    if (!FEATURES.recurring) return;
+    let cancelled = false;
+    getRecurring()
+      .then(
+        (list) =>
+          !cancelled &&
+          setRecurringCategoryIds(new Set(list.map((r) => r.category_id))),
+      )
+      // Without the list the switch stays enabled; the backend answers 409
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [recurringReloadKey]);
+
+  const categoryHasRecurring = recurringCategoryIds.has(formData.category);
+  // A category that already recurs cannot get a second rule
+  const recurringOn = formData.recurring && !categoryHasRecurring;
+
   const notesRemaining = NOTES_MAX_LENGTH - formData.notes.length;
   const notesNearLimit = notesRemaining <= NOTES_WARNING_THRESHOLD;
   const selectedDate = formData.date ? parseISO(formData.date) : undefined;
-  // Shown under the recurring fields, so the user knows when it starts
-  const firstRun = parseISO(firstRunDate(parseDay(formData.dayOfMonth)));
+  // Shown under the recurring fields, so the user knows when it starts.
+  // Same as the backend: after today and after this transaction's date, so the
+  // same day is never added twice
+  const today = toDateString(new Date());
+  const firstRun = parseISO(
+    firstRunDate(
+      parseDay(formData.dayOfMonth),
+      formData.date > today ? parseISO(formData.date) : new Date(),
+    ),
+  );
 
   function handleChange(
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -165,7 +209,11 @@ export default function BudgetForm({
     e.preventDefault();
     if (submitting) return;
 
-    const result = BudgetItemSchema.safeParse(formData);
+    // A category that already recurs is saved as a normal transaction
+    const result = BudgetItemSchema.safeParse({
+      ...formData,
+      recurring: recurringOn,
+    });
 
     if (!result.success) {
       const fieldErrors = z.flattenError(result.error).fieldErrors;
@@ -184,31 +232,38 @@ export default function BudgetForm({
     const item = result.data;
     const isRecurring = FEATURES.recurring && item.recurring;
 
+    // Recurring: one request saves the rule and this transaction together
+    // (linked, so it shows the recurring badge); otherwise a normal transaction
+    let recurringStart: string | null = null;
     setSubmitting(true);
     try {
-      await addNewTransaction(item);
-    } catch {
-      toast.error(t("dashboard.budget.form.toasts.addError"));
-      setSubmitting(false);
-      return;
-    }
-
-    // The transaction is saved as a normal one today; the recurrence starts
-    // from the next date. If only this request fails, the transaction stays
-    let recurringStart: string | null = null;
-    if (isRecurring) {
-      try {
-        const recurring = await createRecurring({
+      if (isRecurring) {
+        const { recurring } = await createRecurring({
           type: item.type,
           category_id: item.category,
           amount: item.amount,
           notes: item.notes || undefined,
           day_of_month: item.dayOfMonth,
+          date: item.date,
         });
         recurringStart = recurring.next_run;
-      } catch {
-        toast.error(t("dashboard.budget.form.toasts.recurringError"));
+        setRecurringReloadKey((k) => k + 1);
+      } else {
+        await addNewTransaction(item);
       }
+    } catch (err) {
+      // 409 = the category got a recurring rule meanwhile (e.g. another tab)
+      const taken = err instanceof RecurringRequestError && err.status === 409;
+      toast.error(
+        t(
+          taken
+            ? "dashboard.budget.form.recurring.alreadyRecurring"
+            : "dashboard.budget.form.toasts.addError",
+        ),
+      );
+      if (taken) setRecurringReloadKey((k) => k + 1);
+      setSubmitting(false);
+      return;
     }
 
     toast.success(t("dashboard.budget.form.toasts.added"), {
@@ -228,7 +283,7 @@ export default function BudgetForm({
       amount: "",
       notes: "",
       date: toDateString(new Date()),
-      ...EMPTY_RECURRING,
+      ...emptyRecurring(defaultRecurring),
     }));
     setSubmitting(false);
   }
@@ -420,12 +475,15 @@ export default function BudgetForm({
                   id="recurring-description"
                   className="text-xs text-muted-foreground"
                 >
-                  {t("dashboard.budget.form.recurring.description")}
+                  {categoryHasRecurring
+                    ? t("dashboard.budget.form.recurring.alreadyRecurring")
+                    : t("dashboard.budget.form.recurring.description")}
                 </p>
               </div>
               <Switch
                 id="recurring"
-                checked={formData.recurring}
+                checked={recurringOn}
+                disabled={categoryHasRecurring}
                 onCheckedChange={(checked) => {
                   // Turned off: the day is cleared, nothing recurring is sent
                   setFormData((prev) => ({
@@ -440,7 +498,7 @@ export default function BudgetForm({
               />
             </div>
 
-            {formData.recurring && (
+            {recurringOn && (
               <>
                 <div className="space-y-2">
                   <Label htmlFor="dayOfMonth">
