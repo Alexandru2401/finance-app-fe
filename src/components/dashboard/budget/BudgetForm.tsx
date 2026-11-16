@@ -14,9 +14,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { format } from "date-fns/format";
 import { parseISO } from "date-fns/parseISO";
-import { ChevronDownIcon, Loader2, Plus } from "lucide-react";
+import { ChevronDownIcon, Loader2, Plus, Repeat } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -29,7 +30,10 @@ import BudgetItemSchema, {
   type BudgetItemPayload,
 } from "@/schemas/budget-item.schema";
 import { addNewTransaction, getCategories, type Category } from "@/api/budget";
+import { createRecurring } from "@/api/recurring";
 import NewCategoryField from "@/components/dashboard/shared/NewCategoryField";
+import { FEATURES } from "@/lib/features";
+import { firstRunDate } from "@/lib/recurring";
 
 type BudgetType = BudgetItemInput["type"];
 
@@ -41,6 +45,18 @@ type FormErrors = {
   category?: SchemaErrorKey;
   amount?: SchemaErrorKey;
   notes?: SchemaErrorKey;
+  dayOfMonth?: SchemaErrorKey;
+};
+
+// The recurring fields as they are when the form opens / after a save
+const EMPTY_RECURRING = { recurring: false, dayOfMonth: "" };
+
+// 1-31 typed in the "day of the month" input, otherwise null (= the 1st)
+const parseDay = (value: string) => {
+  const day = Number(value);
+  return value.trim() !== "" && Number.isInteger(day) && day >= 1 && day <= 31
+    ? day
+    : null;
 };
 
 const NOTES_WARNING_THRESHOLD = 100;
@@ -65,6 +81,7 @@ export default function BudgetForm({
     amount: "",
     notes: "",
     date: toDateString(new Date()),
+    ...EMPTY_RECURRING,
   });
 
   const amountRef = useRef<HTMLInputElement>(null);
@@ -73,22 +90,27 @@ export default function BudgetForm({
   const [submitting, setSubmitting] = useState(false);
   const [dateOpen, setDateOpen] = useState(false);
 
-  // Categories for the currently selected type
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [categoriesLoading, setCategoriesLoading] = useState(true);
+  // Categories of the type they were loaded for; while that differs from the
+  // selected type, the new list is still loading
+  const [categoriesResult, setCategoriesResult] = useState<{
+    type: BudgetType;
+    categories: Category[];
+  } | null>(null);
+  const categoriesLoading = categoriesResult?.type !== formData.type;
+  const categories = categoriesLoading
+    ? []
+    : (categoriesResult?.categories ?? []);
   const [newCategoryOpen, setNewCategoryOpen] = useState(false);
 
   // Refetch categories whenever the type changes
   useEffect(() => {
     let cancelled = false;
+    const type = formData.type;
 
-    setCategoriesLoading(true);
-    setCategories([]);
-
-    getCategories(formData.type)
+    getCategories(type)
       .then((data) => {
         if (cancelled) return;
-        setCategories(data);
+        setCategoriesResult({ type, categories: data });
         setFormData((prev) => ({
           ...prev,
           category: data[0]?.category_id ?? "",
@@ -97,9 +119,7 @@ export default function BudgetForm({
       .catch(() => {
         if (cancelled) return;
         toast.error(t("dashboard.budget.form.toasts.categoriesError"));
-      })
-      .finally(() => {
-        if (!cancelled) setCategoriesLoading(false);
+        setCategoriesResult({ type, categories: [] });
       });
 
     return () => {
@@ -110,6 +130,8 @@ export default function BudgetForm({
   const notesRemaining = NOTES_MAX_LENGTH - formData.notes.length;
   const notesNearLimit = notesRemaining <= NOTES_WARNING_THRESHOLD;
   const selectedDate = formData.date ? parseISO(formData.date) : undefined;
+  // Shown under the recurring fields, so the user knows when it starts
+  const firstRun = parseISO(firstRunDate(parseDay(formData.dayOfMonth)));
 
   function handleChange(
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -124,7 +146,9 @@ export default function BudgetForm({
   }
 
   function handleCategoryCreated(category: Category) {
-    setCategories((prev) => [...prev, category]);
+    setCategoriesResult((prev) =>
+      prev ? { ...prev, categories: [...prev.categories, category] } : prev,
+    );
     setFormData((prev) => ({ ...prev, category: category.category_id }));
     setFormErrors((prev) => ({ ...prev, category: undefined }));
     setNewCategoryOpen(false);
@@ -149,6 +173,7 @@ export default function BudgetForm({
         category: fieldErrors.category?.[0] as SchemaErrorKey | undefined,
         amount: fieldErrors.amount?.[0] as SchemaErrorKey | undefined,
         notes: fieldErrors.notes?.[0] as SchemaErrorKey | undefined,
+        dayOfMonth: fieldErrors.dayOfMonth?.[0] as SchemaErrorKey | undefined,
       });
       if (fieldErrors.amount) amountRef.current?.focus();
       return;
@@ -156,25 +181,56 @@ export default function BudgetForm({
 
     setFormErrors({});
 
+    const item = result.data;
+    const isRecurring = FEATURES.recurring && item.recurring;
+
     setSubmitting(true);
     try {
-      await addNewTransaction(result.data);
-
-      toast.success(t("dashboard.budget.form.toasts.added"));
-      onCreated?.(result.data.type);
-
-      setFormData((prev) => ({
-        ...prev,
-        category: categories[0]?.category_id ?? "",
-        amount: "",
-        notes: "",
-        date: toDateString(new Date()),
-      }));
+      await addNewTransaction(item);
     } catch {
       toast.error(t("dashboard.budget.form.toasts.addError"));
-    } finally {
       setSubmitting(false);
+      return;
     }
+
+    // The transaction is saved as a normal one today; the recurrence starts
+    // from the next date. If only this request fails, the transaction stays
+    let recurringStart: string | null = null;
+    if (isRecurring) {
+      try {
+        const recurring = await createRecurring({
+          type: item.type,
+          category_id: item.category,
+          amount: item.amount,
+          notes: item.notes || undefined,
+          day_of_month: item.dayOfMonth,
+        });
+        recurringStart = recurring.next_run;
+      } catch {
+        toast.error(t("dashboard.budget.form.toasts.recurringError"));
+      }
+    }
+
+    toast.success(t("dashboard.budget.form.toasts.added"), {
+      description: recurringStart
+        ? t("dashboard.budget.form.toasts.recurringAdded", {
+            date: format(parseISO(recurringStart), "PPP", {
+              locale: dateLocale,
+            }),
+          })
+        : undefined,
+    });
+    onCreated?.(item.type);
+
+    setFormData((prev) => ({
+      ...prev,
+      category: categories[0]?.category_id ?? "",
+      amount: "",
+      notes: "",
+      date: toDateString(new Date()),
+      ...EMPTY_RECURRING,
+    }));
+    setSubmitting(false);
   }
 
   return (
@@ -347,6 +403,99 @@ export default function BudgetForm({
             </Popover>
           </div>
         </div>
+
+        {/* Recurring: added again automatically every month */}
+        {FEATURES.recurring && (
+          <div className="space-y-4 rounded-lg border p-4">
+            <div className="flex items-start justify-between gap-4">
+              <div className="space-y-1">
+                <Label
+                  htmlFor="recurring"
+                  className="flex items-center gap-1.5"
+                >
+                  <Repeat className="h-4 w-4" aria-hidden="true" />
+                  {t("dashboard.budget.form.recurring.label")}
+                </Label>
+                <p
+                  id="recurring-description"
+                  className="text-xs text-muted-foreground"
+                >
+                  {t("dashboard.budget.form.recurring.description")}
+                </p>
+              </div>
+              <Switch
+                id="recurring"
+                checked={formData.recurring}
+                onCheckedChange={(checked) => {
+                  // Turned off: the day is cleared, nothing recurring is sent
+                  setFormData((prev) => ({
+                    ...prev,
+                    recurring: checked,
+                    dayOfMonth: checked ? prev.dayOfMonth : "",
+                  }));
+                  setFormErrors((prev) => ({ ...prev, dayOfMonth: undefined }));
+                }}
+                aria-describedby="recurring-description"
+                className="cursor-pointer"
+              />
+            </div>
+
+            {formData.recurring && (
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="dayOfMonth">
+                    {t("dashboard.budget.form.recurring.dayOfMonth")}
+                  </Label>
+                  <Input
+                    id="dayOfMonth"
+                    name="dayOfMonth"
+                    type="number"
+                    inputMode="numeric"
+                    min="1"
+                    max="31"
+                    step="1"
+                    value={formData.dayOfMonth}
+                    onChange={handleChange}
+                    onKeyDown={(e) =>
+                      [".", ",", "e", "E", "-", "+"].includes(e.key) &&
+                      e.preventDefault()
+                    }
+                    placeholder={t(
+                      "dashboard.budget.form.recurring.dayOfMonthPlaceholder",
+                    )}
+                    aria-invalid={!!formErrors.dayOfMonth}
+                    aria-describedby={
+                      formErrors.dayOfMonth
+                        ? "dayOfMonth-error dayOfMonth-hint"
+                        : "dayOfMonth-hint"
+                    }
+                  />
+                  <p
+                    id="dayOfMonth-hint"
+                    className="text-xs text-muted-foreground"
+                  >
+                    {t("dashboard.budget.form.recurring.dayOfMonthHint")}
+                  </p>
+                  {formErrors.dayOfMonth && (
+                    <p
+                      id="dayOfMonth-error"
+                      role="alert"
+                      className="text-sm text-destructive"
+                    >
+                      {t(formErrors.dayOfMonth)}
+                    </p>
+                  )}
+                </div>
+
+                <p className="text-sm text-muted-foreground" aria-live="polite">
+                  {t("dashboard.budget.form.recurring.firstRun", {
+                    date: format(firstRun, "PPP", { locale: dateLocale }),
+                  })}
+                </p>
+              </>
+            )}
+          </div>
+        )}
 
         {/* Notes */}
         <div className="space-y-2">

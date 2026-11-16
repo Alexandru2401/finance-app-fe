@@ -13,7 +13,10 @@ export const FEATURES = {
   // Stripe: pay page, upgrade plans page, paid plan buttons, "Upgrade" in the avatar menu
   payments: false,
   // Analytics page (static data for now)
-  analytics: false,
+  analytics: true,
   // Insights + ExtraInfo on the Budget page (static data for now)
   budgetInsights: true,
+  // "Recurring" inputs in the add form. POST /recurring is not in the backend
+  // yet (notification.md, R1-R4): set to false before deploying without it
+  recurring: true,
 } as const;

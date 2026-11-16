@@ -994,7 +994,16 @@
         "notesPlaceholder": "Optional notes about this entry...",
         "saving": "Saving...",
         "save": "Save item",
+        "recurring": {
+          "label": "Recurring",
+          "description": "Added automatically every month.",
+          "dayOfMonth": "Day of the month",
+          "dayOfMonthPlaceholder": "1",
+          "dayOfMonthHint": "Leave empty for the 1st. In shorter months, 29–31 become the last day of the month.",
+          "firstRun": "First automatic entry: {{date}}"
+        },
         "errors": {
+          "dayOfMonthInvalid": "Pick a day between 1 and 31.",
           "categoryNameRequired": "Please enter a category name.",
           "categoryExists": "This category already exists.",
           "categoryRequired": "Category is required.",
@@ -1010,7 +1019,9 @@
           "categoryError": "Could not create category.",
           "categoriesError": "Could not load categories.",
           "added": "Budget item added successfully!",
-          "addError": "Could not save the item. Please try again."
+          "addError": "Could not save the item. Please try again.",
+          "recurringAdded": "It will be added automatically starting {{date}}.",
+          "recurringError": "The item was saved, but the recurrence wasn't. Please try again."
         }
       },
       "items": {

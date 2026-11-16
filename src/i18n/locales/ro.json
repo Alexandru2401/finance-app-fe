@@ -996,7 +996,16 @@
         "notesPlaceholder": "Note opționale despre această înregistrare...",
         "saving": "Se salvează...",
         "save": "Salvează",
+        "recurring": {
+          "label": "Recurentă",
+          "description": "Se adaugă automat în fiecare lună.",
+          "dayOfMonth": "Ziua din lună",
+          "dayOfMonthPlaceholder": "1",
+          "dayOfMonthHint": "Lasă gol pentru ziua 1. În lunile mai scurte, 29–31 devin ultima zi a lunii.",
+          "firstRun": "Prima adăugare automată: {{date}}"
+        },
         "errors": {
+          "dayOfMonthInvalid": "Alege o zi între 1 și 31.",
           "categoryNameRequired": "Introdu un nume pentru categorie.",
           "categoryExists": "Această categorie există deja.",
           "categoryRequired": "Categoria este obligatorie.",
@@ -1012,7 +1021,9 @@
           "categoryError": "Categoria nu a putut fi creată.",
           "categoriesError": "Categoriile nu au putut fi încărcate.",
           "added": "Înregistrarea a fost adăugată!",
-          "addError": "Înregistrarea nu a putut fi salvată. Încearcă din nou."
+          "addError": "Înregistrarea nu a putut fi salvată. Încearcă din nou.",
+          "recurringAdded": "Se va adăuga automat începând cu {{date}}.",
+          "recurringError": "Înregistrarea a fost salvată, dar recurența nu. Încearcă din nou."
         }
       },
       "items": {
