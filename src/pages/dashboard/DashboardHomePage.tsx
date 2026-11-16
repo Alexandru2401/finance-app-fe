@@ -18,6 +18,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { getTransactions } from "@/api/transactions";
 import { useAuth } from "@/hooks/useAuth";
+import { useGreeting } from "@/hooks/useGreeting";
 import { DEFAULT_PERIOD, PERIODS, type Period } from "@/lib/periods";
 
 // All-time totals: undefined while loading, null if the request failed
@@ -28,6 +29,9 @@ export default function DashboardHomePage() {
   const [period, setPeriod] = useState<Period>(DEFAULT_PERIOD);
 
   const user = useAuth().user;
+  const name = user?.username || t("dashboard.overview.defaultUser");
+  // "Good morning / afternoon / evening", or "Welcome" on the first visit
+  const greeting = useGreeting();
 
   // Without filters, the transactions endpoint returns the count and net of all
   // transactions; one row is enough to read them
@@ -50,10 +54,16 @@ export default function DashboardHomePage() {
   return (
     <section className="px-4 py-4 max-w-7xl mx-auto">
       <PageHeader
-        title={t("dashboard.overview.welcome", {
-          name: user?.username || t("dashboard.overview.defaultUser"),
-        })}
-        subtitle={t("dashboard.overview.subtitle")}
+        title={
+          greeting.firstVisit
+            ? t("dashboard.overview.greeting.welcome", { name })
+            : t(`dashboard.overview.greeting.${greeting.part}`, { name })
+        }
+        subtitle={
+          greeting.firstVisit
+            ? t("dashboard.overview.greeting.welcomeSubtitle")
+            : t("dashboard.overview.subtitle")
+        }
       >
         <Select
           value={period}

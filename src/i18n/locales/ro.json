@@ -910,7 +910,6 @@
       "tooManyRequests_other": "Prea multe cereri. Încearcă din nou peste {{count}} de minute."
     },
     "overview": {
-      "welcome": "Bine ai revenit, {{name}}!",
       "defaultUser": "Utilizator",
       "subtitle": "Aruncă o privire peste situația ta financiară.",
       "selectPeriod": "Selectează perioada",
@@ -965,6 +964,14 @@
           "expense": "Cheltuială",
           "savings": "Economii"
         }
+      },
+      "greeting": {
+        "morning": "Bună dimineața, {{name}}!",
+        "afternoon": "Bună ziua, {{name}}!",
+        "evening": "Bună seara, {{name}}!",
+        "night": "Noapte bună, {{name}}!",
+        "welcome": "Bine ai venit, {{name}}!",
+        "welcomeSubtitle": "Începe prin a adăuga prima tranzacție; restul se completează pe parcurs."
       }
     },
     "budget": {
@@ -1317,6 +1324,10 @@
         "delete": {
           "label": "Șterge contul",
           "description": "Elimină definitiv contul și toate datele"
+        },
+        "name": {
+          "label": "Schimbă numele",
+          "description": "Numele afișat în aplicație"
         }
       },
       "comingSoon": "În curând",
@@ -1370,6 +1381,14 @@
         "passwordLabel": "Parola curentă",
         "passwordRequired": "Introdu parola.",
         "passwordIncorrect": "Parola este greșită."
+      },
+      "namePanel": {
+        "label": "Nume",
+        "submit": "Salvează numele",
+        "saving": "Se salvează...",
+        "success": "Numele a fost schimbat.",
+        "failed": "Numele nu a putut fi schimbat. Încearcă din nou.",
+        "length": "Numele trebuie să aibă între {{min}} și {{max}} de caractere."
       }
     },
     "settings": {

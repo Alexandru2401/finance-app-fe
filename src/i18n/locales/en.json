@@ -908,7 +908,6 @@
       "tooManyRequests_other": "Too many requests. Try again in {{count}} minutes."
     },
     "overview": {
-      "welcome": "Welcome back, {{name}}!",
       "defaultUser": "User",
       "subtitle": "Take a look over your financial dashboard.",
       "selectPeriod": "Select period",
@@ -963,6 +962,14 @@
           "expense": "Expense",
           "savings": "Savings"
         }
+      },
+      "greeting": {
+        "morning": "Good morning, {{name}}!",
+        "afternoon": "Good afternoon, {{name}}!",
+        "evening": "Good evening, {{name}}!",
+        "night": "Good night, {{name}}!",
+        "welcome": "Welcome, {{name}}!",
+        "welcomeSubtitle": "Start by adding your first transaction; the rest fills in as you go."
       }
     },
     "budget": {
@@ -1314,6 +1321,10 @@
         "delete": {
           "label": "Delete Account",
           "description": "Permanently remove your account and all its data"
+        },
+        "name": {
+          "label": "Change name",
+          "description": "The name shown in the app"
         }
       },
       "comingSoon": "Coming soon",
@@ -1367,6 +1378,14 @@
         "passwordLabel": "Current password",
         "passwordRequired": "Enter your password.",
         "passwordIncorrect": "The password is incorrect."
+      },
+      "namePanel": {
+        "label": "Name",
+        "submit": "Save name",
+        "saving": "Saving...",
+        "success": "Your name was changed.",
+        "failed": "Could not change your name. Please try again.",
+        "length": "The name must be between {{min}} and {{max}} characters."
       }
     },
     "settings": {

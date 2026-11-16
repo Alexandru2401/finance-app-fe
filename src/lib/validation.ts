@@ -3,6 +3,10 @@
 export const CATEGORY_NAME_MIN = 2;
 export const CATEGORY_NAME_MAX = 50;
 
+// The name of the user (auth.controller.js, isValidLength)
+export const USERNAME_MIN = 2;
+export const USERNAME_MAX = 150;
+
 // The largest value of the numeric(12,2) amount columns
 export const MAX_AMOUNT = 9_999_999_999.99;
 

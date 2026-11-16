@@ -1,5 +1,6 @@
 import UserAvatar from "@/components/dashboard/shared/UserAvatar";
 import DangerActionPanel from "@/components/dashboard/profile/DangerActionPanel";
+import ChangeNamePanel from "@/components/dashboard/profile/ChangeNamePanel";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,6 +19,7 @@ import {
   Lock,
   LogOut,
   Mail,
+  PenLine,
   RefreshCw,
   Settings,
   SlidersHorizontal,
@@ -45,9 +47,17 @@ const PLANS = ["free", "pro", "business"] as const;
 type Plan = (typeof PLANS)[number];
 const isPlan = (value: unknown): value is Plan => PLANS.includes(value as Plan);
 
-type ActionId = "plan" | "email" | "password" | "reset" | "delete" | null;
+type ActionId =
+  "name" | "plan" | "email" | "password" | "reset" | "delete" | null;
 
 const actions = [
+  {
+    id: "name",
+    // Label and description: dashboard.profile.actions.<key>
+    key: "name",
+    icon: PenLine,
+    danger: false,
+  },
   {
     id: "plan",
     // Label and description: dashboard.profile.actions.<key>
@@ -408,6 +418,8 @@ function ActionPanel({ id, user }: { id: ActionId; user: User }) {
         <ProfileBtn label={t("dashboard.profile.emailPanel.submit")} />
       </div>
     );
+
+  if (id === "name") return <ChangeNamePanel />;
 
   if (id === "password") return <ChangePasswordPanel />;
 
