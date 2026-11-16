@@ -2,8 +2,9 @@
 // false the feature is hidden (or shown as "Coming soon"), so nothing in the
 // app pretends to work. Set it to true once the backend route is ready.
 export const FEATURES = {
-  // GET /search?q= (api/search.ts still returns dummy data)
-  globalSearch: false,
+  // Global search (Ctrl+K): pages, actions, transactions and categories, on the
+  // existing routes (api/search.ts)
+  globalSearch: true,
   // GET /roadmap/votes, POST + DELETE /roadmap/:id/vote
   roadmapVotes: false,
   // POST /feedback (the form on the Roadmap page)

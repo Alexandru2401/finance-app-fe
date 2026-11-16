@@ -1249,13 +1249,13 @@
     },
     "search": {
       "title": "Search",
-      "hint": "Search transactions, categories or pages",
-      "placeholder": "Search transactions, categories or pages...",
+      "hint": "Search pages, actions, transactions or categories",
+      "placeholder": "Search pages, actions, transactions, categories or an amount...",
       "empty": "No results for “{{query}}”",
-      "error": "Search failed. Please try again.",
-      "custom": "Custom",
+      "error": "Could not search the transactions.",
       "groups": {
         "pages": "Pages",
+        "actions": "Actions",
         "transactions": "Transactions",
         "categories": "Categories"
       },
@@ -1268,6 +1268,50 @@
         "navigate": "to navigate",
         "select": "to select",
         "close": "to close"
+      },
+      "pageKeywords": {
+        "overview": "home dashboard summary balance",
+        "budget": "budget targets month",
+        "transactions": "transactions expenses income savings history list",
+        "analytics": "analytics charts stats score health reports",
+        "profile": "account password email name avatar",
+        "settings": "settings preferences currency language theme categories",
+        "notifications": "notifications alerts bell"
+      },
+      "actions": {
+        "addTransaction": {
+          "label": "Add transaction",
+          "keywords": "new add expense income saving"
+        },
+        "categories": {
+          "label": "Manage categories",
+          "keywords": "category recurring"
+        },
+        "currency": {
+          "label": "Change currency",
+          "keywords": "currency money ron eur euro usd dollar"
+        },
+        "language": {
+          "label": "Change language",
+          "keywords": "language romanian english"
+        },
+        "theme": {
+          "toDark": "Switch to dark theme",
+          "toLight": "Switch to light theme",
+          "keywords": "theme dark light mode"
+        },
+        "changeName": {
+          "label": "Change name",
+          "keywords": "name profile"
+        },
+        "changePassword": {
+          "label": "Change password",
+          "keywords": "password security"
+        },
+        "export": {
+          "label": "Export transactions (CSV)",
+          "keywords": "export download csv excel"
+        }
       }
     },
     "profileBadge": {

@@ -34,7 +34,7 @@ import {
   type ComponentProps,
   type FormEvent,
 } from "react";
-import { Link, useNavigate } from "react-router";
+import { Link, useNavigate, useSearchParams } from "react-router";
 import { useTranslation } from "react-i18next";
 
 import { logoutUser, getUserInfo, updatePassword } from "@/api/user";
@@ -124,7 +124,12 @@ function formatMemberSince(createdAt?: string, locale?: string) {
 }
 
 export default function ProfilePage() {
-  const [openSection, setOpenSection] = useState<ActionId>(null);
+  // ?action=name | password (the global search) opens that panel
+  const [searchParams] = useSearchParams();
+  const [openSection, setOpenSection] = useState<ActionId>(() => {
+    const action = searchParams.get("action");
+    return action === "name" || action === "password" ? action : null;
+  });
   const { user, setUser, loading } = useAuth();
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();

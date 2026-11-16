@@ -1252,13 +1252,13 @@
     },
     "search": {
       "title": "Căutare",
-      "hint": "Caută tranzacții, categorii sau pagini",
-      "placeholder": "Caută tranzacții, categorii sau pagini...",
+      "hint": "Caută pagini, acțiuni, tranzacții sau categorii",
+      "placeholder": "Caută pagini, acțiuni, tranzacții, categorii sau o sumă...",
       "empty": "Niciun rezultat pentru „{{query}}”",
-      "error": "Căutarea a eșuat. Încearcă din nou.",
-      "custom": "Personalizată",
+      "error": "Tranzacțiile nu au putut fi căutate.",
       "groups": {
         "pages": "Pagini",
+        "actions": "Acțiuni",
         "transactions": "Tranzacții",
         "categories": "Categorii"
       },
@@ -1271,6 +1271,50 @@
         "navigate": "navighează",
         "select": "selectează",
         "close": "închide"
+      },
+      "pageKeywords": {
+        "overview": "acasa dashboard sumar sold rezumat",
+        "budget": "buget tinte luna",
+        "transactions": "tranzactii cheltuieli venituri economii istoric lista",
+        "analytics": "analize grafice statistici scor sanatate rapoarte",
+        "profile": "cont parola email nume avatar",
+        "settings": "setari preferinte moneda limba tema categorii",
+        "notifications": "notificari alerte clopotel"
+      },
+      "actions": {
+        "addTransaction": {
+          "label": "Adaugă tranzacție",
+          "keywords": "nou noua adauga cheltuiala venit economie"
+        },
+        "categories": {
+          "label": "Gestionează categoriile",
+          "keywords": "categorie recurente recurenta"
+        },
+        "currency": {
+          "label": "Schimbă moneda",
+          "keywords": "moneda valuta lei ron euro eur dolar usd"
+        },
+        "language": {
+          "label": "Schimbă limba",
+          "keywords": "limba romana engleza english"
+        },
+        "theme": {
+          "toDark": "Treci pe tema întunecată",
+          "toLight": "Treci pe tema luminoasă",
+          "keywords": "tema dark light intunecata luminoasa mod"
+        },
+        "changeName": {
+          "label": "Schimbă numele",
+          "keywords": "nume profil"
+        },
+        "changePassword": {
+          "label": "Schimbă parola",
+          "keywords": "parola securitate"
+        },
+        "export": {
+          "label": "Exportă tranzacțiile (CSV)",
+          "keywords": "export descarca csv excel"
+        }
       }
     },
     "profileBadge": {

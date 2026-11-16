@@ -28,13 +28,29 @@ import PublicRootLayout from "./layout/PublicRootLayout";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/context/AuthProvider";
 import ErrorBoundary from "./components/dashboard/shared/ErrorBoundary";
+import RemountOnSearch from "./components/dashboard/shared/RemountOnSearch";
 import UserInfoForm from "./components/public/auth/userInfoForm";
 
 const dashboardRoutes = [
   { index: true, element: <DashboardHomePage /> },
   { path: "budget", element: <BudgetPage /> },
-  { path: "transactions", element: <TransactionsPage /> },
-  { path: "profile", element: <ProfilePage /> },
+  // Mounted again on a global search result (RemountOnSearch)
+  {
+    path: "transactions",
+    element: (
+      <RemountOnSearch>
+        <TransactionsPage />
+      </RemountOnSearch>
+    ),
+  },
+  {
+    path: "profile",
+    element: (
+      <RemountOnSearch>
+        <ProfilePage />
+      </RemountOnSearch>
+    ),
+  },
   ...(FEATURES.analytics
     ? [{ path: "analytics", element: <AnalyticsPage /> }]
     : []),

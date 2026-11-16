@@ -20,7 +20,8 @@ import {
 } from "@/components/dashboard/transactions/filters";
 
 import { useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "react-router";
+import { useLocation, useSearchParams } from "react-router";
+import type { SearchNavigationState } from "@/components/dashboard/shared/RemountOnSearch";
 import { useTranslation } from "react-i18next";
 import {
   exportTransactions,
@@ -86,7 +87,10 @@ export default function TransactionsPage() {
   const [failedKey, setFailedKey] = useState<string | null>(null);
   // Bumped after a delete so the current page is fetched again
   const [refreshKey, setRefreshKey] = useState(0);
-  const [showAddForm, setShowAddForm] = useState(false);
+  // ?add=1 (the "Add transaction" action of the global search) opens the form
+  const [showAddForm, setShowAddForm] = useState(
+    () => searchParams.get("add") === "1",
+  );
   const [exporting, setExporting] = useState(false);
 
   useEffect(() => {
@@ -156,10 +160,18 @@ export default function TransactionsPage() {
   );
 
   // Filters -> URL; replace, so every change does not add a history entry.
-  // The debounced search is used, so the URL does not change on every key
+  // The debounced search is used, so the URL does not change on every key.
+  // The global search nonce is kept in the navigation state: dropping it would
+  // mount the page again (RemountOnSearch). Only the number is a dependency;
+  // the state object is a new copy after every URL change
+  const searchNonce = (useLocation().state as SearchNavigationState | null)
+    ?.searchNonce;
   useEffect(() => {
-    setSearchParams(filtersToParams({ ...filters, search }), { replace: true });
-  }, [filters, search, setSearchParams]);
+    setSearchParams(filtersToParams({ ...filters, search }), {
+      replace: true,
+      state: searchNonce === undefined ? undefined : { searchNonce },
+    });
+  }, [filters, search, setSearchParams, searchNonce]);
 
   const request = useMemo(
     () => ({ ...params, page, limit: PAGE_SIZE }),
