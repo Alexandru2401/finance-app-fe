@@ -1,15 +1,5 @@
 import UserAvatar from "@/components/dashboard/shared/UserAvatar";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+import DangerActionPanel from "@/components/dashboard/profile/DangerActionPanel";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -89,7 +79,6 @@ const actions = [
     key: "reset",
     icon: RefreshCw,
     danger: true,
-    comingSoon: true,
   },
   {
     id: "delete",
@@ -97,7 +86,6 @@ const actions = [
     key: "delete",
     icon: Trash2,
     danger: true,
-    comingSoon: true,
   },
 ] as const;
 
@@ -423,95 +411,9 @@ function ActionPanel({ id, user }: { id: ActionId; user: User }) {
 
   if (id === "password") return <ChangePasswordPanel />;
 
-  if (id === "reset")
-    return (
-      <div className="space-y-3">
-        <p className="text-xs text-muted-foreground">
-          {t("dashboard.profile.resetPanel.textBefore")}
-          <span className="text-foreground font-medium">
-            {t("dashboard.profile.resetPanel.textHighlight")}
-          </span>
-          {t("dashboard.profile.resetPanel.textAfter")}
-        </p>
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <Button
-              size="sm"
-              variant="outline"
-              className="border-finance-danger/40 text-finance-danger hover:bg-finance-danger-bg hover:text-finance-danger hover:border-finance-danger/60"
-            >
-              {t("dashboard.profile.resetPanel.button")}
-            </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>
-                {t("dashboard.profile.resetPanel.title")}
-              </AlertDialogTitle>
-              <AlertDialogDescription>
-                {t("dashboard.profile.resetPanel.description")}
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>
-                {t("dashboard.profile.resetPanel.cancel")}
-              </AlertDialogCancel>
-              <AlertDialogAction
-                variant="destructive"
-                className="bg-finance-danger hover:bg-finance-danger/90 text-white border-0"
-              >
-                {t("dashboard.profile.resetPanel.confirm")}
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-      </div>
-    );
+  if (id === "reset") return <DangerActionPanel kind="reset" />;
 
-  if (id === "delete")
-    return (
-      <div className="space-y-3">
-        <p className="text-xs text-muted-foreground">
-          {t("dashboard.profile.deletePanel.textBefore")}
-          <span className="text-foreground font-medium">
-            {t("dashboard.profile.deletePanel.textHighlight")}
-          </span>
-          {t("dashboard.profile.deletePanel.textAfter")}
-        </p>
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <Button
-              size="sm"
-              variant="outline"
-              className="border-finance-danger/40 text-finance-danger hover:bg-finance-danger-bg hover:text-finance-danger hover:border-finance-danger/60"
-            >
-              {t("dashboard.profile.deletePanel.button")}
-            </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>
-                {t("dashboard.profile.deletePanel.title")}
-              </AlertDialogTitle>
-              <AlertDialogDescription>
-                {t("dashboard.profile.deletePanel.description")}
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>
-                {t("dashboard.profile.deletePanel.cancel")}
-              </AlertDialogCancel>
-              <AlertDialogAction
-                variant="destructive"
-                className="bg-finance-danger hover:bg-finance-danger/90 text-white border-0"
-              >
-                {t("dashboard.profile.deletePanel.confirm")}
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-      </div>
-    );
+  if (id === "delete") return <DangerActionPanel kind="delete" />;
 
   return null;
 }

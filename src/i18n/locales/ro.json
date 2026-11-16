@@ -1310,11 +1310,11 @@
         },
         "reset": {
           "label": "Resetează datele",
-          "description": "Șterge definitiv toate tranzacțiile tale"
+          "description": "Șterge tranzacțiile, țintele și recurențele; contul rămâne"
         },
         "delete": {
           "label": "Șterge contul",
-          "description": "Elimină definitiv contul tău"
+          "description": "Elimină definitiv contul și toate datele"
         }
       },
       "comingSoon": "În curând",
@@ -1337,14 +1337,16 @@
         "submitting": "Se salvează..."
       },
       "resetPanel": {
-        "textBefore": "Această acțiune va șterge definitiv ",
-        "textHighlight": "toate tranzacțiile, bugetele și categoriile tale",
-        "textAfter": ". Contul tău va rămâne activ.",
+        "textBefore": "Se șterg definitiv ",
+        "textHighlight": "toate tranzacțiile, țintele, tranzacțiile recurente, notificările și categoriile tale",
+        "textAfter": ". Primești din nou categoriile de pornire, iar contul și setările rămân.",
         "button": "Resetează toate datele",
         "title": "Resetezi toate datele?",
-        "description": "Această acțiune nu poate fi anulată. Toate tranzacțiile, bugetele și categoriile tale vor fi șterse definitiv.",
+        "description": "Acțiunea nu poate fi anulată. Introdu parola ca să confirmi.",
         "cancel": "Anulează",
-        "confirm": "Da, resetează tot"
+        "confirm": "Da, resetează tot",
+        "success": "Datele au fost resetate. Ai din nou categoriile de pornire.",
+        "failed": "Datele nu au putut fi resetate. Încearcă din nou."
       },
       "deletePanel": {
         "textBefore": "Contul tău și ",
@@ -1352,13 +1354,20 @@
         "textAfter": " vor fi eliminate definitiv. Acțiunea nu poate fi anulată.",
         "button": "Șterge contul meu",
         "title": "Ștergi contul?",
-        "description": "Acțiunea este definitivă. Profilul, datele și abonamentul tău vor fi șterse imediat și ireversibil.",
+        "description": "Contul, toate datele și sesiunile de pe celelalte dispozitive se șterg imediat și ireversibil. Introdu parola ca să confirmi.",
         "cancel": "Anulează",
-        "confirm": "Da, șterge contul"
+        "confirm": "Da, șterge contul",
+        "success": "Contul a fost șters.",
+        "failed": "Contul nu a putut fi șters. Încearcă din nou."
       },
       "preferencesLink": {
         "label": "Preferințe și categorii",
         "description": "Monedă, limbă, temă și categoriile tale"
+      },
+      "danger": {
+        "passwordLabel": "Parola curentă",
+        "passwordRequired": "Introdu parola.",
+        "passwordIncorrect": "Parola este greșită."
       }
     },
     "settings": {

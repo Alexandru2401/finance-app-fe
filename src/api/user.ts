@@ -1,7 +1,7 @@
 import type { User } from "@/context/AuthContext";
 import type { Currency } from "@/lib/format";
 import type { Language } from "@/i18n";
-import { post, get, patch } from "./client";
+import { post, get, patch, del } from "./client";
 
 interface AuthResponse {
   // Errors are { success: false, message }
@@ -69,7 +69,22 @@ async function updatePassword(currentPassword: string, newPassword: string) {
   return response;
 }
 
+// 204 on success. Deletes transactions, targets, recurring items, notifications
+// and categories, then adds back the starter categories; the account stays.
+// A wrong password is a 400 with { message: "Password is incorrect" }
+async function resetUserData(password: string) {
+  return del<AuthResponse | null>("/auth/data", { password });
+}
+
+// 204 on success: the account and all its data are deleted and the session
+// cookies are cleared. A wrong password is a 400 { message: "Password is incorrect" }
+async function deleteAccount(password: string) {
+  return del<AuthResponse | null>("/auth/account", { password });
+}
+
 export {
+  resetUserData,
+  deleteAccount,
   updatePassword,
   loginUser,
   createUser,

@@ -1307,11 +1307,11 @@
         },
         "reset": {
           "label": "Reset Data",
-          "description": "Permanently delete all your transactions"
+          "description": "Delete transactions, targets and recurring items; the account stays"
         },
         "delete": {
           "label": "Delete Account",
-          "description": "Permanently remove your account"
+          "description": "Permanently remove your account and all its data"
         }
       },
       "comingSoon": "Coming soon",
@@ -1334,14 +1334,16 @@
         "submitting": "Saving..."
       },
       "resetPanel": {
-        "textBefore": "This will permanently delete ",
-        "textHighlight": "all your transactions, budgets, and categories",
-        "textAfter": ". Your account will remain active.",
+        "textBefore": "This permanently deletes ",
+        "textHighlight": "all your transactions, targets, recurring transactions, notifications and categories",
+        "textAfter": ". You get the starter categories again; your account and settings stay.",
         "button": "Reset All Data",
         "title": "Reset all data?",
-        "description": "This action cannot be undone. All your transactions, budgets and categories will be permanently deleted.",
+        "description": "This cannot be undone. Enter your password to confirm.",
         "cancel": "Cancel",
-        "confirm": "Yes, Reset Everything"
+        "confirm": "Yes, Reset Everything",
+        "success": "Your data was reset. The starter categories are back.",
+        "failed": "Could not reset your data. Please try again."
       },
       "deletePanel": {
         "textBefore": "Your account and ",
@@ -1349,13 +1351,20 @@
         "textAfter": " will be permanently removed. This cannot be undone.",
         "button": "Delete My Account",
         "title": "Delete your account?",
-        "description": "This is permanent. Your profile, data and subscription will be immediately and irreversibly deleted.",
+        "description": "Your account, all your data and the sessions on your other devices are deleted immediately and permanently. Enter your password to confirm.",
         "cancel": "Cancel",
-        "confirm": "Yes, Delete Account"
+        "confirm": "Yes, Delete Account",
+        "success": "Your account was deleted.",
+        "failed": "Could not delete your account. Please try again."
       },
       "preferencesLink": {
         "label": "Preferences & categories",
         "description": "Currency, language, theme and your categories"
+      },
+      "danger": {
+        "passwordLabel": "Current password",
+        "passwordRequired": "Enter your password.",
+        "passwordIncorrect": "The password is incorrect."
       }
     },
     "settings": {
