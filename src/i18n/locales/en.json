@@ -1534,13 +1534,6 @@
           "title": "Added \"{{category}}\"",
           "description": "{{amount}} · {{date}} · added automatically"
         },
-        "recurringUpcoming": {
-          "title": "Coming up: \"{{category}}\"",
-          "description": "{{amount}} is added automatically on {{date}}"
-        },
-        "recurringPaused": {
-          "title": "The recurrence \"{{category}}\" was stopped"
-        },
         "unknown": "New notification"
       },
       "newCount_one": "{{count}} new",

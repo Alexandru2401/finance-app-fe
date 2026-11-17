@@ -17,7 +17,7 @@ Toate cererile trimit `credentials: "include"` (cookie de sesiune) și `Content-
 | GET    | `/auth/user-info` | —                                                                                                               | `{ success, message, user? }`              |
 | PATCH  | `/auth/user-info` | `{ username, currency }`                                                                                        | `{ success, message, user? }`              |
 
-`user`: `{ user_id, username, email, plan_type, currency, is_active, created_at }`
+`user`: `{ user_id, username, email, plan_type, currency, language, is_active, created_at, has_completed_onboarding, completed_tours }` (`is_active` lipsește din răspunsul la `PATCH`). Parola: min 8 caractere, max 72 bytes; `username`: 2–150 caractere.
 
 ## Categorii — `src/api/budget.ts`
 

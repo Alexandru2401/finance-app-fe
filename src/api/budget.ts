@@ -3,7 +3,7 @@ import type { BudgetItemPayload } from "@/schemas/budget-item.schema";
 import { DEFAULT_PERIOD, periodMonth } from "@/lib/periods";
 
 export interface BudgetItem {
-  id: string;
+  item_id: string;
   type: BudgetType;
   category: string;
   categoryId?: string;
@@ -33,7 +33,7 @@ interface CategoryResponse {
   category: Category;
   message?: string;
 }
-export type NewBudgetItem = Omit<BudgetItem, "id">;
+export type NewBudgetItem = Omit<BudgetItem, "item_id">;
 
 async function getCategories(type?: BudgetType): Promise<Category[]> {
   const query = type ? `?type=${type}` : "";
@@ -165,7 +165,8 @@ export interface BudgetTarget {
 }
 
 export interface MonthlyBudgetTarget extends BudgetTarget {
-  id: string;
+  // null when the month inherits an earlier target
+  id: string | null;
   month: string;
   inheritedFrom: string | null;
 }
@@ -180,7 +181,7 @@ type ApiBudgetTarget = {
 
 // GET target sends the net as "netBalance", the summary sends it as "net"
 type ApiMonthlyTarget = ApiBudgetTarget & {
-  id: string;
+  id: string | null;
   month: string;
   inheritedFrom: string | null;
   netBalance: ApiNumber;

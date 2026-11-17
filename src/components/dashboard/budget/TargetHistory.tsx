@@ -184,7 +184,7 @@ export default function TargetHistory() {
           </TableHeader>
           <TableBody>
             {rows.map(({ target, summary }) => (
-              <TableRow key={target.id}>
+              <TableRow key={target.month}>
                 <TableCell className="font-medium">
                   {formatMonth(target.month, i18n.language)}
                 </TableCell>

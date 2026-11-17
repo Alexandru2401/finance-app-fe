@@ -34,6 +34,7 @@ import RecurringBadge from "@/components/dashboard/shared/RecurringBadge";
 import { isValidAmount } from "@/lib/validation";
 import { useDateLocale } from "@/hooks/useDateLocale";
 import { cn } from "@/lib/utils";
+import { NOTES_MAX_LENGTH } from "@/schemas/budget-item.schema";
 import { TYPE_STYLES } from "./styles";
 
 type TxType = Transaction["type"];
@@ -173,7 +174,7 @@ function NotesBody({
           placeholder={t("dashboard.transactions.edit.notesPlaceholder")}
           aria-label={t("dashboard.transactions.table.notes")}
           className={cn(textareaClass, "min-h-32")}
-          maxLength={500}
+          maxLength={NOTES_MAX_LENGTH}
         />
       ) : (
         <div className="rounded-lg bg-muted/40 p-3">
@@ -483,7 +484,7 @@ function EditForm({
           onChange={(e) => setNotes(e.target.value)}
           placeholder={t("dashboard.transactions.edit.notesPlaceholder")}
           className={textareaClass}
-          maxLength={500}
+          maxLength={NOTES_MAX_LENGTH}
         />
       </div>
 

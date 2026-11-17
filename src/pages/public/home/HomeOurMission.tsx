@@ -55,7 +55,7 @@ export default function OurMission() {
                 asChild
                 className="w-fit bg-amber-500 text-black hover:bg-finance-warning/90"
               >
-                <Link to="/signup">{t("home.mission.personal.cta")}</Link>
+                <Link to="/signin">{t("home.mission.personal.cta")}</Link>
               </Button>
             </CardContent>
           </Card>
@@ -71,7 +71,9 @@ export default function OurMission() {
                 {t("home.mission.business.desc")}
               </p>
               <Button asChild variant="outline" className="w-fit">
-                <Link to="/enterprise">{t("home.mission.business.cta")}</Link>
+                <Link to="/prices/enterprise">
+                  {t("home.mission.business.cta")}
+                </Link>
               </Button>
             </CardContent>
           </Card>

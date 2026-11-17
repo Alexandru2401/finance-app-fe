@@ -1538,13 +1538,6 @@
           "title": "Am adăugat „{{category}}”",
           "description": "{{amount}} · {{date}} · adăugată automat"
         },
-        "recurringUpcoming": {
-          "title": "Urmează „{{category}}”",
-          "description": "{{amount}} se adaugă automat pe {{date}}"
-        },
-        "recurringPaused": {
-          "title": "Recurența „{{category}}” a fost oprită"
-        },
         "unknown": "Notificare nouă"
       },
       "newCount_one": "{{count}} nouă",
