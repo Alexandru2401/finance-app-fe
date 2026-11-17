@@ -972,6 +972,41 @@
         "night": "Noapte bună, {{name}}!",
         "welcome": "Bine ai venit, {{name}}!",
         "welcomeSubtitle": "Începe prin a adăuga prima tranzacție; restul se completează pe parcurs."
+      },
+      "tour": {
+        "start": "Tur ghidat",
+        "back": "Înapoi",
+        "close": "Închide",
+        "last": "Gata",
+        "next": "Următorul",
+        "skip": "Sari peste",
+        "steps": {
+          "period": {
+            "title": "Alege perioada",
+            "content": "Toate cardurile de pe pagină se actualizează după perioada selectată aici."
+          },
+          "netBalance": {
+            "title": "Sold net",
+            "content": "Diferența dintre venituri și cheltuieli în perioada aleasă, plus soldul tău total."
+          },
+          "balance": {
+            "title": "Venituri și cheltuieli",
+            "content": "O privire rapidă asupra banilor intrați și ieșiți."
+          },
+          "spending": {
+            "title": "Unde se duc banii",
+            "content": "Cheltuielile împărțite pe categorii, ca să vezi unde cheltui cel mai mult."
+          },
+          "trend": {
+            "title": "Evoluție în timp",
+            "content": "Graficul arată cum au evoluat cheltuielile de-a lungul perioadei."
+          },
+          "table": {
+            "title": "Tranzacții recente",
+            "content": "Ultimele tranzacții adăugate. De aici poți ajunge rapid la lista completă."
+          }
+        },
+        "progress": "Pasul {{current}} din {{total}}"
       }
     },
     "budget": {

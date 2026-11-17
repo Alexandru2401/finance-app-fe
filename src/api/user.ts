@@ -48,12 +48,14 @@ async function logoutUser() {
 // the response user only has user_id, username, currency, language and
 // has_completed_onboarding. The backend keeps the value of every field that is
 // not sent. completeOnboarding marks the onboarding as finished (needs
-// username and currency in the same request)
+// username and currency in the same request). completeTour marks the
+// Overview guided tour as done (finished or skipped)
 async function addUserInfo(info: {
   username?: string;
   currency?: Currency;
   language?: Language;
   completeOnboarding?: true;
+  completeTour?: true;
 }) {
   const response = await patch<AuthResponse>("/auth/user-info", info);
   return response;

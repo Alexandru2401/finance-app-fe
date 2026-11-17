@@ -14,6 +14,9 @@ export type User = {
   // every dashboard page redirects to /dashboard/user-info.
   // undefined if the backend does not send it yet: no redirect then
   has_completed_onboarding?: boolean;
+  // false until the user finishes or skips the Overview guided tour (it then
+  // starts on its own); undefined if the backend does not send it yet
+  has_completed_tour?: boolean;
 };
 
 export type AuthValue = {

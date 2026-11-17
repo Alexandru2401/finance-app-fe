@@ -12,6 +12,7 @@ import OnboardingCard from "@/components/dashboard/overview/OnboardingCard";
 import OverviewTable from "@/components/dashboard/overview/OverviewTable";
 import SpendingOverview from "@/components/dashboard/overview/SpendingOverview";
 import SpendingTrendingChart from "@/components/dashboard/overview/TrendChart";
+import OverviewTour from "@/components/dashboard/overview/OverviewTour";
 import PageHeader from "@/components/dashboard/shared/PageHeader";
 
 import { useEffect, useState } from "react";
@@ -65,11 +66,13 @@ export default function DashboardHomePage() {
             : t("dashboard.overview.subtitle")
         }
       >
+        <OverviewTour />
         <Select
           value={period}
           onValueChange={(value) => setPeriod(value as Period)}
         >
           <SelectTrigger
+            data-tour="period"
             className="w-40"
             aria-label={t("dashboard.overview.selectPeriod")}
           >
@@ -90,21 +93,32 @@ export default function DashboardHomePage() {
       {allTime?.count === 0 && <OnboardingCard />}
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-6">
-        <NetBalance
-          period={period}
-          totalBalance={
-            allTime === undefined ? undefined : (allTime?.balance ?? null)
-          }
-        />
+        {/* Wrappers carry the tour targets (data-tour) */}
+        <div data-tour="netBalance" className="col-span-1 md:col-span-2 grid">
+          <NetBalance
+            period={period}
+            totalBalance={
+              allTime === undefined ? undefined : (allTime?.balance ?? null)
+            }
+          />
+        </div>
         <div className="col-span-1 md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
-          <BalanceOverview period={period} />
-          <SpendingOverview period={period} />
+          <div data-tour="balance" className="grid">
+            <BalanceOverview period={period} />
+          </div>
+          <div data-tour="spending" className="grid">
+            <SpendingOverview period={period} />
+          </div>
         </div>
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <SpendingTrendingChart period={period} />
-        <OverviewTable />
+        <div data-tour="trend" className="grid">
+          <SpendingTrendingChart period={period} />
+        </div>
+        <div data-tour="table" className="grid">
+          <OverviewTable />
+        </div>
       </div>
     </section>
   );

@@ -970,6 +970,41 @@
         "night": "Good night, {{name}}!",
         "welcome": "Welcome, {{name}}!",
         "welcomeSubtitle": "Start by adding your first transaction; the rest fills in as you go."
+      },
+      "tour": {
+        "start": "Guided tour",
+        "back": "Back",
+        "close": "Close",
+        "last": "Done",
+        "next": "Next",
+        "skip": "Skip",
+        "steps": {
+          "period": {
+            "title": "Pick a period",
+            "content": "Every card on this page updates to the period you select here."
+          },
+          "netBalance": {
+            "title": "Net balance",
+            "content": "The difference between income and expenses in the selected period, plus your total balance."
+          },
+          "balance": {
+            "title": "Income and expenses",
+            "content": "A quick look at the money coming in and going out."
+          },
+          "spending": {
+            "title": "Where your money goes",
+            "content": "Expenses split by category, so you can see where you spend the most."
+          },
+          "trend": {
+            "title": "Trend over time",
+            "content": "The chart shows how your spending evolved over the period."
+          },
+          "table": {
+            "title": "Recent transactions",
+            "content": "Your latest transactions. From here you can jump to the full list."
+          }
+        },
+        "progress": "Step {{current}} of {{total}}"
       }
     },
     "budget": {
