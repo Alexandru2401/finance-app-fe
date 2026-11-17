@@ -207,7 +207,10 @@ export default function TransactionsTable({
 
   return (
     <>
-      <div className="w-full overflow-x-auto rounded-md border bg-card">
+      <div
+        data-tour="table"
+        className="w-full overflow-x-auto rounded-md border bg-card"
+      >
         <Table>
           <TableCaption className="sr-only">
             {t("dashboard.transactions.table.caption")}

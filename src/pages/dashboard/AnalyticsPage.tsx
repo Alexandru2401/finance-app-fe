@@ -13,6 +13,9 @@ import AnalyticsPeriodPicker from "@/components/dashboard/analytics/AnalyticsPer
 import BudgetHealth from "@/components/dashboard/analytics/BudgetHealth";
 import ExpensesInfo from "@/components/dashboard/analytics/ExpensesInfo";
 import PageHeader from "@/components/dashboard/shared/PageHeader";
+import PageTour, {
+  type TourStep,
+} from "@/components/dashboard/shared/PageTour";
 import { usePeriodLabel } from "@/hooks/usePeriodLabel";
 import { useRequest } from "@/hooks/useRequest";
 import {
@@ -37,6 +40,13 @@ const unwrap = <T,>(res: { ok: boolean; data: T | null }): T => {
 
 // A preset (this-month ... last-12, all) or a custom range "YYYY-MM:YYYY-MM"
 const DEFAULT_ANALYTICS_PERIOD = "last-6";
+
+const ANALYTICS_TOUR: TourStep<"analytics">[] = [
+  { key: "period" },
+  { key: "insights" },
+  { key: "chart" },
+  { key: "expenses" },
+];
 
 export default function AnalyticsPage() {
   const { t } = useTranslation();
@@ -149,11 +159,17 @@ export default function AnalyticsPage() {
         title={t("dashboard.analytics.title")}
         subtitle={t("dashboard.analytics.subtitle")}
       >
-        <AnalyticsPeriodPicker value={period} onChange={setPeriod} />
+        <PageTour tour="analytics" steps={ANALYTICS_TOUR} />
+        <div data-tour="period">
+          <AnalyticsPeriodPicker value={period} onChange={setPeriod} />
+        </div>
       </PageHeader>
 
       <div className="flex flex-col gap-6">
-        <div className="flex flex-col-reverse gap-6 lg:flex-row lg:items-stretch lg:gap-10">
+        <div
+          data-tour="insights"
+          className="flex flex-col-reverse gap-6 lg:flex-row lg:items-stretch lg:gap-10"
+        >
           <AnalyticsInsight
             change={combine([insightTrend], change)}
             tips={combine([tipTotals, recurring], tips || undefined)}
@@ -161,14 +177,18 @@ export default function AnalyticsPage() {
           <BudgetHealth health={health} />
         </div>
 
-        <AnalyticsChart trend={trend} periodLabel={label(trendPeriod)} />
+        <div data-tour="chart" className="grid">
+          <AnalyticsChart trend={trend} periodLabel={label(trendPeriod)} />
+        </div>
 
-        <ExpensesInfo
-          fixed={combine([recurring], fixed || undefined)}
-          variable={combine([expenses, recurring], variable || undefined)}
-          savings={combine([trend], savings || undefined)}
-          periodLabel={periodLabel}
-        />
+        <div data-tour="expenses" className="grid">
+          <ExpensesInfo
+            fixed={combine([recurring], fixed || undefined)}
+            variable={combine([expenses, recurring], variable || undefined)}
+            savings={combine([trend], savings || undefined)}
+            periodLabel={periodLabel}
+          />
+        </div>
       </div>
     </section>
   );

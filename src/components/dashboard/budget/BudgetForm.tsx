@@ -314,7 +314,7 @@ export default function BudgetForm({
         </div>
 
         {/* Category */}
-        <div className="space-y-2">
+        <div data-tour="formCategory" className="space-y-2">
           <div className="flex items-center justify-between">
             <Label htmlFor="category">
               {t("dashboard.budget.form.category")}
@@ -461,7 +461,10 @@ export default function BudgetForm({
 
         {/* Recurring: added again automatically every month */}
         {FEATURES.recurring && (
-          <div className="space-y-4 rounded-lg border p-4">
+          <div
+            data-tour="formRecurring"
+            className="space-y-4 rounded-lg border p-4"
+          >
             <div className="flex items-start justify-between gap-4">
               <div className="space-y-1">
                 <Label

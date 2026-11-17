@@ -276,7 +276,12 @@ function AddCategoryForm({ type, existing, onCreated }: AddCategoryFormProps) {
   }
 
   return (
-    <form className="mb-4" onSubmit={handleSubmit} noValidate>
+    <form
+      data-tour="categoryAdd"
+      className="mb-4"
+      onSubmit={handleSubmit}
+      noValidate
+    >
       <div className="flex gap-2">
         <Input
           value={name}
@@ -386,7 +391,10 @@ function CategoryRow({
   const active = recurring?.is_active === true;
 
   return (
-    <li className="flex items-center gap-3 rounded-lg border border-border/60 px-3 py-1.5">
+    <li
+      data-tour="categoryRow"
+      className="flex items-center gap-3 rounded-lg border border-border/60 px-3 py-1.5"
+    >
       <div className="rounded-md bg-muted p-1.5 text-muted-foreground">
         <Tag className="size-4" />
       </div>
