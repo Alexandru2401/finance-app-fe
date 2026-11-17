@@ -4,7 +4,7 @@ import { DEFAULT_PERIOD, periodMonth } from "@/lib/periods";
 
 export interface BudgetItem {
   id: string;
-  type: "income" | "expenses" | "savings";
+  type: BudgetType;
   category: string;
   categoryId?: string;
   amount: number;
@@ -14,16 +14,8 @@ export interface BudgetItem {
   recurringId?: string;
 }
 
-type BudgetType = "income" | "expenses" | "savings";
-
-// The backend uses "expense" (singular); the frontend uses "expenses"
-type ApiBudgetType = "income" | "expense" | "savings";
-
-const toApiType = (type: BudgetType): ApiBudgetType =>
-  type === "expenses" ? "expense" : type;
-
-const fromApiType = (type: ApiBudgetType): BudgetType =>
-  type === "expense" ? "expenses" : type;
+// Values of the budget_type enum in the DB
+export type BudgetType = "income" | "expenses" | "savings";
 
 export interface Category {
   category_id: string;
@@ -31,30 +23,23 @@ export interface Category {
   name: string;
 }
 
-type ApiCategory = Omit<Category, "type"> & { type: ApiBudgetType };
-
-const fromApiCategory = (category: ApiCategory): Category => ({
-  ...category,
-  type: fromApiType(category.type),
-});
-
 interface CategoriesResponse {
   success: boolean;
-  categories: ApiCategory[];
+  categories: Category[];
 }
 
 interface CategoryResponse {
   success: boolean;
-  category: ApiCategory;
+  category: Category;
   message?: string;
 }
 export type NewBudgetItem = Omit<BudgetItem, "id">;
 
 async function getCategories(type?: BudgetType): Promise<Category[]> {
-  const query = type ? `?type=${toApiType(type)}` : "";
+  const query = type ? `?type=${type}` : "";
   const response = await get<CategoriesResponse>(`/categories${query}`);
   if (!response.ok) throw new Error("Could not load categories");
-  return response.data.categories.map(fromApiCategory);
+  return response.data.categories;
 }
 
 // Keeps the HTTP status, so callers can tell e.g. 409 (duplicate) from other errors
@@ -74,17 +59,17 @@ async function createCategory(payload: {
   type: BudgetType;
   name: string;
 }): Promise<Category> {
-  const response = await post<CategoryResponse | ApiError>("/categories", {
-    ...payload,
-    type: toApiType(payload.type),
-  });
+  const response = await post<CategoryResponse | ApiError>(
+    "/categories",
+    payload,
+  );
   if (!response.ok || !response.data || !("category" in response.data)) {
     throw new ApiRequestError(
       response.data?.message ?? "Could not create category",
       response.status,
     );
   }
-  return fromApiCategory(response.data.category);
+  return response.data.category;
 }
 
 // PATCH /categories/:id { name } → 200 { category }. Only the name of a custom
@@ -101,7 +86,7 @@ async function renameCategory(id: string, name: string): Promise<Category> {
       response.status,
     );
   }
-  return fromApiCategory(response.data.category);
+  return response.data.category;
 }
 
 // DELETE /categories/:id → 200 { category } with the deleted category.
@@ -115,12 +100,12 @@ async function deleteCategory(id: string): Promise<Category> {
       response.status,
     );
   }
-  return fromApiCategory(response.data.category);
+  return response.data.category;
 }
 
 async function addNewTransaction(item: BudgetItemPayload): Promise<void> {
   const response = await post<{ message?: string }>("/transactions", {
-    type: toApiType(item.type),
+    type: item.type,
     category_id: item.category,
     amount: item.amount,
     date: item.date,
@@ -132,8 +117,8 @@ async function addNewTransaction(item: BudgetItemPayload): Promise<void> {
 }
 
 export interface UpdateTransactionPayload {
-  // Backend type; the category must belong to it (400 otherwise)
-  type?: ApiBudgetType;
+  // The category must belong to this type (400 otherwise)
+  type?: BudgetType;
   amount?: number;
   date?: string;
   category_id?: string;
@@ -430,7 +415,7 @@ async function getCategoryTotals(
   period: string = DEFAULT_PERIOD,
 ) {
   const response = await get<CategoryTotalsResponse>(
-    `/budget/by-category?type=${toApiType(type)}&period=${period}`,
+    `/budget/by-category?type=${type}&period=${period}`,
   );
 
   return {

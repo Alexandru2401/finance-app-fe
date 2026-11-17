@@ -77,7 +77,7 @@ const TYPE_ICON = {
     icon: ArrowDownLeft,
     tone: "text-finance-success bg-finance-success-bg",
   },
-  expense: {
+  expenses: {
     icon: ArrowUpRight,
     tone: "text-finance-danger bg-finance-danger-bg",
   },
@@ -277,7 +277,7 @@ function SearchPanel({ onClose }: { onClose: () => void }) {
           <span
             className={clsx(
               "text-sm font-semibold tabular-nums",
-              tr.type === "expense"
+              tr.type === "expenses"
                 ? "text-finance-danger"
                 : tr.type === "savings"
                   ? "text-finance-primary"
@@ -286,7 +286,11 @@ function SearchPanel({ onClose }: { onClose: () => void }) {
           >
             {format(
               tr.amount,
-              tr.type === "expense" ? "-" : tr.type === "income" ? "+" : "auto",
+              tr.type === "expenses"
+                ? "-"
+                : tr.type === "income"
+                  ? "+"
+                  : "auto",
             )}
           </span>
         </span>

@@ -47,7 +47,7 @@ const formatDate = (date: string, locale: string) =>
 // The dialogs from Transactions work with the transaction shape of the API
 const toTransaction = (item: BudgetItem): Transaction => ({
   item_id: item.id,
-  type: item.type === "expenses" ? "expense" : item.type,
+  type: item.type,
   amount: item.amount,
   // Items from the backend always have a date; the fallback keeps the dialogs safe
   date: item.date ?? new Date().toISOString(),

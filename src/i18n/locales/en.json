@@ -959,7 +959,7 @@
         "amount": "Amount",
         "types": {
           "income": "Income",
-          "expense": "Expense",
+          "expenses": "Expense",
           "savings": "Savings"
         }
       },

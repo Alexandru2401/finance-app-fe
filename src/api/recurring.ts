@@ -1,10 +1,9 @@
 import { del, get, patch, post } from "./client";
+import type { BudgetType } from "./budget";
 import type { Transaction } from "./transactions";
 
 // Recurring rules (notification.md); the add form uses them while
 // FEATURES.recurring is true
-
-type ApiBudgetType = "income" | "expense" | "savings";
 
 // Every error from the backend is { success: false, message }
 type ApiError = { success?: boolean; message?: string } | null;
@@ -22,7 +21,7 @@ export class RecurringRequestError extends Error {
 
 export interface RecurringItem {
   id: string;
-  type: ApiBudgetType;
+  type: BudgetType;
   // Every rule belongs to one category (at most one rule per category);
   // deleting the category deletes the rule
   category_id: string;
@@ -37,8 +36,7 @@ export interface RecurringItem {
 }
 
 export interface NewRecurringItem {
-  // The frontend uses "expenses", the backend "expense"
-  type: "income" | "expenses" | "savings";
+  type: BudgetType;
   category_id: string;
   amount: number;
   notes?: string;
@@ -62,7 +60,6 @@ async function createRecurring(
 ): Promise<{ recurring: RecurringItem; transaction?: Transaction }> {
   const response = await post<RecurringResponse>("/recurring", {
     ...item,
-    type: item.type === "expenses" ? "expense" : item.type,
     ...(item.notes ? { notes: item.notes } : {}),
   });
   if (!response.ok || !response.data || !("recurring" in response.data)) {

@@ -961,7 +961,7 @@
         "amount": "Sumă",
         "types": {
           "income": "Venit",
-          "expense": "Cheltuială",
+          "expenses": "Cheltuială",
           "savings": "Economii"
         }
       },

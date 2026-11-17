@@ -38,11 +38,9 @@ import { TYPE_STYLES } from "./styles";
 
 type TxType = Transaction["type"];
 
-const TYPES: TxType[] = ["income", "expense", "savings"];
+const TYPES: TxType[] = ["income", "expenses", "savings"];
 
-// Categories use "expenses" (frontend), transactions use "expense" (backend)
-const sameType = (category: Category, type: TxType) =>
-  (category.type === "expenses" ? "expense" : category.type) === type;
+const sameType = (category: Category, type: TxType) => category.type === type;
 
 // The backend sends a timestamp; new Date() keeps the local day
 const toDayString = (date: string) => format(new Date(date), "yyyy-MM-dd");
@@ -410,7 +408,7 @@ function EditForm({
               {t("dashboard.budget.form.noCategories")}
             </p>
             <NewCategoryField
-              type={type === "expense" ? "expenses" : type}
+              type={type}
               categories={typeCategories}
               onCreated={(category) => {
                 onCategoryCreated(category);
