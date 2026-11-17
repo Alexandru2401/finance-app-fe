@@ -10,18 +10,24 @@ import {
 import { ChevronLeft, ChevronRight, Compass, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { addUserInfo } from "@/api/user";
+import { addUserInfo, type TourName } from "@/api/user";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
+import type ro from "@/i18n/locales/ro.json";
 
-const STEP_KEYS = [
-  "period",
-  "netBalance",
-  "balance",
-  "spending",
-  "trend",
-  "table",
-] as const;
+type Tours = Omit<(typeof ro)["dashboard"]["tours"], "buttons">;
+// "dashboard.tours.<tour>.<step>" for every step that has texts
+type StepPath = {
+  [T in TourName]: `dashboard.tours.${T}.${keyof Tours[T] & string}`;
+}[TourName];
+
+export interface TourStep<T extends TourName = TourName> {
+  // Target: the element with data-tour="<key>"; texts under
+  // dashboard.tours.<tour>.<key>.title / .content
+  key: keyof Tours[T] & string;
+  // Runs before the step, e.g. to open the panel the step points at
+  before?: () => void;
+}
 
 /** The tooltip of the tour, built from the app's Card and Button. */
 function TourTooltip({
@@ -52,7 +58,7 @@ function TourTooltip({
           </div>
           <div>
             <p className="text-xs font-medium text-muted-foreground">
-              {t("dashboard.overview.tour.progress", {
+              {t("dashboard.tours.buttons.progress", {
                 current: index + 1,
                 total: size,
               })}
@@ -101,7 +107,7 @@ function TourTooltip({
             size="sm"
             className="text-muted-foreground"
           >
-            {t("dashboard.overview.tour.skip")}
+            {t("dashboard.tours.buttons.skip")}
           </Button>
         ) : (
           <span />
@@ -110,7 +116,7 @@ function TourTooltip({
           {index > 0 && (
             <Button {...backProps} variant="outline" size="sm">
               <ChevronLeft aria-hidden="true" />
-              {t("dashboard.overview.tour.back")}
+              {t("dashboard.tours.buttons.back")}
             </Button>
           )}
           <Button
@@ -119,8 +125,8 @@ function TourTooltip({
             className="bg-finance-primary text-white hover:bg-finance-primary/90"
           >
             {isLastStep
-              ? t("dashboard.overview.tour.last")
-              : t("dashboard.overview.tour.next")}
+              ? t("dashboard.tours.buttons.last")
+              : t("dashboard.tours.buttons.next")}
             {!isLastStep && <ChevronRight aria-hidden="true" />}
           </Button>
         </div>
@@ -129,43 +135,70 @@ function TourTooltip({
   );
 }
 
+interface PageTourProps<T extends TourName> {
+  tour: T;
+  steps: TourStep<T>[];
+  // Runs when the tour ends (finished or skipped), e.g. to close a panel
+  onEnd?: () => void;
+}
+
 /**
- * Guided tour of the Overview page. Targets use `data-tour="<key>"`.
- * Starts on its own until the user finishes or skips it (saved on the user as
- * has_completed_tour); it can always be replayed from the header button.
+ * Guided tour of a dashboard page, with its own "Guided tour" button.
+ * Starts on its own until the user finishes or skips it (saved on the user
+ * in completed_tours); it can always be replayed from the button.
  */
-export default function OverviewTour() {
+export default function PageTour<T extends TourName>({
+  tour,
+  steps,
+  onEnd,
+}: PageTourProps<T>) {
   const { t } = useTranslation();
   const { user, setUser } = useAuth();
   const [run, setRun] = useState(false);
 
-  // false = not done yet; undefined (older backend) = don't start on its own
-  const pending = user?.has_completed_tour === false;
+  // undefined (older backend) = don't start on its own
+  const pending =
+    !!user?.completed_tours && !user.completed_tours.includes(tour);
 
-  // Auto-start after the cards had a moment to render
+  // Auto-start after the page had a moment to render
   useEffect(() => {
     if (!pending) return;
     const timer = setTimeout(() => setRun(true), 600);
     return () => clearTimeout(timer);
   }, [pending]);
 
-  const steps: Step[] = STEP_KEYS.map((key) => ({
-    target: `[data-tour="${key}"]`,
-    title: t(`dashboard.overview.tour.steps.${key}.title`),
-    content: t(`dashboard.overview.tour.steps.${key}.content`),
-    placement: "auto",
-  }));
+  const joyrideSteps: Step[] = steps.map(({ key, before }) => {
+    const path = `dashboard.tours.${tour}.${key}` as StepPath;
+    return {
+      target: `[data-tour="${key}"]`,
+      title: t(`${path}.title`),
+      content: t(`${path}.content`),
+      placement: "auto",
+      // Give React a moment to render what before() opened
+      before: before
+        ? () =>
+            new Promise<void>((resolve) => {
+              before();
+              setTimeout(resolve, 150);
+            })
+        : undefined,
+    };
+  });
 
   const handleEvent = (data: EventData) => {
     const finished =
       data.status === STATUS.FINISHED || data.status === STATUS.SKIPPED;
     if (!finished) return;
     setRun(false);
+    onEnd?.();
 
     if (user && pending) {
-      setUser({ ...user, has_completed_tour: true });
+      setUser({
+        ...user,
+        completed_tours: [...(user.completed_tours ?? []), tour],
+      });
       // A failed save only means the tour shows again next time
-      addUserInfo({ completeTour: true }).catch(() => {});
+      addUserInfo({ completeTour: tour }).catch(() => {});
     }
   };
 
@@ -173,18 +206,20 @@ export default function OverviewTour() {
     <>
       <Button
         variant="outline"
+        size="sm"
         onClick={() => setRun(true)}
-        aria-label={t("dashboard.overview.tour.start")}
+        className="cursor-pointer gap-1.5"
+        aria-label={t("dashboard.tours.buttons.start")}
       >
-        <Compass aria-hidden="true" />
+        <Compass size={16} aria-hidden="true" />
         <span className="hidden sm:inline">
-          {t("dashboard.overview.tour.start")}
+          {t("dashboard.tours.buttons.start")}
         </span>
       </Button>
 
       <Joyride
         run={run}
-        steps={steps}
+        steps={joyrideSteps}
         continuous
         scrollToFirstStep
         onEvent={handleEvent}
@@ -197,13 +232,6 @@ export default function OverviewTour() {
           spotlightPadding: 8,
           spotlightRadius: 14,
           zIndex: 1000,
-        }}
-        locale={{
-          back: t("dashboard.overview.tour.back"),
-          close: t("dashboard.overview.tour.close"),
-          last: t("dashboard.overview.tour.last"),
-          next: t("dashboard.overview.tour.next"),
-          skip: t("dashboard.overview.tour.skip"),
         }}
       />
     </>

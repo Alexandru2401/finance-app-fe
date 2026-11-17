@@ -972,41 +972,6 @@
         "night": "Noapte bună, {{name}}!",
         "welcome": "Bine ai venit, {{name}}!",
         "welcomeSubtitle": "Începe prin a adăuga prima tranzacție; restul se completează pe parcurs."
-      },
-      "tour": {
-        "start": "Tur ghidat",
-        "back": "Înapoi",
-        "close": "Închide",
-        "last": "Gata",
-        "next": "Următorul",
-        "skip": "Sari peste",
-        "steps": {
-          "period": {
-            "title": "Alege perioada",
-            "content": "Toate cardurile de pe pagină se actualizează după perioada selectată aici."
-          },
-          "netBalance": {
-            "title": "Sold net",
-            "content": "Diferența dintre venituri și cheltuieli în perioada aleasă, plus soldul tău total."
-          },
-          "balance": {
-            "title": "Venituri și cheltuieli",
-            "content": "O privire rapidă asupra banilor intrați și ieșiți."
-          },
-          "spending": {
-            "title": "Unde se duc banii",
-            "content": "Cheltuielile împărțite pe categorii, ca să vezi unde cheltui cel mai mult."
-          },
-          "trend": {
-            "title": "Evoluție în timp",
-            "content": "Graficul arată cum au evoluat cheltuielile de-a lungul perioadei."
-          },
-          "table": {
-            "title": "Tranzacții recente",
-            "content": "Ultimele tranzacții adăugate. De aici poți ajunge rapid la lista completă."
-          }
-        },
-        "progress": "Pasul {{current}} din {{total}}"
       }
     },
     "budget": {
@@ -1670,6 +1635,118 @@
         "apply": "Aplică",
         "invalid": "Luna de început trebuie să fie înainte de cea de final.",
         "tooLong": "Intervalul poate avea cel mult 10 ani."
+      }
+    },
+    "tours": {
+      "buttons": {
+        "start": "Tur ghidat",
+        "progress": "Pasul {{current}} din {{total}}",
+        "back": "Înapoi",
+        "next": "Următorul",
+        "last": "Gata",
+        "skip": "Sari peste"
+      },
+      "overview": {
+        "period": {
+          "title": "Alege perioada",
+          "content": "Toate cardurile de pe pagină se actualizează după perioada selectată aici."
+        },
+        "netBalance": {
+          "title": "Sold net",
+          "content": "Diferența dintre venituri și cheltuieli în perioada aleasă, plus soldul tău total."
+        },
+        "balance": {
+          "title": "Venituri și cheltuieli",
+          "content": "O privire rapidă asupra banilor intrați și ieșiți."
+        },
+        "spending": {
+          "title": "Unde se duc banii",
+          "content": "Cheltuielile împărțite pe categorii, ca să vezi unde cheltui cel mai mult."
+        },
+        "trend": {
+          "title": "Evoluție în timp",
+          "content": "Graficul arată cum au evoluat cheltuielile de-a lungul perioadei."
+        },
+        "table": {
+          "title": "Tranzacții recente",
+          "content": "Ultimele tranzacții adăugate. De aici ajungi rapid la lista completă."
+        }
+      },
+      "budget": {
+        "month": {
+          "title": "Luna",
+          "content": "Bugetul se vede pe luni. Alege luna pe care vrei s-o vezi."
+        },
+        "target": {
+          "title": "Ținta ta",
+          "content": "Setează cât vrei să câștigi, să cheltui și să economisești luna aceasta."
+        },
+        "categories": {
+          "title": "Categorii",
+          "content": "Aici îți adaugi, redenumești sau ștergi categoriile."
+        },
+        "add": {
+          "title": "Adaugă o intrare",
+          "content": "Adaugi un venit, o cheltuială sau o economie."
+        },
+        "formCategory": {
+          "title": "Categorie nouă",
+          "content": "Nu găsești categoria potrivită? Apasă „Adaugă categorie nouă” și o creezi pe loc, fără să ieși din formular."
+        },
+        "formRecurring": {
+          "title": "Tranzacție recurentă",
+          "content": "Pornește „Recurentă” pentru plăți care se repetă (chirie, abonamente, salariu). Se adaugă singură în fiecare lună, în ziua aleasă."
+        }
+      },
+      "transactions": {
+        "add": {
+          "title": "Adaugă tranzacții",
+          "content": "Același formular ca în Buget: poți adăuga mai multe tranzacții la rând."
+        },
+        "filters": {
+          "title": "Caută și filtrează",
+          "content": "Caută după notițe sau categorie și filtrează după tip, dată sau sumă. Rezultatele le poți exporta în CSV."
+        },
+        "table": {
+          "title": "Lista tranzacțiilor",
+          "content": "Sortează după coloane, editează sau șterge o tranzacție. Cele recurente au un semn separat."
+        }
+      },
+      "analytics": {
+        "period": {
+          "title": "Perioada",
+          "content": "Alege intervalul pentru care vrei analiza."
+        },
+        "insights": {
+          "title": "Pe scurt",
+          "content": "Cum stai față de perioada anterioară și cât de sănătos e bugetul tău."
+        },
+        "chart": {
+          "title": "Evoluție",
+          "content": "Veniturile, cheltuielile și economiile tale în timp."
+        },
+        "expenses": {
+          "title": "Cheltuieli fixe și variabile",
+          "content": "Cât din bani se duce pe plăți fixe (cum sunt cele recurente) și cât pe restul."
+        }
+      },
+      "settings": {
+        "tabs": {
+          "title": "Setări",
+          "content": "Setările sunt împărțite în Preferințe și Categorii."
+        },
+        "preferences": {
+          "title": "Preferințe",
+          "content": "Limba, moneda și tema aplicației."
+        },
+        "categoryAdd": {
+          "title": "Adaugă o categorie",
+          "content": "Scrie numele și apasă „Adaugă”. Categoria apare imediat în formularul de tranzacții."
+        },
+        "categoryRow": {
+          "title": "Fă-o recurentă",
+          "content": "Apasă creionul ca s-o redenumești sau s-o faci recurentă: alegi suma și ziua, iar tranzacția se adaugă singură în fiecare lună."
+        }
       }
     }
   }

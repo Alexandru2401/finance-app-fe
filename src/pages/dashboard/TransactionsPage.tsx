@@ -1,6 +1,9 @@
 import TransactionsFilters from "@/components/dashboard/transactions/TransactionsFilters";
 import TransactionsTable from "@/components/dashboard/transactions/TransactionsTable";
 import PageHeader from "@/components/dashboard/shared/PageHeader";
+import PageTour, {
+  type TourStep,
+} from "@/components/dashboard/shared/PageTour";
 import BudgetForm from "@/components/dashboard/budget/BudgetForm";
 import { Button } from "@/components/ui/button";
 import {
@@ -65,6 +68,12 @@ const toNumber = (value: string) =>
   value === "all" ? undefined : Number(value);
 const toAmount = (value: string) =>
   value.trim() === "" ? undefined : Number(value);
+
+const TRANSACTIONS_TOUR: TourStep<"transactions">[] = [
+  { key: "add" },
+  { key: "filters" },
+  { key: "table" },
+];
 
 export default function TransactionsPage() {
   const { t, i18n } = useTranslation();
@@ -320,7 +329,9 @@ export default function TransactionsPage() {
         title={t("dashboard.transactions.title")}
         subtitle={t("dashboard.transactions.subtitle")}
       >
+        <PageTour tour="transactions" steps={TRANSACTIONS_TOUR} />
         <Button
+          data-tour="add"
           size="sm"
           onClick={() => setShowAddForm(true)}
           className="cursor-pointer gap-1.5"

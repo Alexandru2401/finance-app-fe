@@ -12,7 +12,9 @@ import OnboardingCard from "@/components/dashboard/overview/OnboardingCard";
 import OverviewTable from "@/components/dashboard/overview/OverviewTable";
 import SpendingOverview from "@/components/dashboard/overview/SpendingOverview";
 import SpendingTrendingChart from "@/components/dashboard/overview/TrendChart";
-import OverviewTour from "@/components/dashboard/overview/OverviewTour";
+import PageTour, {
+  type TourStep,
+} from "@/components/dashboard/shared/PageTour";
 import PageHeader from "@/components/dashboard/shared/PageHeader";
 
 import { useEffect, useState } from "react";
@@ -24,6 +26,15 @@ import { DEFAULT_PERIOD, PERIODS, type Period } from "@/lib/periods";
 
 // All-time totals: undefined while loading, null if the request failed
 type AllTime = { count: number; balance: number } | null | undefined;
+
+const TOUR_STEPS: TourStep<"overview">[] = [
+  { key: "period" },
+  { key: "netBalance" },
+  { key: "balance" },
+  { key: "spending" },
+  { key: "trend" },
+  { key: "table" },
+];
 
 export default function DashboardHomePage() {
   const { t } = useTranslation();
@@ -66,7 +77,7 @@ export default function DashboardHomePage() {
             : t("dashboard.overview.subtitle")
         }
       >
-        <OverviewTour />
+        <PageTour tour="overview" steps={TOUR_STEPS} />
         <Select
           value={period}
           onValueChange={(value) => setPeriod(value as Period)}

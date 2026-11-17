@@ -1,6 +1,9 @@
 import CategoriesSettings from "@/components/dashboard/settings/CategoriesSettings";
 import PreferencesSettings from "@/components/dashboard/settings/PreferencesSettings";
 import PageHeader from "@/components/dashboard/shared/PageHeader";
+import PageTour, {
+  type TourStep,
+} from "@/components/dashboard/shared/PageTour";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SlidersHorizontal, Tags } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -18,12 +21,24 @@ export default function SettingsPage() {
     ? (tabParam as SettingsTab)
     : "preferences";
 
+  // The last steps switch to the Categories tab: adding one and its recurrence
+  const showTab = (value: SettingsTab) => () =>
+    setSearchParams({ tab: value }, { replace: true });
+  const tourSteps: TourStep<"settings">[] = [
+    { key: "tabs", before: showTab("preferences") },
+    { key: "preferences", before: showTab("preferences") },
+    { key: "categoryAdd", before: showTab("categories") },
+    { key: "categoryRow", before: showTab("categories") },
+  ];
+
   return (
     <section className="mx-auto max-w-4xl px-4 py-4">
       <PageHeader
         title={t("dashboard.settings.title")}
         subtitle={t("dashboard.settings.subtitle")}
-      />
+      >
+        <PageTour tour="settings" steps={tourSteps} />
+      </PageHeader>
 
       <Tabs
         value={tab}
@@ -31,7 +46,7 @@ export default function SettingsPage() {
           setSearchParams({ tab: value }, { replace: true })
         }
       >
-        <TabsList className="mb-4">
+        <TabsList data-tour="tabs" className="mb-4">
           <TabsTrigger value="preferences" className="cursor-pointer gap-1.5">
             <SlidersHorizontal size={14} />
             {t("dashboard.settings.tabs.preferences")}
@@ -42,7 +57,7 @@ export default function SettingsPage() {
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="preferences">
+        <TabsContent value="preferences" data-tour="preferences">
           <PreferencesSettings />
         </TabsContent>
         <TabsContent value="categories">

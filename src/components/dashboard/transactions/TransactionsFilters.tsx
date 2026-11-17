@@ -177,7 +177,10 @@ export default function TransactionsFilters({
   return (
     <>
       {/* Search, all the filters in a popover, export; sorting is in the table headers */}
-      <div className="mb-4 flex flex-wrap items-center gap-2">
+      <div
+        data-tour="filters"
+        className="mb-4 flex flex-wrap items-center gap-2"
+      >
         <div className="relative min-w-50 max-w-sm flex-1">
           <Search
             className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
