@@ -42,6 +42,6 @@ Toate cererile trimit `credentials: "include"` (cookie de sesiune) și `Content-
 
 | Metodă | Rută                           | Trimit                                     | Primesc                                                                                           |
 | ------ | ------------------------------ | ------------------------------------------ | ------------------------------------------------------------------------------------------------- |
-| GET    | `/budget/summary?period=`      | `period` (implicit `last-month`)           | `{ success, summary: { income, expense, savings, net } }` (numerele pot veni ca string)           |
+| GET    | `/budget/summary?period=`      | `period` (implicit `last-month`)           | `{ success, summary: { income, expense, savings, net } }`                                         |
 | GET    | `/budget/spending/top?period=` | `period` (implicit `last-month`)           | `{ success, topExpenses: [{ item_id, category_id, category, amount, date, notes, created_at }] }` |
 | GET    | `/budget/budget-trend?period=` | `period` opțional (fără = ultimele 6 luni) | `{ success, trend: [{ month, income, expense }] }`                                                |

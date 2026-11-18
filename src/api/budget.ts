@@ -171,62 +171,22 @@ export interface MonthlyBudgetTarget extends BudgetTarget {
   inheritedFrom: string | null;
 }
 
-type ApiNumber = number | string | null;
-
-type ApiBudgetTarget = {
-  income: ApiNumber;
-  expense: ApiNumber;
-  savings: ApiNumber;
-};
-
-type ApiMonthlyTarget = ApiBudgetTarget & {
-  id: string | null;
-  month: string;
-  inheritedFrom: string | null;
-  net: ApiNumber;
-};
-
-const toNullableNumber = (value: ApiNumber): number | null =>
-  value === null ? null : Number(value);
-
-const fromApiTarget = (
-  target: ApiBudgetTarget,
-  net: ApiNumber,
-): BudgetTarget => ({
-  income: toNullableNumber(target.income),
-  expense: toNullableNumber(target.expense),
-  savings: toNullableNumber(target.savings),
-  net: toNullableNumber(net),
-});
-
+// The backend sends the numbers ready to use, so targets need no mapping
 interface BudgetTargetResponse {
   success: boolean;
-  target: ApiMonthlyTarget | null;
+  target: MonthlyBudgetTarget | null;
 }
-
-const fromApiMonthlyTarget = (
-  target: ApiMonthlyTarget,
-): MonthlyBudgetTarget => ({
-  ...fromApiTarget(target, target.net),
-  id: target.id,
-  month: target.month,
-  inheritedFrom: target.inheritedFrom,
-});
 
 // Defaults to the month of the overview's default period
 async function getBudgetTarget(month = periodMonth(DEFAULT_PERIOD)) {
   const response = await get<BudgetTargetResponse>(`/target?month=${month}`);
 
-  const target = response.ok ? response.data.target : null;
-  return {
-    ok: response.ok,
-    data: target ? fromApiMonthlyTarget(target) : null,
-  };
+  return { ok: response.ok, data: response.ok ? response.data.target : null };
 }
 
 interface AllBudgetTargetsResponse {
   success: boolean;
-  targets: ApiMonthlyTarget[];
+  targets: MonthlyBudgetTarget[];
 }
 
 // Only the months with a saved target (no inherited ones), newest first
@@ -235,7 +195,7 @@ async function getAllBudgetTargets() {
 
   return {
     ok: response.ok,
-    data: response.ok ? response.data.targets.map(fromApiMonthlyTarget) : null,
+    data: response.ok ? response.data.targets : null,
   };
 }
 
@@ -261,7 +221,7 @@ async function saveBudgetTarget(
   if (!response.ok || !response.data?.target) {
     throw new Error(response.data?.message ?? "Could not save targets");
   }
-  return fromApiMonthlyTarget(response.data.target);
+  return response.data.target;
 }
 
 // CSV with every saved target, the actual totals of that month and the
@@ -291,18 +251,9 @@ export interface BudgetSummary {
   progress: BudgetTarget;
 }
 
-type ApiBudgetTargetWithNet = ApiBudgetTarget & { net: ApiNumber };
-
 interface BudgetSummaryResponse {
   success: boolean;
-  summary: {
-    income: ApiNumber;
-    expense: ApiNumber;
-    savings: ApiNumber;
-    net: ApiNumber;
-    target: ApiBudgetTargetWithNet;
-    progress: ApiBudgetTargetWithNet;
-  };
+  summary: BudgetSummary;
 }
 
 async function getBudgetSummary(period: string = DEFAULT_PERIOD) {
@@ -310,21 +261,7 @@ async function getBudgetSummary(period: string = DEFAULT_PERIOD) {
     `/budget/summary?period=${period}`,
   );
 
-  const summary = response.ok ? response.data.summary : null;
-  return {
-    ok: response.ok,
-    // Numeric DB columns may arrive as strings, so coerce them
-    data: summary
-      ? {
-          income: Number(summary.income),
-          expense: Number(summary.expense),
-          savings: Number(summary.savings),
-          net: Number(summary.net),
-          target: fromApiTarget(summary.target, summary.target.net),
-          progress: fromApiTarget(summary.progress, summary.progress.net),
-        }
-      : null,
-  };
+  return { ok: response.ok, data: response.ok ? response.data.summary : null };
 }
 
 export { getBudgetSummary };
@@ -341,7 +278,7 @@ export interface TopExpense {
 
 interface TopExpensesResponse {
   success: boolean;
-  topExpenses: (Omit<TopExpense, "amount"> & { amount: string })[];
+  topExpenses: TopExpense[];
 }
 
 async function getTopExpenses(period: string = DEFAULT_PERIOD) {
@@ -351,12 +288,7 @@ async function getTopExpenses(period: string = DEFAULT_PERIOD) {
 
   return {
     ok: response.ok,
-    data: response.ok
-      ? response.data.topExpenses.map((item) => ({
-          ...item,
-          amount: parseFloat(item.amount),
-        }))
-      : null,
+    data: response.ok ? response.data.topExpenses : null,
   };
 }
 
@@ -383,15 +315,7 @@ async function getBudgetTrend(period?: string) {
 
   return {
     ok: response.ok,
-    data: response.ok
-      ? response.data.trend.map((point) => ({
-          month: point.month,
-          income: Number(point.income),
-          expense: Number(point.expense),
-          // Older backends do not send it yet
-          savings: Number(point.savings ?? 0),
-        }))
-      : null,
+    data: response.ok ? response.data.trend : null,
   };
 }
 
@@ -420,12 +344,7 @@ async function getCategoryTotals(
 
   return {
     ok: response.ok,
-    data: response.ok
-      ? response.data.categories.map((row) => ({
-          ...row,
-          total: Number(row.total),
-        }))
-      : null,
+    data: response.ok ? response.data.categories : null,
   };
 }
 
