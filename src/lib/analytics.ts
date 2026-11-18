@@ -1,9 +1,10 @@
 import { PERIODS } from "@/lib/periods";
-import type { BudgetTrendPoint, CategoryTotal } from "@/api/budget";
+import type { BudgetTrendPoint, CategoryTotal, CostItem } from "@/api/budget";
 import type { RecurringItem } from "@/api/recurring";
 
-// Pure calculations for the Analytics page, from the existing routes only:
-// /budget/budget-trend, /budget/by-category and /recurring
+// Pure calculations for the Analytics page. The costs and the savings forecast
+// come ready from /budget/costs and /budget/forecast; the insights and tips are
+// built here from /budget/budget-trend, /budget/by-category and /recurring
 
 /** "YYYY-MM" -> short month, e.g. "nov." / "Nov"; local time, no UTC shift. */
 export function shortMonth(month: string, locale: string): string {
@@ -34,92 +35,17 @@ export interface CostRow {
   pct: number;
 }
 
-const withShares = (rows: Omit<CostRow, "pct">[]): CostRow[] => {
-  const total = rows.reduce((sum, row) => sum + row.amount, 0);
-  return rows.map((row) => ({
-    ...row,
-    pct: total > 0 ? Math.round((row.amount / total) * 100) : 0,
-  }));
-};
-
-/** Fixed costs: the active recurring expenses (the amount added every month). */
-export function fixedCosts(recurring: RecurringItem[]): CostRow[] {
-  return withShares(
-    recurring
-      .filter((item) => item.is_active && item.type === "expenses")
-      .sort((a, b) => b.amount - a.amount)
-      .map((item) => ({
-        key: item.id,
-        label: item.category_name,
-        amount: item.amount,
-      })),
-  );
-}
-
-/**
- * Variable costs: the expenses per category in the period, without the
- * categories that recur (those are the fixed costs). Biggest first, at most `limit`.
- */
-export function variableCosts(
-  totals: CategoryTotal[],
-  recurring: RecurringItem[],
+/** Rows of GET /budget/costs ready for the cost lists. */
+export function toCostRows(
+  items: CostItem[],
   uncategorized: string,
-  limit = 5,
 ): CostRow[] {
-  const fixedIds = new Set(
-    recurring
-      .filter((item) => item.is_active && item.type === "expenses")
-      .map((item) => item.category_id),
-  );
-  return withShares(
-    totals
-      .filter((row) => !row.category_id || !fixedIds.has(row.category_id))
-      .slice(0, limit)
-      .map((row) => ({
-        key: row.category_id ?? "uncategorized",
-        label: row.category ?? uncategorized,
-        amount: row.total,
-      })),
-  );
-}
-
-export interface SavingsPoint {
-  month: string;
-  // Savings of a past month; null on the forecast months
-  savings: number | null;
-  // Forecast; set on the last real month too, so the dashed line starts there
-  forecast: number | null;
-}
-
-/**
- * Monthly savings (the "savings" transactions) plus a simple forecast for the
- * next `ahead` months: the average of the last 3 months.
- */
-export function savingsWithForecast(
-  trend: BudgetTrendPoint[],
-  ahead = 3,
-): SavingsPoint[] {
-  if (trend.length === 0) return [];
-  const points: SavingsPoint[] = trend.map((p) => ({
-    month: p.month,
-    savings: p.savings,
-    forecast: null,
+  return items.map((item) => ({
+    key: item.recurring_id ?? item.category_id ?? "uncategorized",
+    label: item.category ?? uncategorized,
+    amount: item.amount,
+    pct: item.pct,
   }));
-
-  const recent = trend.slice(-3).map((p) => p.savings);
-  const average =
-    Math.round((recent.reduce((s, n) => s + n, 0) / recent.length) * 100) / 100;
-
-  const last = points[points.length - 1];
-  last.forecast = last.savings;
-  for (let i = 1; i <= ahead; i++) {
-    points.push({
-      month: addMonths(last.month, i),
-      savings: null,
-      forecast: average,
-    });
-  }
-  return points;
 }
 
 export interface SpendingTip {

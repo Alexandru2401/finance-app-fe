@@ -15,7 +15,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import CardError from "@/components/dashboard/shared/CardError";
 import type { RequestState } from "@/hooks/useRequest";
 import { useCurrency } from "@/hooks/useCurrency";
-import { shortMonth, type CostRow, type SavingsPoint } from "@/lib/analytics";
+import type { ForecastPoint } from "@/api/budget";
+import { shortMonth, type CostRow } from "@/lib/analytics";
 import { AlertTriangle, Pin } from "lucide-react";
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
@@ -28,7 +29,7 @@ interface Props {
   // Biggest non-recurring expense categories in the period
   variable: RequestState<CostRow[]>;
   // Monthly savings + forecast
-  savings: RequestState<SavingsPoint[]>;
+  savings: RequestState<ForecastPoint[]>;
   periodLabel: string;
 }
 
