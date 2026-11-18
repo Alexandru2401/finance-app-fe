@@ -959,7 +959,7 @@
         "amount": "Amount",
         "types": {
           "income": "Income",
-          "expense": "Expense",
+          "expenses": "Expense",
           "savings": "Savings"
         }
       },
@@ -1066,7 +1066,9 @@
         "saving": "Saving...",
         "save": "Save targets",
         "saved": "Targets saved.",
-        "saveError": "Could not save targets."
+        "saveError": "Could not save targets.",
+        "invalid": "Amount ≥ 0, with at most 2 decimals.",
+        "emptyHint": "Leave a field empty for no target."
       },
       "history": {
         "title": "Target history",
@@ -1533,13 +1535,6 @@
         "recurringAdded": {
           "title": "Added \"{{category}}\"",
           "description": "{{amount}} · {{date}} · added automatically"
-        },
-        "recurringUpcoming": {
-          "title": "Coming up: \"{{category}}\"",
-          "description": "{{amount}} is added automatically on {{date}}"
-        },
-        "recurringPaused": {
-          "title": "The recurrence \"{{category}}\" was stopped"
         },
         "unknown": "New notification"
       },

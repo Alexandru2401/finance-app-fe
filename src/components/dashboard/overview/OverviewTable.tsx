@@ -24,30 +24,28 @@ import RecurringBadge from "@/components/dashboard/shared/RecurringBadge";
 import { useCurrency } from "@/hooks/useCurrency";
 import { ArrowLeftRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { formatDay } from "@/lib/date";
 
 const TYPE_STYLES: Record<Transaction["type"], string> = {
   income: "bg-finance-success-bg text-finance-success",
-  expense: "bg-finance-danger-bg text-finance-danger",
+  expenses: "bg-finance-danger-bg text-finance-danger",
   savings: "bg-finance-primary-bg text-finance-primary",
 };
 
 const AMOUNT_COLORS: Record<Transaction["type"], string> = {
   income: "text-finance-success",
-  expense: "text-finance-danger",
+  expenses: "text-finance-danger",
   savings: "text-finance-primary",
 };
 
 const fmtDate = (date: string, locale: string) =>
-  new Date(date).toLocaleDateString(locale, {
-    month: "short",
-    day: "numeric",
-  });
+  formatDay(date, locale, { month: "short", day: "numeric" });
 
 export default function OverviewTable() {
   const { t, i18n } = useTranslation();
   const { format } = useCurrency();
   const fmt = (n: number, type: Transaction["type"]) =>
-    format(n, type === "expense" ? "-" : "+");
+    format(n, type === "expenses" ? "-" : "+");
   const [transactions, setTransactions] = useState<Transaction[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [attempt, setAttempt] = useState(0);

@@ -4,16 +4,12 @@ import { del, get, patch } from "./client";
 // /notifications do not exist yet; while they are missing every call fails
 // and the UI shows the error / no badge.
 
-export type NotificationType =
-  "recurring_added" | "recurring_upcoming" | "recurring_paused";
+export type NotificationType = "recurring_added";
 
 // The values, not the text: the frontend translates them and formats the
 // amount in the user's currency
 export interface NotificationData {
-  recurring_id?: string;
   item_id?: string;
-  // income | expense | savings
-  type?: string;
   amount?: number;
   category?: string;
   // "YYYY-MM-DD"

@@ -45,6 +45,7 @@ import type { Transaction } from "@/api/transactions";
 import { useCurrency } from "@/hooks/useCurrency";
 import { useTheme } from "@/hooks/useTheme";
 import { FEATURES } from "@/lib/features";
+import { formatDay } from "@/lib/date";
 
 interface SearchDialogProps {
   open: boolean;
@@ -77,7 +78,7 @@ const TYPE_ICON = {
     icon: ArrowDownLeft,
     tone: "text-finance-success bg-finance-success-bg",
   },
-  expense: {
+  expenses: {
     icon: ArrowUpRight,
     tone: "text-finance-danger bg-finance-danger-bg",
   },
@@ -261,14 +262,7 @@ function SearchPanel({ onClose }: { onClose: () => void }) {
       icon: TYPE_ICON[tr.type].icon,
       iconTone: TYPE_ICON[tr.type].tone,
       title: tr.category_name ?? t("dashboard.common.uncategorized"),
-      subtitle: [
-        new Date(tr.date).toLocaleDateString(i18n.language, {
-          day: "numeric",
-          month: "short",
-          year: "numeric",
-        }),
-        tr.notes,
-      ]
+      subtitle: [formatDay(tr.date, i18n.language), tr.notes]
         .filter(Boolean)
         .join(" · "),
       meta: (
@@ -277,7 +271,7 @@ function SearchPanel({ onClose }: { onClose: () => void }) {
           <span
             className={clsx(
               "text-sm font-semibold tabular-nums",
-              tr.type === "expense"
+              tr.type === "expenses"
                 ? "text-finance-danger"
                 : tr.type === "savings"
                   ? "text-finance-primary"
@@ -286,7 +280,11 @@ function SearchPanel({ onClose }: { onClose: () => void }) {
           >
             {format(
               tr.amount,
-              tr.type === "expense" ? "-" : tr.type === "income" ? "+" : "auto",
+              tr.type === "expenses"
+                ? "-"
+                : tr.type === "income"
+                  ? "+"
+                  : "auto",
             )}
           </span>
         </span>

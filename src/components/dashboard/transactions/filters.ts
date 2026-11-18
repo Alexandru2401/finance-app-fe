@@ -36,7 +36,7 @@ const FILTER_KEYS = Object.keys(
   DEFAULT_FILTERS,
 ) as (keyof TransactionFilters)[];
 
-// Filters from the URL (?type=expense&year=2026...); missing ones stay default
+// Filters from the URL (?type=expenses&year=2026...); missing ones stay default
 export function filtersFromParams(params: URLSearchParams): TransactionFilters {
   const filters = { ...DEFAULT_FILTERS };
   for (const key of FILTER_KEYS) {

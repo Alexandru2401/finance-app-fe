@@ -3,13 +3,7 @@ import { useCurrency } from "@/hooks/useCurrency";
 import { useDateLocale } from "@/hooks/useDateLocale";
 import { format } from "date-fns/format";
 import { parseISO } from "date-fns/parseISO";
-import {
-  Bell,
-  CalendarClock,
-  PauseCircle,
-  Repeat,
-  type LucideIcon,
-} from "lucide-react";
+import { Bell, Repeat, type LucideIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 export interface NotificationContent {
@@ -23,7 +17,6 @@ export interface NotificationContent {
 }
 
 const TRANSACTIONS = "/dashboard/transactions";
-const CATEGORIES = "/dashboard/settings?tab=categories";
 
 /** The translated text of a notification, built from its values (F12). */
 export function useNotificationContent(
@@ -56,28 +49,6 @@ export function useNotificationContent(
           { amount, date },
         ),
         href: TRANSACTIONS,
-      };
-    case "recurring_upcoming":
-      return {
-        icon: CalendarClock,
-        tone: "bg-finance-primary-bg text-finance-primary",
-        title: t("dashboard.notifications.types.recurringUpcoming.title", {
-          category,
-        }),
-        description: t(
-          "dashboard.notifications.types.recurringUpcoming.description",
-          { amount, date },
-        ),
-        href: CATEGORIES,
-      };
-    case "recurring_paused":
-      return {
-        icon: PauseCircle,
-        tone: "bg-finance-warning-bg text-finance-warning",
-        title: t("dashboard.notifications.types.recurringPaused.title", {
-          category,
-        }),
-        href: CATEGORIES,
       };
     default:
       return {

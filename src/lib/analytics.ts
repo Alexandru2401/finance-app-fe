@@ -46,7 +46,7 @@ const withShares = (rows: Omit<CostRow, "pct">[]): CostRow[] => {
 export function fixedCosts(recurring: RecurringItem[]): CostRow[] {
   return withShares(
     recurring
-      .filter((item) => item.is_active && item.type === "expense")
+      .filter((item) => item.is_active && item.type === "expenses")
       .sort((a, b) => b.amount - a.amount)
       .map((item) => ({
         key: item.id,
@@ -68,7 +68,7 @@ export function variableCosts(
 ): CostRow[] {
   const fixedIds = new Set(
     recurring
-      .filter((item) => item.is_active && item.type === "expense")
+      .filter((item) => item.is_active && item.type === "expenses")
       .map((item) => item.category_id),
   );
   return withShares(
@@ -150,7 +150,7 @@ export function spendingTips(
 ): SpendingTip[] {
   const fixedIds = new Set(
     recurring
-      .filter((item) => item.is_active && item.type === "expense")
+      .filter((item) => item.is_active && item.type === "expenses")
       .map((item) => item.category_id),
   );
   const keyOf = (row: CategoryTotal) => row.category_id ?? "uncategorized";

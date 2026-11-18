@@ -961,7 +961,7 @@
         "amount": "Sumă",
         "types": {
           "income": "Venit",
-          "expense": "Cheltuială",
+          "expenses": "Cheltuială",
           "savings": "Economii"
         }
       },
@@ -1069,7 +1069,9 @@
         "saving": "Se salvează...",
         "save": "Salvează țintele",
         "saved": "Țintele au fost salvate.",
-        "saveError": "Țintele nu au putut fi salvate."
+        "saveError": "Țintele nu au putut fi salvate.",
+        "invalid": "Sumă ≥ 0, cu cel mult 2 zecimale.",
+        "emptyHint": "Lasă un câmp gol ca să nu ai țintă pentru el."
       },
       "history": {
         "title": "Istoric ținte",
@@ -1537,13 +1539,6 @@
         "recurringAdded": {
           "title": "Am adăugat „{{category}}”",
           "description": "{{amount}} · {{date}} · adăugată automat"
-        },
-        "recurringUpcoming": {
-          "title": "Urmează „{{category}}”",
-          "description": "{{amount}} se adaugă automat pe {{date}}"
-        },
-        "recurringPaused": {
-          "title": "Recurența „{{category}}” a fost oprită"
         },
         "unknown": "Notificare nouă"
       },

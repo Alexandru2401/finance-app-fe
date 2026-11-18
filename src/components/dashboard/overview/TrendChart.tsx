@@ -27,13 +27,14 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { parseMonth } from "@/lib/date";
 
 interface Props {
   period: Period;
 }
 
 function formatMonth(month: string, locale: string) {
-  return new Date(`${month}-01`).toLocaleDateString(locale, {
+  return parseMonth(month).toLocaleDateString(locale, {
     month: "short",
   });
 }

@@ -58,8 +58,8 @@ import {
 
 function toBudgetItem(t: Transaction): BudgetItem {
   return {
-    id: t.item_id,
-    type: t.type === "expense" ? "expenses" : t.type,
+    item_id: t.item_id,
+    type: t.type,
     // Empty = no category; ItemCard shows the translated "Uncategorized"
     category: t.category_name ?? "",
     categoryId: t.category_id ?? undefined,
@@ -300,7 +300,9 @@ export default function BudgetPage() {
         Object.fromEntries(
           Object.entries(prev).map(([tab, items]) => [
             tab,
-            items?.map((item) => (item.id === id ? { ...item, notes } : item)),
+            items?.map((item) =>
+              item.item_id === id ? { ...item, notes } : item,
+            ),
           ]),
         ),
       );

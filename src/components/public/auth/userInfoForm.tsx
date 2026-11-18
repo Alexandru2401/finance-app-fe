@@ -22,19 +22,14 @@ import {
 } from "@/components/ui/select";
 import { Check, CheckCircle2, CircleUserRound } from "lucide-react";
 import { addUserInfo } from "@/api/user";
+import { USERNAME_MAX, USERNAME_MIN } from "@/lib/validation";
 
 import { useAuth } from "@/hooks/useAuth";
 
-import type { Currency } from "@/lib/format";
+import { CURRENCIES, type Currency } from "@/lib/format";
 import { SUPPORTED_LANGUAGES, type Language } from "@/i18n";
 
 const ACCENT = "#ffd649";
-
-const CURRENCIES: { value: Currency; label: string }[] = [
-  { value: "RON", label: "RON — Leu românesc" },
-  { value: "EUR", label: "EUR — Euro" },
-  { value: "USD", label: "USD — Dolar american" },
-];
 
 const STEPS = ["Cont", "Nume", "Monedă", "Gata"];
 
@@ -168,6 +163,7 @@ export default function UserInfoForm() {
                   placeholder="ex. Alex"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
+                  maxLength={USERNAME_MAX}
                   autoFocus
                 />
               </div>
@@ -176,7 +172,7 @@ export default function UserInfoForm() {
               <Button
                 className="w-full"
                 style={{ backgroundColor: ACCENT, color: "#1a1a1a" }}
-                disabled={!name.trim()}
+                disabled={name.trim().length < USERNAME_MIN}
                 onClick={() => setStep(3)}
               >
                 Continuă

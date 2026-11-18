@@ -3,8 +3,8 @@ import type { BudgetItemPayload } from "@/schemas/budget-item.schema";
 import { DEFAULT_PERIOD, periodMonth } from "@/lib/periods";
 
 export interface BudgetItem {
-  id: string;
-  type: "income" | "expenses" | "savings";
+  item_id: string;
+  type: BudgetType;
   category: string;
   categoryId?: string;
   amount: number;
@@ -14,16 +14,8 @@ export interface BudgetItem {
   recurringId?: string;
 }
 
-type BudgetType = "income" | "expenses" | "savings";
-
-// The backend uses "expense" (singular); the frontend uses "expenses"
-type ApiBudgetType = "income" | "expense" | "savings";
-
-const toApiType = (type: BudgetType): ApiBudgetType =>
-  type === "expenses" ? "expense" : type;
-
-const fromApiType = (type: ApiBudgetType): BudgetType =>
-  type === "expense" ? "expenses" : type;
+// Values of the budget_type enum in the DB
+export type BudgetType = "income" | "expenses" | "savings";
 
 export interface Category {
   category_id: string;
@@ -31,30 +23,23 @@ export interface Category {
   name: string;
 }
 
-type ApiCategory = Omit<Category, "type"> & { type: ApiBudgetType };
-
-const fromApiCategory = (category: ApiCategory): Category => ({
-  ...category,
-  type: fromApiType(category.type),
-});
-
 interface CategoriesResponse {
   success: boolean;
-  categories: ApiCategory[];
+  categories: Category[];
 }
 
 interface CategoryResponse {
   success: boolean;
-  category: ApiCategory;
+  category: Category;
   message?: string;
 }
-export type NewBudgetItem = Omit<BudgetItem, "id">;
+export type NewBudgetItem = Omit<BudgetItem, "item_id">;
 
 async function getCategories(type?: BudgetType): Promise<Category[]> {
-  const query = type ? `?type=${toApiType(type)}` : "";
+  const query = type ? `?type=${type}` : "";
   const response = await get<CategoriesResponse>(`/categories${query}`);
   if (!response.ok) throw new Error("Could not load categories");
-  return response.data.categories.map(fromApiCategory);
+  return response.data.categories;
 }
 
 // Keeps the HTTP status, so callers can tell e.g. 409 (duplicate) from other errors
@@ -74,17 +59,17 @@ async function createCategory(payload: {
   type: BudgetType;
   name: string;
 }): Promise<Category> {
-  const response = await post<CategoryResponse | ApiError>("/categories", {
-    ...payload,
-    type: toApiType(payload.type),
-  });
+  const response = await post<CategoryResponse | ApiError>(
+    "/categories",
+    payload,
+  );
   if (!response.ok || !response.data || !("category" in response.data)) {
     throw new ApiRequestError(
       response.data?.message ?? "Could not create category",
       response.status,
     );
   }
-  return fromApiCategory(response.data.category);
+  return response.data.category;
 }
 
 // PATCH /categories/:id { name } → 200 { category }. Only the name of a custom
@@ -101,7 +86,7 @@ async function renameCategory(id: string, name: string): Promise<Category> {
       response.status,
     );
   }
-  return fromApiCategory(response.data.category);
+  return response.data.category;
 }
 
 // DELETE /categories/:id → 200 { category } with the deleted category.
@@ -115,12 +100,12 @@ async function deleteCategory(id: string): Promise<Category> {
       response.status,
     );
   }
-  return fromApiCategory(response.data.category);
+  return response.data.category;
 }
 
 async function addNewTransaction(item: BudgetItemPayload): Promise<void> {
   const response = await post<{ message?: string }>("/transactions", {
-    type: toApiType(item.type),
+    type: item.type,
     category_id: item.category,
     amount: item.amount,
     date: item.date,
@@ -132,8 +117,8 @@ async function addNewTransaction(item: BudgetItemPayload): Promise<void> {
 }
 
 export interface UpdateTransactionPayload {
-  // Backend type; the category must belong to it (400 otherwise)
-  type?: ApiBudgetType;
+  // The category must belong to this type (400 otherwise)
+  type?: BudgetType;
   amount?: number;
   date?: string;
   category_id?: string;
@@ -180,68 +165,28 @@ export interface BudgetTarget {
 }
 
 export interface MonthlyBudgetTarget extends BudgetTarget {
-  id: string;
+  // null when the month inherits an earlier target
+  id: string | null;
   month: string;
   inheritedFrom: string | null;
 }
 
-type ApiNumber = number | string | null;
-
-type ApiBudgetTarget = {
-  income: ApiNumber;
-  expense: ApiNumber;
-  savings: ApiNumber;
-};
-
-// GET target sends the net as "netBalance", the summary sends it as "net"
-type ApiMonthlyTarget = ApiBudgetTarget & {
-  id: string;
-  month: string;
-  inheritedFrom: string | null;
-  netBalance: ApiNumber;
-};
-
-const toNullableNumber = (value: ApiNumber): number | null =>
-  value === null ? null : Number(value);
-
-const fromApiTarget = (
-  target: ApiBudgetTarget,
-  net: ApiNumber,
-): BudgetTarget => ({
-  income: toNullableNumber(target.income),
-  expense: toNullableNumber(target.expense),
-  savings: toNullableNumber(target.savings),
-  net: toNullableNumber(net),
-});
-
+// The backend sends the numbers ready to use, so targets need no mapping
 interface BudgetTargetResponse {
   success: boolean;
-  target: ApiMonthlyTarget | null;
+  target: MonthlyBudgetTarget | null;
 }
-
-const fromApiMonthlyTarget = (
-  target: ApiMonthlyTarget,
-): MonthlyBudgetTarget => ({
-  ...fromApiTarget(target, target.netBalance),
-  id: target.id,
-  month: target.month,
-  inheritedFrom: target.inheritedFrom,
-});
 
 // Defaults to the month of the overview's default period
 async function getBudgetTarget(month = periodMonth(DEFAULT_PERIOD)) {
   const response = await get<BudgetTargetResponse>(`/target?month=${month}`);
 
-  const target = response.ok ? response.data.target : null;
-  return {
-    ok: response.ok,
-    data: target ? fromApiMonthlyTarget(target) : null,
-  };
+  return { ok: response.ok, data: response.ok ? response.data.target : null };
 }
 
 interface AllBudgetTargetsResponse {
   success: boolean;
-  targets: ApiMonthlyTarget[];
+  targets: MonthlyBudgetTarget[];
 }
 
 // Only the months with a saved target (no inherited ones), newest first
@@ -250,7 +195,7 @@ async function getAllBudgetTargets() {
 
   return {
     ok: response.ok,
-    data: response.ok ? response.data.targets.map(fromApiMonthlyTarget) : null,
+    data: response.ok ? response.data.targets : null,
   };
 }
 
@@ -259,24 +204,21 @@ export type BudgetTargetValues = Pick<
   "income" | "expense" | "savings"
 >;
 
-// Creates the month's target or updates it. The backend ignores null fields
-// (they keep their current value), so a target cannot be cleared from here
+// Creates the month's target or updates it. All three fields are sent:
+// null clears that target (no target), a number sets it
 async function saveBudgetTarget(
   month: string,
   values: BudgetTargetValues,
 ): Promise<MonthlyBudgetTarget> {
-  const body = Object.fromEntries(
-    Object.entries(values).filter(([, value]) => value !== null),
-  );
   const response = await post<(BudgetTargetResponse & ApiError) | null>(
     "/target",
-    { month, ...body },
+    { month, ...values },
   );
 
   if (!response.ok || !response.data?.target) {
     throw new Error(response.data?.message ?? "Could not save targets");
   }
-  return fromApiMonthlyTarget(response.data.target);
+  return response.data.target;
 }
 
 // CSV with every saved target, the actual totals of that month and the
@@ -306,18 +248,9 @@ export interface BudgetSummary {
   progress: BudgetTarget;
 }
 
-type ApiBudgetTargetWithNet = ApiBudgetTarget & { net: ApiNumber };
-
 interface BudgetSummaryResponse {
   success: boolean;
-  summary: {
-    income: ApiNumber;
-    expense: ApiNumber;
-    savings: ApiNumber;
-    net: ApiNumber;
-    target: ApiBudgetTargetWithNet;
-    progress: ApiBudgetTargetWithNet;
-  };
+  summary: BudgetSummary;
 }
 
 async function getBudgetSummary(period: string = DEFAULT_PERIOD) {
@@ -325,21 +258,7 @@ async function getBudgetSummary(period: string = DEFAULT_PERIOD) {
     `/budget/summary?period=${period}`,
   );
 
-  const summary = response.ok ? response.data.summary : null;
-  return {
-    ok: response.ok,
-    // Numeric DB columns may arrive as strings, so coerce them
-    data: summary
-      ? {
-          income: Number(summary.income),
-          expense: Number(summary.expense),
-          savings: Number(summary.savings),
-          net: Number(summary.net),
-          target: fromApiTarget(summary.target, summary.target.net),
-          progress: fromApiTarget(summary.progress, summary.progress.net),
-        }
-      : null,
-  };
+  return { ok: response.ok, data: response.ok ? response.data.summary : null };
 }
 
 export { getBudgetSummary };
@@ -356,7 +275,7 @@ export interface TopExpense {
 
 interface TopExpensesResponse {
   success: boolean;
-  topExpenses: (Omit<TopExpense, "amount"> & { amount: string })[];
+  topExpenses: TopExpense[];
 }
 
 async function getTopExpenses(period: string = DEFAULT_PERIOD) {
@@ -366,12 +285,7 @@ async function getTopExpenses(period: string = DEFAULT_PERIOD) {
 
   return {
     ok: response.ok,
-    data: response.ok
-      ? response.data.topExpenses.map((item) => ({
-          ...item,
-          amount: parseFloat(item.amount),
-        }))
-      : null,
+    data: response.ok ? response.data.topExpenses : null,
   };
 }
 
@@ -398,15 +312,7 @@ async function getBudgetTrend(period?: string) {
 
   return {
     ok: response.ok,
-    data: response.ok
-      ? response.data.trend.map((point) => ({
-          month: point.month,
-          income: Number(point.income),
-          expense: Number(point.expense),
-          // Older backends do not send it yet
-          savings: Number(point.savings ?? 0),
-        }))
-      : null,
+    data: response.ok ? response.data.trend : null,
   };
 }
 
@@ -430,17 +336,12 @@ async function getCategoryTotals(
   period: string = DEFAULT_PERIOD,
 ) {
   const response = await get<CategoryTotalsResponse>(
-    `/budget/by-category?type=${toApiType(type)}&period=${period}`,
+    `/budget/by-category?type=${type}&period=${period}`,
   );
 
   return {
     ok: response.ok,
-    data: response.ok
-      ? response.data.categories.map((row) => ({
-          ...row,
-          total: Number(row.total),
-        }))
-      : null,
+    data: response.ok ? response.data.categories : null,
   };
 }
 

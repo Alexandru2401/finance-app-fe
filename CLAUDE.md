@@ -54,7 +54,7 @@ CI (`.github/workflows`) runs lint, format:check, test:run, build and Playwright
   - Texts live under `dashboard.tours.<tour>.<key>`.
   - When a tour is finished or skipped, the FE sends `PATCH /auth/user-info { completeTour: "<tour>" }`, which adds the tour to `users.completed_tours`. A new tour name must also be added to `TourName` (`api/user.ts`) and to `ALLOWED_TOURS` in the backend.
   - Avoid steps inside a Radix modal (`Sheet`/`Dialog`): the modal disables pointer events outside it, so the tour's buttons stop working.
-- **Dates:** budget dates are calendar days (`DATE` in the DB). Parse them with `parseISO` from date-fns, not with `new Date(...)`, which reads `YYYY-MM-DD` as UTC.
+- **Dates:** budget dates are calendar days (`DATE` in the DB), sent by the backend as `YYYY-MM-DD`. Use the helpers in `lib/date.ts` (`parseDay`, `formatDay`, `parseMonth`, `todayString`), not `new Date(...)`, which reads `YYYY-MM-DD` as UTC.
 
 ## Documentation
 
