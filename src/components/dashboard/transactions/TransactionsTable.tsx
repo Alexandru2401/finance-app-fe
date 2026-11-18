@@ -54,13 +54,10 @@ import {
 import { useState, type MouseEvent } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import { useCurrency } from "@/hooks/useCurrency";
+import { formatDay } from "@/lib/date";
 
 const fmtDate = (date: string, locale: string) =>
-  new Date(date).toLocaleDateString(locale, {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
+  formatDay(date, locale, { month: "short", day: "numeric", year: "numeric" });
 
 // The backend allows at most 15 per page
 

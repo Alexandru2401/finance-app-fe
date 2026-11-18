@@ -34,15 +34,12 @@ import {
   CardHeader,
   CardTitle,
 } from "../../ui/card";
+import { formatDay, todayString } from "@/lib/date";
 
 type BudgetType = "income" | "expenses" | "savings";
 
 const formatDate = (date: string, locale: string) =>
-  new Date(date).toLocaleDateString(locale, {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  });
+  formatDay(date, locale, { day: "2-digit", month: "short", year: "numeric" });
 
 // The dialogs from Transactions work with the transaction shape of the API
 const toTransaction = (item: BudgetItem): Transaction => ({
@@ -50,7 +47,7 @@ const toTransaction = (item: BudgetItem): Transaction => ({
   type: item.type,
   amount: item.amount,
   // Items from the backend always have a date; the fallback keeps the dialogs safe
-  date: item.date ?? new Date().toISOString(),
+  date: item.date ?? todayString(),
   category_id: item.categoryId ?? null,
   category_name: item.category || null,
   notes: item.notes ?? null,

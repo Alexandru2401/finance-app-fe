@@ -45,6 +45,7 @@ import type { Transaction } from "@/api/transactions";
 import { useCurrency } from "@/hooks/useCurrency";
 import { useTheme } from "@/hooks/useTheme";
 import { FEATURES } from "@/lib/features";
+import { formatDay } from "@/lib/date";
 
 interface SearchDialogProps {
   open: boolean;
@@ -261,14 +262,7 @@ function SearchPanel({ onClose }: { onClose: () => void }) {
       icon: TYPE_ICON[tr.type].icon,
       iconTone: TYPE_ICON[tr.type].tone,
       title: tr.category_name ?? t("dashboard.common.uncategorized"),
-      subtitle: [
-        new Date(tr.date).toLocaleDateString(i18n.language, {
-          day: "numeric",
-          month: "short",
-          year: "numeric",
-        }),
-        tr.notes,
-      ]
+      subtitle: [formatDay(tr.date, i18n.language), tr.notes]
         .filter(Boolean)
         .join(" · "),
       meta: (

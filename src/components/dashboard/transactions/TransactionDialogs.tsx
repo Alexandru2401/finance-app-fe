@@ -36,15 +36,13 @@ import { useDateLocale } from "@/hooks/useDateLocale";
 import { cn } from "@/lib/utils";
 import { NOTES_MAX_LENGTH } from "@/schemas/budget-item.schema";
 import { TYPE_STYLES } from "./styles";
+import { formatDay, parseDay } from "@/lib/date";
 
 type TxType = Transaction["type"];
 
 const TYPES: TxType[] = ["income", "expenses", "savings"];
 
 const sameType = (category: Category, type: TxType) => category.type === type;
-
-// The backend sends a timestamp; new Date() keeps the local day
-const toDayString = (date: string) => format(new Date(date), "yyyy-MM-dd");
 
 const textareaClass =
   "min-h-24 w-full resize-y rounded-md border border-input bg-transparent px-3 py-2 text-sm outline-none transition focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50";
@@ -158,7 +156,7 @@ function NotesBody({
           {tx.recurring_id && <RecurringBadge />}
         </DialogTitle>
         <DialogDescription>
-          {new Date(tx.date).toLocaleDateString(i18n.language, {
+          {formatDay(tx.date, i18n.language, {
             day: "numeric",
             month: "long",
             year: "numeric",
@@ -300,7 +298,7 @@ function EditForm({
   const [type, setType] = useState<TxType>(tx.type);
   const [amount, setAmount] = useState(tx.amount.toFixed(2));
   const [categoryId, setCategoryId] = useState(tx.category_id ?? "");
-  const [date, setDate] = useState<Date | undefined>(new Date(tx.date));
+  const [date, setDate] = useState<Date | undefined>(parseDay(tx.date));
   const [notes, setNotes] = useState(tx.notes ?? "");
   const [submitted, setSubmitted] = useState(false);
 
@@ -328,7 +326,7 @@ function EditForm({
     if (numericAmount !== tx.amount) payload.amount = numericAmount;
     if (categoryId !== tx.category_id) payload.category_id = categoryId;
     const day = format(date, "yyyy-MM-dd");
-    if (day !== toDayString(tx.date)) payload.date = day;
+    if (day !== tx.date) payload.date = day;
     if (notes.trim() !== (tx.notes ?? "").trim()) payload.notes = notes.trim();
 
     if (Object.keys(payload).length === 0) {

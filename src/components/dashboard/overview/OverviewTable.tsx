@@ -24,6 +24,7 @@ import RecurringBadge from "@/components/dashboard/shared/RecurringBadge";
 import { useCurrency } from "@/hooks/useCurrency";
 import { ArrowLeftRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { formatDay } from "@/lib/date";
 
 const TYPE_STYLES: Record<Transaction["type"], string> = {
   income: "bg-finance-success-bg text-finance-success",
@@ -38,10 +39,7 @@ const AMOUNT_COLORS: Record<Transaction["type"], string> = {
 };
 
 const fmtDate = (date: string, locale: string) =>
-  new Date(date).toLocaleDateString(locale, {
-    month: "short",
-    day: "numeric",
-  });
+  formatDay(date, locale, { month: "short", day: "numeric" });
 
 export default function OverviewTable() {
   const { t, i18n } = useTranslation();
