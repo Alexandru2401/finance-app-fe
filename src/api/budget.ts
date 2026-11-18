@@ -42,7 +42,8 @@ async function getCategories(type?: BudgetType): Promise<Category[]> {
   return response.data.categories;
 }
 
-// Keeps the HTTP status, so callers can tell e.g. 409 (duplicate) from other errors
+// Keeps the HTTP status, so callers can tell e.g. 409 (duplicate) or 422 (a
+// per-user limit reached: 100 categories, 20,000 transactions) from other errors
 export class ApiRequestError extends Error {
   status: number;
 
@@ -112,7 +113,11 @@ async function addNewTransaction(item: BudgetItemPayload): Promise<void> {
     ...(item.notes && { notes: item.notes }),
   });
   if (!response.ok) {
-    throw new Error(response.data?.message ?? "Could not add new transaction");
+    // 422 = the account reached the transaction limit (LIMIT_REACHED)
+    throw new ApiRequestError(
+      response.data?.message ?? "Could not add new transaction",
+      response.status,
+    );
   }
 }
 

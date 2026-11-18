@@ -7,6 +7,7 @@ import {
   type Category,
 } from "@/api/budget";
 import {
+  RecurringRequestError,
   createRecurring,
   getRecurring,
   updateRecurring,
@@ -265,10 +266,13 @@ function AddCategoryForm({ type, existing, onCreated }: AddCategoryFormProps) {
         }),
       );
     } catch (err) {
+      const status = err instanceof ApiRequestError ? err.status : null;
       setError(
-        err instanceof ApiRequestError && err.status === 409
+        status === 409
           ? t("dashboard.settings.categories.errors.exists")
-          : t("dashboard.settings.categories.errors.add"),
+          : status === 422
+            ? t("dashboard.settings.categories.errors.limit")
+            : t("dashboard.settings.categories.errors.add"),
       );
     } finally {
       setSaving(false);
@@ -599,9 +603,16 @@ function EditCategoryDialog({
     if (request) {
       try {
         onRecurringChanged(category.category_id, await request());
-      } catch {
+      } catch (err) {
         setSaving(false);
-        toast.error(t("dashboard.settings.categories.recurring.saveError"));
+        // 422 = the limit of 50 recurring rules
+        toast.error(
+          t(
+            err instanceof RecurringRequestError && err.status === 422
+              ? "dashboard.settings.categories.recurring.limit"
+              : "dashboard.settings.categories.recurring.saveError",
+          ),
+        );
         return;
       }
     }

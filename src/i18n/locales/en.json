@@ -1024,7 +1024,8 @@
           "amountPositive": "Amount must be greater than 0.",
           "amountDecimals": "The amount can have at most 2 decimals.",
           "amountTooLarge": "The amount is too large.",
-          "notesTooLong": "Notes can't be longer than {{max}} characters."
+          "notesTooLong": "Notes can't be longer than {{max}} characters.",
+          "categoryLimit": "You can have at most 100 categories."
         },
         "toasts": {
           "categoryAdded": "Category \"{{name}}\" added.",
@@ -1032,7 +1033,8 @@
           "categoriesError": "Could not load categories.",
           "added": "Budget item added successfully!",
           "addError": "Could not save the item. Please try again.",
-          "recurringAdded": "It will be added automatically starting {{date}}."
+          "recurringAdded": "It will be added automatically starting {{date}}.",
+          "limitReached": "You reached the account limit: at most 20,000 transactions and 50 recurring rules."
         }
       },
       "items": {
@@ -1484,7 +1486,8 @@
           "exists": "A category with this name already exists.",
           "add": "Could not add the category.",
           "delete": "Could not delete the category.",
-          "rename": "Could not rename the category."
+          "rename": "Could not rename the category.",
+          "limit": "You can have at most 100 categories. Delete one to add another."
         },
         "toasts": {
           "added": "Category \"{{name}}\" was added.",
@@ -1502,7 +1505,8 @@
           "nextRun": "Next: {{date}}.",
           "amountError": "Enter an amount greater than 0, with at most 2 decimals.",
           "saveError": "Could not save the recurrence. Please try again.",
-          "deleteHint": "Its recurrence stops; the transactions already added stay."
+          "deleteHint": "Its recurrence stops; the transactions already added stay.",
+          "limit": "You can have at most 50 recurring rules."
         }
       }
     },

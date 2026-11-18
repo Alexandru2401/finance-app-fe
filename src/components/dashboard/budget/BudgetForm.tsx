@@ -29,7 +29,12 @@ import BudgetItemSchema, {
   type BudgetItemInput,
   type BudgetItemPayload,
 } from "@/schemas/budget-item.schema";
-import { addNewTransaction, getCategories, type Category } from "@/api/budget";
+import {
+  ApiRequestError,
+  addNewTransaction,
+  getCategories,
+  type Category,
+} from "@/api/budget";
 import {
   createRecurring,
   getRecurring,
@@ -254,11 +259,18 @@ export default function BudgetForm({
     } catch (err) {
       // 409 = the category got a recurring rule meanwhile (e.g. another tab)
       const taken = err instanceof RecurringRequestError && err.status === 409;
+      // 422 = a per-user limit (transactions or recurring rules)
+      const limit =
+        (err instanceof RecurringRequestError ||
+          err instanceof ApiRequestError) &&
+        err.status === 422;
       toast.error(
         t(
           taken
             ? "dashboard.budget.form.recurring.alreadyRecurring"
-            : "dashboard.budget.form.toasts.addError",
+            : limit
+              ? "dashboard.budget.form.toasts.limitReached"
+              : "dashboard.budget.form.toasts.addError",
         ),
       );
       if (taken) setRecurringReloadKey((k) => k + 1);

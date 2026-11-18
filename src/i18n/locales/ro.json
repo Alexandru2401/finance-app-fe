@@ -1026,7 +1026,8 @@
           "amountPositive": "Suma trebuie să fie mai mare decât 0.",
           "amountDecimals": "Suma poate avea cel mult 2 zecimale.",
           "amountTooLarge": "Suma este prea mare.",
-          "notesTooLong": "Notele nu pot avea mai mult de {{max}} de caractere."
+          "notesTooLong": "Notele nu pot avea mai mult de {{max}} de caractere.",
+          "categoryLimit": "Poți avea cel mult 100 de categorii."
         },
         "toasts": {
           "categoryAdded": "Categoria „{{name}}” a fost adăugată.",
@@ -1034,7 +1035,8 @@
           "categoriesError": "Categoriile nu au putut fi încărcate.",
           "added": "Înregistrarea a fost adăugată!",
           "addError": "Înregistrarea nu a putut fi salvată. Încearcă din nou.",
-          "recurringAdded": "Se va adăuga automat începând cu {{date}}."
+          "recurringAdded": "Se va adăuga automat începând cu {{date}}.",
+          "limitReached": "Ai atins limita contului: cel mult 20.000 de tranzacții și 50 de reguli recurente."
         }
       },
       "items": {
@@ -1487,7 +1489,8 @@
           "exists": "Există deja o categorie cu acest nume.",
           "add": "Categoria nu a putut fi adăugată.",
           "delete": "Categoria nu a putut fi ștearsă.",
-          "rename": "Categoria nu a putut fi redenumită."
+          "rename": "Categoria nu a putut fi redenumită.",
+          "limit": "Poți avea cel mult 100 de categorii. Șterge una ca să adaugi alta."
         },
         "toasts": {
           "added": "Categoria „{{name}}” a fost adăugată.",
@@ -1505,7 +1508,8 @@
           "nextRun": "Următoarea: {{date}}.",
           "amountError": "Introdu o sumă mai mare decât 0, cu cel mult 2 zecimale.",
           "saveError": "Recurența nu a putut fi salvată. Încearcă din nou.",
-          "deleteHint": "Recurența ei se oprește; tranzacțiile adăugate deja rămân."
+          "deleteHint": "Recurența ei se oprește; tranzacțiile adăugate deja rămân.",
+          "limit": "Poți avea cel mult 50 de reguli recurente."
         }
       }
     },
