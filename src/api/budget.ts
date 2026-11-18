@@ -179,12 +179,11 @@ type ApiBudgetTarget = {
   savings: ApiNumber;
 };
 
-// GET target sends the net as "netBalance", the summary sends it as "net"
 type ApiMonthlyTarget = ApiBudgetTarget & {
   id: string | null;
   month: string;
   inheritedFrom: string | null;
-  netBalance: ApiNumber;
+  net: ApiNumber;
 };
 
 const toNullableNumber = (value: ApiNumber): number | null =>
@@ -208,7 +207,7 @@ interface BudgetTargetResponse {
 const fromApiMonthlyTarget = (
   target: ApiMonthlyTarget,
 ): MonthlyBudgetTarget => ({
-  ...fromApiTarget(target, target.netBalance),
+  ...fromApiTarget(target, target.net),
   id: target.id,
   month: target.month,
   inheritedFrom: target.inheritedFrom,
