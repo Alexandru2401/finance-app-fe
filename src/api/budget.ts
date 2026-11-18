@@ -347,6 +347,67 @@ async function getCategoryTotals(
 
 export { getCategoryTotals };
 
+// ---- Costs and savings forecast (GET /budget/costs, /budget/forecast) ----
+
+export interface CostItem {
+  // Set on the fixed costs (the recurring rule behind the row)
+  recurring_id?: string;
+  // null = transactions whose category was deleted
+  category_id: string | null;
+  category: string | null;
+  amount: number;
+  // Share of the list total, 0-100
+  pct: number;
+}
+
+export interface CostList {
+  items: CostItem[];
+  // Sum of the listed items
+  total: number;
+}
+
+export interface BudgetCosts {
+  // Active recurring expenses (they do not depend on the period)
+  fixed: CostList;
+  // The 5 biggest non-recurring expense categories in the period
+  variable: CostList;
+}
+
+async function getBudgetCosts(period: string = DEFAULT_PERIOD) {
+  const response = await get<{ success: boolean; costs: BudgetCosts }>(
+    `/budget/costs?period=${period}`,
+  );
+  return { ok: response.ok, data: response.ok ? response.data.costs : null };
+}
+
+export interface ForecastPoint {
+  month: string;
+  // Savings of a past month; null on the forecast months
+  savings: number | null;
+  // Forecast; set on the last real month too, so the dashed line starts there
+  forecast: number | null;
+}
+
+export interface BudgetForecast {
+  points: ForecastPoint[];
+  // Average savings of the last 3 months; null without any month
+  average: number | null;
+}
+
+// Without a period the backend uses the last 6 months; 3 forecast months
+async function getBudgetForecast(period?: string) {
+  const query = period ? `?period=${period}` : "";
+  const response = await get<{ success: boolean; forecast: BudgetForecast }>(
+    `/budget/forecast${query}`,
+  );
+  return {
+    ok: response.ok,
+    data: response.ok ? response.data.forecast : null,
+  };
+}
+
+export { getBudgetCosts, getBudgetForecast };
+
 // ---- Budget Health (GET /budget/health, analitycs.md) ----
 
 export type HealthLabel = "excellent" | "good" | "warning" | "risk";

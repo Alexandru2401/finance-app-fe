@@ -40,8 +40,10 @@ Toate cererile trimit `credentials: "include"` (cookie de sesiune) și `Content-
 
 ## Statistici buget — `src/api/budget.ts`
 
-| Metodă | Rută                           | Trimit                                     | Primesc                                                                                           |
-| ------ | ------------------------------ | ------------------------------------------ | ------------------------------------------------------------------------------------------------- |
-| GET    | `/budget/summary?period=`      | `period` (implicit `last-month`)           | `{ success, summary: { income, expense, savings, net } }`                                         |
-| GET    | `/budget/spending/top?period=` | `period` (implicit `last-month`)           | `{ success, topExpenses: [{ item_id, category_id, category, amount, date, notes, created_at }] }` |
-| GET    | `/budget/budget-trend?period=` | `period` opțional (fără = ultimele 6 luni) | `{ success, trend: [{ month, income, expense }] }`                                                |
+| Metodă | Rută                           | Trimit                                     | Primesc                                                                                                         |
+| ------ | ------------------------------ | ------------------------------------------ | --------------------------------------------------------------------------------------------------------------- |
+| GET    | `/budget/summary?period=`      | `period` (implicit `last-month`)           | `{ success, summary: { income, expense, savings, net } }`                                                       |
+| GET    | `/budget/spending/top?period=` | `period` (implicit `last-month`)           | `{ success, topExpenses: [{ item_id, category_id, category, amount, date, notes, created_at }] }`               |
+| GET    | `/budget/budget-trend?period=` | `period` opțional (fără = ultimele 6 luni) | `{ success, trend: [{ month, income, expense }] }`                                                              |
+| GET    | `/budget/costs?period=`        | `period` (Analytics)                       | `{ success, costs: { fixed, variable } }`, fiecare `{ items: [{ category_id, category, amount, pct }], total }` |
+| GET    | `/budget/forecast?period=`     | `period` (Analytics; ca la trend)          | `{ success, forecast: { points: [{ month, savings, forecast }], average } }`                                    |

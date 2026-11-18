@@ -2,6 +2,8 @@ import { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { format } from "date-fns/format";
 import {
+  getBudgetCosts,
+  getBudgetForecast,
   getBudgetHealth,
   getBudgetTrend,
   getCategoryTotals,
@@ -21,15 +23,13 @@ import { useRequest } from "@/hooks/useRequest";
 import {
   addMonths,
   currentMonth,
-  fixedCosts,
-  savingsWithForecast,
   spendingChange,
   spendingTips,
-  variableCosts,
+  toCostRows,
 } from "@/lib/analytics";
 
-// Data from /budget/budget-trend, /budget/by-category, /recurring and
-// /budget/health (the score from analitycs.md)
+// Data from /budget/budget-trend, /budget/by-category, /recurring,
+// /budget/costs, /budget/forecast and /budget/health (the score from analitycs.md)
 
 // The api/budget helpers resolve { ok, data }; here a failure must reject, so
 // useRequest shows the error
@@ -77,11 +77,18 @@ export default function AnalyticsPage() {
   const loadRecurring = useCallback(() => getRecurring(), []);
   const recurring = useRequest("recurring", loadRecurring);
 
-  const loadExpenses = useCallback(
-    () => getCategoryTotals("expenses", period).then(unwrap),
+  const loadCosts = useCallback(
+    () => getBudgetCosts(period).then(unwrap),
     [period],
   );
-  const expenses = useRequest(`expenses#${period}`, loadExpenses);
+  const costs = useRequest(`costs#${period}`, loadCosts);
+
+  // Same months as the chart
+  const loadForecast = useCallback(
+    () => getBudgetForecast(trendPeriod).then(unwrap),
+    [trendPeriod],
+  );
+  const forecast = useRequest(`forecast#${trendPeriod}`, loadForecast);
 
   // Insights: the last complete month vs the 3 months before it
   const month = currentMonth();
@@ -122,19 +129,12 @@ export default function AnalyticsPage() {
   });
 
   const fixed = useMemo(
-    () => recurring.data && fixedCosts(recurring.data),
-    [recurring.data],
+    () => costs.data && toCostRows(costs.data.fixed.items, uncategorized),
+    [costs.data, uncategorized],
   );
   const variable = useMemo(
-    () =>
-      expenses.data &&
-      recurring.data &&
-      variableCosts(expenses.data, recurring.data, uncategorized),
-    [expenses.data, recurring.data, uncategorized],
-  );
-  const savings = useMemo(
-    () => trend.data && savingsWithForecast(trend.data),
-    [trend.data],
+    () => costs.data && toCostRows(costs.data.variable.items, uncategorized),
+    [costs.data, uncategorized],
   );
   const change = useMemo(
     () => insightTrend.data && spendingChange(insightTrend.data),
@@ -183,9 +183,9 @@ export default function AnalyticsPage() {
 
         <div data-tour="expenses" className="grid">
           <ExpensesInfo
-            fixed={combine([recurring], fixed || undefined)}
-            variable={combine([expenses, recurring], variable || undefined)}
-            savings={combine([trend], savings || undefined)}
+            fixed={combine([costs], fixed || undefined)}
+            variable={combine([costs], variable || undefined)}
+            savings={combine([forecast], forecast.data?.points)}
             periodLabel={periodLabel}
           />
         </div>
