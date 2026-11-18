@@ -204,18 +204,15 @@ export type BudgetTargetValues = Pick<
   "income" | "expense" | "savings"
 >;
 
-// Creates the month's target or updates it. The backend ignores null fields
-// (they keep their current value), so a target cannot be cleared from here
+// Creates the month's target or updates it. All three fields are sent:
+// null clears that target (no target), a number sets it
 async function saveBudgetTarget(
   month: string,
   values: BudgetTargetValues,
 ): Promise<MonthlyBudgetTarget> {
-  const body = Object.fromEntries(
-    Object.entries(values).filter(([, value]) => value !== null),
-  );
   const response = await post<(BudgetTargetResponse & ApiError) | null>(
     "/target",
-    { month, ...body },
+    { month, ...values },
   );
 
   if (!response.ok || !response.data?.target) {

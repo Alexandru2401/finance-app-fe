@@ -1069,7 +1069,9 @@
         "saving": "Se salvează...",
         "save": "Salvează țintele",
         "saved": "Țintele au fost salvate.",
-        "saveError": "Țintele nu au putut fi salvate."
+        "saveError": "Țintele nu au putut fi salvate.",
+        "invalid": "Sumă ≥ 0, cu cel mult 2 zecimale.",
+        "emptyHint": "Lasă un câmp gol ca să nu ai țintă pentru el."
       },
       "history": {
         "title": "Istoric ținte",

@@ -1066,7 +1066,9 @@
         "saving": "Saving...",
         "save": "Save targets",
         "saved": "Targets saved.",
-        "saveError": "Could not save targets."
+        "saveError": "Could not save targets.",
+        "invalid": "Amount ≥ 0, with at most 2 decimals.",
+        "emptyHint": "Leave a field empty for no target."
       },
       "history": {
         "title": "Target history",
