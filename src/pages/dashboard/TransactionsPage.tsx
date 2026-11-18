@@ -18,6 +18,7 @@ import {
   DEFAULT_FILTERS,
   daysInMonth,
   filtersFromParams,
+  isValidFilterAmount,
   filtersToParams,
   type TransactionFilters,
 } from "@/components/dashboard/transactions/filters";
@@ -66,8 +67,12 @@ const SEARCH_DELAY = 300;
 
 const toNumber = (value: string) =>
   value === "all" ? undefined : Number(value);
+// An invalid amount (e.g. 3 decimals while typing) is not sent: the backend
+// answers 400 to it
 const toAmount = (value: string) =>
-  value.trim() === "" ? undefined : Number(value);
+  value.trim() === "" || !isValidFilterAmount(value)
+    ? undefined
+    : Number(value);
 
 const TRANSACTIONS_TOUR: TourStep<"transactions">[] = [
   { key: "add" },

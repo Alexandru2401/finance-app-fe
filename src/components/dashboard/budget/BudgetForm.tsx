@@ -37,7 +37,7 @@ import {
 } from "@/api/recurring";
 import NewCategoryField from "@/components/dashboard/shared/NewCategoryField";
 import { FEATURES } from "@/lib/features";
-import { firstRunDate } from "@/lib/recurring";
+import { firstRunDate, todayInRomania } from "@/lib/recurring";
 
 type BudgetType = BudgetItemInput["type"];
 
@@ -167,13 +167,13 @@ export default function BudgetForm({
   const notesNearLimit = notesRemaining <= NOTES_WARNING_THRESHOLD;
   const selectedDate = formData.date ? parseISO(formData.date) : undefined;
   // Shown under the recurring fields, so the user knows when it starts.
-  // Same as the backend: after today and after this transaction's date, so the
-  // same day is never added twice
-  const today = toDateString(new Date());
+  // Same as the backend: after today (in Romania) and after this transaction's
+  // date, so the same day is never added twice
+  const today = todayInRomania();
   const firstRun = parseISO(
     firstRunDate(
       parseDay(formData.dayOfMonth),
-      formData.date > today ? parseISO(formData.date) : new Date(),
+      formData.date > today ? formData.date : today,
     ),
   );
 
