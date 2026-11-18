@@ -56,7 +56,7 @@ api/          backend calls (client.ts handles cookies + refresh token)
 components/   ui/ (shadcn), dashboard/ per page, public/
 pages/        public, auth and dashboard pages
 i18n/         ro.json / en.json translations (keys are typed from ro.json)
-hooks/ lib/   hooks and utilities (formatting, periods)
+hooks/ lib/   hooks and utilities (formatting, periods, dates)
 ```
 
 ## Conventions
