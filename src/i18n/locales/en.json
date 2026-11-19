@@ -198,6 +198,9 @@
       "unknown": "Unknown error",
       "generic": "An error has occurred: {{message}}"
     },
+    "captcha": {
+      "required": "Please wait for the security check to finish."
+    },
     "login": {
       "title": "Login to your account",
       "description": "Enter your email below to login to your account",

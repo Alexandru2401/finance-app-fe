@@ -16,7 +16,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
 import { isValidPassword } from "@/lib/password";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
@@ -24,6 +24,7 @@ import { useTranslation } from "react-i18next";
 import { createUser } from "@/api/user";
 import type { Language } from "@/i18n";
 import { useAuth } from "@/hooks/useAuth";
+import { Turnstile, type TurnstileHandle } from "./Turnstile";
 
 export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
   const [formData, setFormData] = useState({
@@ -37,6 +38,8 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
 
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const turnstileRef = useRef<TurnstileHandle>(null);
 
   const navigate = useNavigate();
 
@@ -60,6 +63,10 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
     // The errors show up after the first submit and update while typing
     setSubmitted(true);
     if (passwordInvalid || passwordMismatch) return;
+    if (!captchaToken) {
+      toast.error(t("auth.captcha.required"));
+      return;
+    }
 
     try {
       setLoading(true);
@@ -68,11 +75,13 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
         formData.email,
         formData.password,
         i18n.language as Language,
+        captchaToken,
       );
 
       if (!response.ok) {
-        // e.g. "Email already exists"
+        // e.g. "Email already exists"; the captcha token is spent, get a new one
         toast.error(response.data?.message || t("auth.signup.failed"));
+        turnstileRef.current?.reset();
         return;
       }
 
@@ -81,6 +90,7 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
       navigate("/dashboard/user-info", { replace: true });
     } catch {
       toast.error(t("auth.signup.failed")); // aici doar erori de retea
+      turnstileRef.current?.reset();
     } finally {
       setLoading(false);
     }
@@ -158,9 +168,12 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
                 </FieldError>
               )}
             </Field>
+            <Field>
+              <Turnstile ref={turnstileRef} onToken={setCaptchaToken} />
+            </Field>
             <FieldGroup>
               <Field>
-                <Button type="submit">
+                <Button type="submit" disabled={loading || !captchaToken}>
                   {loading
                     ? t("auth.signup.submitting")
                     : t("auth.signup.submit")}

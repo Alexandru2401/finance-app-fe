@@ -198,6 +198,9 @@
       "unknown": "Eroare necunoscută",
       "generic": "A apărut o eroare: {{message}}"
     },
+    "captcha": {
+      "required": "Așteaptă finalizarea verificării de securitate."
+    },
     "login": {
       "title": "Autentifică-te în contul tău",
       "description": "Introdu emailul mai jos pentru a te autentifica",

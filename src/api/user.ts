@@ -15,20 +15,32 @@ interface AuthResponse {
   user?: User;
 }
 
-async function loginUser(email: string, password: string) {
+// captchaToken: single-use Cloudflare Turnstile token, checked by the backend
+async function loginUser(
+  email: string,
+  password: string,
+  captchaToken: string,
+) {
   const response = await post<AuthResponse>("/auth/login", {
     email,
     password,
+    captchaToken,
   });
 
   return response;
 }
 
-async function createUser(email: string, password: string, language: Language) {
+async function createUser(
+  email: string,
+  password: string,
+  language: Language,
+  captchaToken: string,
+) {
   const response = await post<AuthResponse>("/auth/register", {
     email,
     password,
     language,
+    captchaToken,
   });
   return response;
 }
