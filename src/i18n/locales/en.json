@@ -1212,7 +1212,11 @@
           "amount": "Remove amount filter"
         },
         "more": "Filters",
-        "reset": "Reset these filters"
+        "reset": "Reset these filters",
+        "optionsError": "Some filter options (categories, years) couldn't be loaded.",
+        "period": "Period",
+        "done": "Done",
+        "activeCount": "{{count}} active"
       },
       "table": {
         "caption": "A list of your recent transactions.",

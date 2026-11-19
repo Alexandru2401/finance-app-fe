@@ -158,6 +158,8 @@ interface PageTourProps<T extends TourName> {
   onEnd?: () => void;
   // Interpolation values for the step texts, e.g. { name } for "Welcome, {{name}}!"
   values?: Record<string, string>;
+  // Extra classes for the "Guided tour" button, e.g. "h-9" in a toolbar
+  className?: string;
 }
 
 /**
@@ -170,6 +172,7 @@ export default function PageTour<T extends TourName>({
   steps,
   onEnd,
   values,
+  className,
 }: PageTourProps<T>) {
   const { t } = useTranslation();
   const { user, setUser } = useAuth();
@@ -230,7 +233,7 @@ export default function PageTour<T extends TourName>({
         variant="outline"
         size="sm"
         onClick={() => setRun(true)}
-        className="cursor-pointer gap-1.5"
+        className={cn("cursor-pointer gap-1.5", className)}
         aria-label={t("dashboard.tours.buttons.start")}
       >
         <Compass size={16} aria-hidden="true" />

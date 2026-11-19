@@ -1215,7 +1215,11 @@
           "amount": "Elimină filtrul de sumă"
         },
         "more": "Filtre",
-        "reset": "Resetează aceste filtre"
+        "reset": "Resetează aceste filtre",
+        "optionsError": "Unele opțiuni de filtrare (categorii, ani) nu au putut fi încărcate.",
+        "period": "Perioadă",
+        "done": "Gata",
+        "activeCount": "{{count}} active"
       },
       "table": {
         "caption": "Lista tranzacțiilor tale recente.",

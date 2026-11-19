@@ -193,6 +193,11 @@ export default function TransactionsTable({
   const offset = (page - 1) * limit;
   const isFirst = page <= 1;
   const isLast = page >= totalPages;
+  // As many skeleton rows as the page had (a full page the first time), so
+  // the table keeps its height while a new page / filter loads
+  const skeletonRows = transactions?.length || limit;
+  // Error / empty: about as tall as a few rows, so the page doesn't collapse
+  const MESSAGE_ROW = "h-64 text-center";
 
   // The links are anchors, so stop them from jumping to "#"
   const goTo = (target: number) => (e: MouseEvent) => {
@@ -239,7 +244,7 @@ export default function TransactionsTable({
           <TableBody>
             {error ? (
               <TableRow className="hover:bg-transparent">
-                <TableCell colSpan={6} className="h-32 text-center">
+                <TableCell colSpan={6} className={MESSAGE_ROW}>
                   <div
                     role="alert"
                     className="flex flex-col items-center gap-1"
@@ -268,31 +273,41 @@ export default function TransactionsTable({
                 </TableCell>
               </TableRow>
             ) : loading || !transactions ? (
-              [0, 1, 2, 3, 4].map((i) => (
-                <TableRow key={i} className={COMPACT}>
+              // Same columns as a real row: #, type pill, category, date,
+              // amount and the three 28px action buttons (row height 36px)
+              Array.from({ length: skeletonRows }, (_, i) => (
+                <TableRow
+                  key={i}
+                  className={`${COMPACT} hover:bg-transparent`}
+                  aria-hidden="true"
+                >
                   <TableCell>
-                    <Skeleton className="h-4 w-5" />
-                  </TableCell>
-                  <TableCell>
-                    <Skeleton className="h-4 w-28" />
+                    <Skeleton className="h-3.5 w-5" />
                   </TableCell>
                   <TableCell>
                     <Skeleton className="h-5 w-20 rounded-full" />
                   </TableCell>
                   <TableCell>
-                    <Skeleton className="h-4 w-20" />
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <Skeleton className="ml-auto h-4 w-16" />
+                    <Skeleton className="h-3.5 w-28" />
                   </TableCell>
                   <TableCell>
-                    <Skeleton className="ml-auto h-7 w-22 rounded-md" />
+                    <Skeleton className="h-3.5 w-24" />
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <Skeleton className="ml-auto h-3.5 w-20" />
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex justify-end gap-0.5">
+                      {[0, 1, 2].map((b) => (
+                        <Skeleton key={b} className="size-7 rounded-md" />
+                      ))}
+                    </div>
                   </TableCell>
                 </TableRow>
               ))
             ) : transactions.length === 0 ? (
               <TableRow className="hover:bg-transparent">
-                <TableCell colSpan={6} className="h-32 text-center">
+                <TableCell colSpan={6} className={MESSAGE_ROW}>
                   <p className="text-sm font-medium">
                     {t("dashboard.transactions.table.emptyTitle")}
                   </p>
@@ -319,7 +334,8 @@ export default function TransactionsTable({
                   <TableCell className="font-medium">
                     <span className="inline-flex flex-wrap items-center gap-1.5">
                       {categoryName(tx)}
-                      {tx.recurring_id && <RecurringBadge />}
+                      {/* Icon only; the label stays for screen readers and in the tooltip */}
+                      {tx.recurring_id && <RecurringBadge compact />}
                     </span>
                   </TableCell>
                   <TableCell className="text-muted-foreground whitespace-nowrap">
@@ -379,9 +395,13 @@ export default function TransactionsTable({
                   netTotal >= 0 ? "text-finance-success" : "text-finance-danger"
                 }`}
               >
-                {loading || error || !transactions
-                  ? "—"
-                  : format(netTotal, netTotal >= 0 ? "+" : "-")}
+                {error ? (
+                  "—"
+                ) : loading || !transactions ? (
+                  <Skeleton className="ml-auto h-4 w-20" />
+                ) : (
+                  format(netTotal, netTotal >= 0 ? "+" : "-")
+                )}
               </TableCell>
               <TableCell />
             </TableRow>
@@ -392,19 +412,27 @@ export default function TransactionsTable({
       {/* PAGINATIE */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6">
         <div className="flex items-center gap-4">
-          <p
-            className={`text-sm text-muted-foreground ${error ? "invisible" : ""}`}
-          >
-            <Trans
-              i18nKey="dashboard.transactions.table.showing"
-              values={{
-                from: total === 0 ? 0 : offset + 1,
-                to: Math.min(offset + limit, total),
-                total,
-              }}
-              components={BOLD}
-            />
-          </p>
+          {/* While loading the old numbers would be wrong: a bar of the
+              same line height instead */}
+          {loading && !error ? (
+            <div className="flex h-5 items-center" aria-hidden="true">
+              <Skeleton className="h-3.5 w-44" />
+            </div>
+          ) : (
+            <p
+              className={`text-sm text-muted-foreground ${error ? "invisible" : ""}`}
+            >
+              <Trans
+                i18nKey="dashboard.transactions.table.showing"
+                values={{
+                  from: total === 0 ? 0 : offset + 1,
+                  to: Math.min(offset + limit, total),
+                  total,
+                }}
+                components={BOLD}
+              />
+            </p>
+          )}
         </div>
 
         {totalPages > 1 && !error && (
