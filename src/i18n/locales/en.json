@@ -1526,6 +1526,7 @@
       "bellUnread_one": "Notifications: {{count}} unread",
       "bellUnread_other": "Notifications: {{count}} unread",
       "markAll": "Mark all as read",
+      "actions": "Actions",
       "markRead": "Mark as read",
       "delete": "Delete the notification",
       "deleted": "Notification deleted.",

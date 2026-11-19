@@ -1530,6 +1530,7 @@
       "bellUnread_few": "Notificări: {{count}} necitite",
       "bellUnread_other": "Notificări: {{count}} de necitite",
       "markAll": "Marchează tot ca citit",
+      "actions": "Acțiuni",
       "markRead": "Marchează ca citită",
       "delete": "Șterge notificarea",
       "deleted": "Notificarea a fost ștearsă.",
