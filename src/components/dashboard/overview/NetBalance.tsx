@@ -20,11 +20,15 @@ import { useCurrency } from "@/hooks/useCurrency";
 import type { Period } from "@/lib/periods";
 import { useTranslation } from "react-i18next";
 import { parseMonth } from "@/lib/date";
+import FitAmount from "@/components/dashboard/shared/FitAmount";
+import InlineError from "@/components/dashboard/shared/InlineError";
 
 interface Props {
   period: Period;
   // All-time balance, shown under the period net: undefined while loading, null if it could not be loaded
   totalBalance?: number | null;
+  // Reloads the all-time balance after an error
+  onRetryTotal?: () => void;
 }
 
 const formatMonth = (month: string, locale: string) =>
@@ -52,27 +56,57 @@ const TILES = [
   },
 ] as const;
 
+// Each bar sits in a box as tall as the real line it stands for (text-sm = 20px,
+// text-3xl/4xl = 36/40px, text-xs = 16px...), so nothing moves when data arrives
 function NetBalanceSkeleton() {
   return (
-    <CardContent className="grid gap-6 sm:grid-cols-5">
-      <div className="sm:col-span-3">
-        <Skeleton className="h-4 w-28" />
-        <Skeleton className="mt-2 h-10 w-40" />
-        <Skeleton className="mt-2 h-3 w-24" />
-        <Skeleton className="mt-4 h-20 w-full" />
+    <CardContent className="grid gap-6 @lg:grid-cols-5">
+      <div className="min-w-0 @lg:col-span-3">
+        <div className="flex h-5 items-center">
+          <Skeleton className="h-3.5 w-36" />
+        </div>
+        <div className="mt-1 flex h-9 items-center @md:h-10">
+          <Skeleton className="h-7 w-44 @md:h-8" />
+        </div>
+        <div className="mt-1 flex h-4 items-center">
+          <Skeleton className="h-3 w-56 max-w-full" />
+        </div>
+        <div className="mt-3 flex h-4 items-center">
+          <Skeleton className="h-3 w-24" />
+        </div>
+        <div className="mt-1 flex h-4 items-center">
+          <Skeleton className="h-3 w-44" />
+        </div>
+        <SparklineSkeleton />
       </div>
-      <div className="flex flex-col gap-3 sm:col-span-2">
-        {[0, 1, 2].map((i) => (
+      <div className="flex flex-col gap-3 @lg:col-span-2">
+        {TILES.map((tile) => (
           <div
-            key={i}
+            key={tile.key}
             className="rounded-lg border border-border bg-accent/50 p-3"
           >
-            <Skeleton className="h-3.5 w-20" />
-            <Skeleton className="mt-2 h-5 w-16" />
+            <div className="flex h-5 items-center">
+              <Skeleton className="h-3.5 w-32" />
+            </div>
+            <div className="mt-0.5 flex h-7 items-center">
+              <Skeleton className="h-5 w-24" />
+            </div>
           </div>
         ))}
       </div>
     </CardContent>
+  );
+}
+
+// Chart (h-20) + caption (text-xs), capped like the real sparkline
+function SparklineSkeleton() {
+  return (
+    <div className="mt-4 w-full max-w-sm">
+      <Skeleton className="h-20 w-full" />
+      <div className="mt-1 flex h-4 items-center">
+        <Skeleton className="h-3 w-36" />
+      </div>
+    </div>
   );
 }
 
@@ -81,12 +115,14 @@ function NetSparkline({
   trend,
   loading,
   error,
+  onRetry,
   positive,
   rangeLabel,
 }: {
   trend: BudgetTrendPoint[] | null;
   loading: boolean;
   error?: boolean;
+  onRetry: () => void;
   positive: boolean;
   // Interval actually shown, which can differ from the selected period
   rangeLabel: string;
@@ -94,9 +130,18 @@ function NetSparkline({
   const { t, i18n } = useTranslation();
   const { format: fmt } = useCurrency();
 
-  // The sparkline is secondary, so on error just leave it out
-  if (error) return null;
-  if (loading || !trend) return <Skeleton className="mt-4 h-20 w-full" />;
+  // Same box as the chart + caption, so the card keeps its height
+  if (error)
+    return (
+      <div className="mt-4 flex h-25 w-full max-w-sm items-center justify-center rounded-lg border border-dashed px-3">
+        <InlineError
+          message={t("dashboard.overview.netBalance.sparklineError")}
+          onRetry={onRetry}
+          className="justify-center text-center"
+        />
+      </div>
+    );
+  if (loading || !trend) return <SparklineSkeleton />;
   if (trend.length < 2) return null;
   // A flat line at 0 looks like a broken chart, so leave it out
   if (trend.every((p) => p.income === 0 && p.expense === 0)) return null;
@@ -113,8 +158,9 @@ function NetSparkline({
     },
   } satisfies ChartConfig;
 
+  // Capped at 24rem: a secondary hint, it shouldn't stretch across the whole column
   return (
-    <div className="mt-4">
+    <div className="mt-4 w-full max-w-sm">
       <ChartContainer
         config={chartConfig}
         className="aspect-auto h-20 w-full"
@@ -177,7 +223,11 @@ function NetSparkline({
   );
 }
 
-export default function NetBalance({ period, totalBalance }: Props) {
+export default function NetBalance({
+  period,
+  totalBalance,
+  onRetryTotal,
+}: Props) {
   const { t } = useTranslation();
   const { format: fmt } = useCurrency();
   const [attempt, setAttempt] = useState(0);
@@ -208,7 +258,8 @@ export default function NetBalance({ period, totalBalance }: Props) {
   // point, so short periods keep the default trend (last 6 months), as in TrendChart
   const trendPeriod =
     period === "this-month" || period === "last-month" ? undefined : period;
-  const trendKey = trendPeriod ?? "default";
+  const [trendAttempt, setTrendAttempt] = useState(0);
+  const trendKey = `${trendPeriod ?? "default"}-${trendAttempt}`;
   const [trendResult, setTrendResult] = useState<{
     key: string;
     trend: BudgetTrendPoint[] | null;
@@ -233,18 +284,26 @@ export default function NetBalance({ period, totalBalance }: Props) {
 
   if (!loading && error) {
     return (
-      <Card className="col-span-1 md:col-span-2">
-        <CardError
-          message={t("dashboard.overview.netBalance.error")}
-          onRetry={onRetry}
-        />
+      <Card className="@container min-w-0">
+        {/* Keeps the title and roughly the real card's height */}
+        <CardContent className="flex min-h-64 flex-col">
+          <CardDescription>
+            {t("dashboard.overview.netBalance.title", {
+              period: t(`dashboard.periods.${period}`),
+            })}
+          </CardDescription>
+          <CardError
+            message={t("dashboard.overview.netBalance.error")}
+            onRetry={onRetry}
+          />
+        </CardContent>
       </Card>
     );
   }
 
   if (loading || !summary) {
     return (
-      <Card className="col-span-1 md:col-span-2">
+      <Card className="@container min-w-0">
         <NetBalanceSkeleton />
       </Card>
     );
@@ -257,15 +316,17 @@ export default function NetBalance({ period, totalBalance }: Props) {
     summary.income > 0 ? Math.round((summary.net / summary.income) * 100) : 0;
 
   return (
-    <Card className="col-span-1 md:col-span-2">
-      <CardContent className="grid gap-6 sm:grid-cols-5">
-        <div className="min-w-0 sm:col-span-3">
+    <Card className="@container min-w-0">
+      <CardContent className="grid gap-6 @lg:grid-cols-5">
+        <div className="min-w-0 @lg:col-span-3">
           <CardDescription>
             {t("dashboard.overview.netBalance.title", { period: periodLabel })}
           </CardDescription>
-          <p className="mt-1 text-4xl font-bold tabular-nums text-foreground">
-            {fmt(summary.net)}
-          </p>
+          {/* Shrinks to 200K RON only when the full amount doesn't fit */}
+          <FitAmount
+            value={summary.net}
+            className="mt-1 text-3xl font-bold text-foreground @md:text-4xl"
+          />
           <p className="mt-1 text-xs text-muted-foreground">
             {t("dashboard.overview.netBalance.definition")}
           </p>
@@ -279,11 +340,19 @@ export default function NetBalance({ period, totalBalance }: Props) {
           </p>
           {/* The all-time balance does not depend on the selected period */}
           {totalBalance === undefined ? (
-            <Skeleton className="mt-2 h-3 w-32" />
+            <div className="mt-1 flex h-4 items-center">
+              <Skeleton className="h-3 w-44" />
+            </div>
+          ) : totalBalance === null ? (
+            <InlineError
+              message={t("dashboard.overview.netBalance.allTimeError")}
+              onRetry={onRetryTotal}
+              className="mt-1 min-h-4"
+            />
           ) : (
             <p className="mt-1 text-xs text-muted-foreground">
               {t("dashboard.overview.netBalance.allTime", {
-                amount: totalBalance === null ? "—" : fmt(totalBalance),
+                amount: fmt(totalBalance),
               })}
             </p>
           )}
@@ -292,26 +361,26 @@ export default function NetBalance({ period, totalBalance }: Props) {
             trend={trend}
             loading={trendLoading}
             error={trendError}
+            onRetry={() => setTrendAttempt((n) => n + 1)}
             positive={positive}
             rangeLabel={t(`dashboard.periods.${trendPeriod ?? "last-6"}`)}
           />
         </div>
 
-        <div className="flex flex-col gap-3 sm:col-span-2">
+        <div className="flex flex-col gap-3 @lg:col-span-2">
           {TILES.map((tile) => (
             <div
               key={tile.key}
-              className="rounded-lg border border-border bg-accent/50 p-3"
+              className="min-w-0 rounded-lg border border-border bg-accent/50 p-3"
             >
               <p className="text-sm">
                 {t(tile.label)}{" "}
                 <span className="text-muted-foreground">· {periodLabel}</span>
               </p>
-              <p
-                className={`mt-0.5 text-lg font-semibold tabular-nums ${tile.color}`}
-              >
-                {fmt(summary[tile.key])}
-              </p>
+              <FitAmount
+                value={summary[tile.key]}
+                className={`mt-0.5 text-lg font-semibold ${tile.color}`}
+              />
             </div>
           ))}
         </div>

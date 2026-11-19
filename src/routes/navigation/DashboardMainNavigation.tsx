@@ -54,7 +54,7 @@ export default function DashboardMainNavigation() {
   }, [location.pathname]);
 
   const renderNav = (showLabels: boolean, onNavigate?: () => void) => (
-    <nav className="flex h-full flex-col text-sm bg-accent">
+    <nav className="flex h-full flex-col text-sm bg-page">
       {/* ===== LOGO ===== */}
       <div
         className={clsx(
@@ -79,16 +79,14 @@ export default function DashboardMainNavigation() {
       </div>
 
       {/* ===== SEARCH ===== */}
-      {/* Looks like an input, but opens the search modal */}
-      {SEARCH_ENABLED && (
+      {/* Looks like an input, but opens the search modal. Desktop sidebar only:
+          on mobile the search button is in the top bar */}
+      {SEARCH_ENABLED && !onNavigate && (
         <div className={clsx("px-3 pb-4", !showLabels && "px-2")}>
           {showLabels ? (
             <button
               type="button"
-              onClick={() => {
-                onNavigate?.();
-                setSearchOpen(true);
-              }}
+              onClick={() => setSearchOpen(true)}
               aria-label={t("dashboard.nav.search")}
               aria-haspopup="dialog"
               className="flex h-10 w-full cursor-pointer items-center gap-2 rounded-lg border bg-background px-3 text-sm text-muted-foreground outline-none transition-colors hover:border-finance-warning/60 focus-visible:border-finance-warning focus-visible:ring-2 focus-visible:ring-finance-warning/40"
@@ -292,7 +290,7 @@ export default function DashboardMainNavigation() {
           onClick={() => setMobileOpen(false)}
           aria-label={t("dashboard.nav.closeMenu")}
           className={clsx(
-            "absolute -right-4 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-accent transition-colors hover:bg-accent",
+            "absolute -right-4 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-page transition-colors hover:bg-accent",
             !mobileOpen && "hidden",
           )}
         >

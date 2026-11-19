@@ -12,7 +12,7 @@ export default function DashboardRootLayout() {
       <div className="flex h-screen overflow-hidden">
         <DashboardMainNavigation />
 
-        <main className="flex-1 overflow-y-auto md:px-4 py-6 bg-accent">
+        <main className="flex-1 overflow-y-auto md:px-4 py-6 bg-page">
           {/* Mobile: room for the fixed top bar (h-14) from DashboardMainNavigation */}
           <div className="h-14 md:hidden" aria-hidden="true" />
 

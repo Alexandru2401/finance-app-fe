@@ -12,8 +12,11 @@ export default function PageHeader({
   children,
 }: PageHeaderProps) {
   return (
-    <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-      <div className="flex flex-col">
+    // Wraps by available space, not by viewport: the title asks for 20rem, and
+    // when that plus the actions doesn't fit (narrow screen, open sidebar) the
+    // actions drop to their own row instead of squeezing the title
+    <div className="mb-6 flex flex-wrap items-start justify-between gap-x-6 gap-y-4">
+      <div className="flex min-w-0 flex-[1_1_20rem] flex-col">
         <h1 className="text-2xl font-bold text-foreground">{title}</h1>
         {subtitle && (
           <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>
@@ -21,8 +24,8 @@ export default function PageHeader({
       </div>
 
       {children && (
-        <div className="flex flex-col md:items-end">
-          <div className="flex items-center gap-2">{children}</div>
+        <div className="flex shrink-0 flex-wrap items-center gap-2">
+          {children}
         </div>
       )}
     </div>

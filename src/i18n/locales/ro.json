@@ -929,7 +929,9 @@
         "cashFlow": "Flux de numerar",
         "sparklineCaption": "Flux de numerar · {{period}}",
         "sparklineLabel": "Flux de numerar lunar (venituri minus cheltuieli): {{values}}",
-        "error": "Soldul nu a putut fi încărcat."
+        "error": "Soldul nu a putut fi încărcat.",
+        "sparklineError": "Fluxul de numerar nu a putut fi încărcat.",
+        "allTimeError": "Soldul total nu a putut fi încărcat."
       },
       "breakdown": {
         "title": "Distribuția bugetului",
@@ -1646,9 +1648,14 @@
         "back": "Înapoi",
         "next": "Următorul",
         "last": "Gata",
-        "skip": "Sari peste"
+        "skip": "Sari peste",
+        "begin": "Să începem"
       },
       "overview": {
+        "welcome": {
+          "title": "Bine ai venit, {{name}}!",
+          "content": "Hai să facem un tur scurt al paginii, ca să vezi unde găsești soldul, cheltuielile și ultimele tranzacții. Durează mai puțin de un minut."
+        },
         "period": {
           "title": "Alege perioada",
           "content": "Toate cardurile de pe pagină se actualizează după perioada selectată aici."

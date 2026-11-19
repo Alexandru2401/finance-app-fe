@@ -11,6 +11,7 @@ import { Link } from "react-router";
 import { useEffect, useState } from "react";
 import { getBudgetTrend, type BudgetTrendPoint } from "@/api/budget";
 import CardError from "@/components/dashboard/shared/CardError";
+import CardHeaderSkeleton from "@/components/dashboard/shared/CardHeaderSkeleton";
 import EmptyState from "@/components/dashboard/shared/EmptyState";
 import { useCurrency } from "@/hooks/useCurrency";
 import type { Period } from "@/lib/periods";
@@ -41,7 +42,7 @@ function formatMonth(month: string, locale: string) {
 
 export default function SpendingTrendingChart({ period }: Props) {
   const { t, i18n } = useTranslation();
-  const { format: formatCurrency } = useCurrency();
+  const { format: formatCurrency, formatCompact } = useCurrency();
 
   // A one-month trend is a single point, so short periods keep the
   // default trend (last 6 months) instead
@@ -73,36 +74,55 @@ export default function SpendingTrendingChart({ period }: Props) {
   const error = !loading && !trend;
   const onRetry = () => setAttempt((n) => n + 1);
 
-  if (!loading && error) {
-    return (
-      <Card className="flex flex-col">
-        <CardHeader>
+  const header = (
+    <CardHeader>
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
           <CardTitle className="text-base">
             {t("dashboard.overview.trend.title")}
           </CardTitle>
-        </CardHeader>
-        <CardError
-          message={t("dashboard.overview.trend.error")}
-          onRetry={onRetry}
-        />
+          <CardDescription>
+            {t("dashboard.overview.trend.description")} · {periodLabel}
+          </CardDescription>
+        </div>
+        <Button asChild variant="outline" size="sm" className="shrink-0">
+          <Link to="analytics">{t("dashboard.common.seeDetails")}</Link>
+        </Button>
+      </div>
+    </CardHeader>
+  );
+
+  // Error and empty states keep the chart's height (h-65 = 260px), so the
+  // card stays as tall as Recent transactions next to it
+  if (!loading && error) {
+    return (
+      <Card className="flex min-w-0 flex-col">
+        {header}
+        <CardContent className="flex min-h-65 flex-1">
+          <CardError
+            message={t("dashboard.overview.trend.error")}
+            onRetry={onRetry}
+          />
+        </CardContent>
       </Card>
     );
   }
 
   if (loading || !trend) {
     return (
-      <Card className="flex flex-col">
-        <CardHeader>
-          <div className="flex items-start justify-between gap-2">
-            <div>
-              <Skeleton className="h-4 w-24" />
-              <Skeleton className="mt-2 h-3 w-44" />
-            </div>
-            <Skeleton className="h-8 w-24" />
-          </div>
-        </CardHeader>
+      <Card className="flex min-w-0 flex-col">
+        <CardHeaderSkeleton
+          titleWidth="w-36"
+          descriptionWidth="w-60"
+          actionWidth="w-24"
+        />
         <CardContent className="flex-1">
-          <Skeleton className="h-65 w-full" />
+          {/* Legend row (32px) + plot area, 260px in total like the chart */}
+          <div className="flex h-8 items-start justify-center gap-4">
+            <Skeleton className="h-3 w-16" />
+            <Skeleton className="h-3 w-16" />
+          </div>
+          <Skeleton className="h-57 w-full rounded-lg" />
         </CardContent>
       </Card>
     );
@@ -114,30 +134,12 @@ export default function SpendingTrendingChart({ period }: Props) {
     expenses: point.expense,
   }));
 
-  const header = (
-    <CardHeader>
-      <div className="flex items-start justify-between gap-2">
-        <div>
-          <CardTitle className="text-base">
-            {t("dashboard.overview.trend.title")}
-          </CardTitle>
-          <CardDescription>
-            {t("dashboard.overview.trend.description")} · {periodLabel}
-          </CardDescription>
-        </div>
-        <Button asChild variant="outline" size="sm">
-          <Link to="analytics">{t("dashboard.common.seeDetails")}</Link>
-        </Button>
-      </div>
-    </CardHeader>
-  );
-
   // No transactions in the whole range: a flat line at 0 looks like a broken chart
   if (trend.every((p) => p.income === 0 && p.expense === 0)) {
     return (
-      <Card className="flex flex-col">
+      <Card className="flex min-w-0 flex-col">
         {header}
-        <CardContent className="flex flex-1">
+        <CardContent className="flex min-h-65 flex-1">
           <EmptyState
             icon={LineChart}
             message={t("dashboard.overview.trend.empty")}
@@ -150,9 +152,9 @@ export default function SpendingTrendingChart({ period }: Props) {
   // Points are monthly, so a one-month period has nothing to draw a line with
   if (spendingTrend.length < 2) {
     return (
-      <Card className="flex flex-col">
+      <Card className="flex min-w-0 flex-col">
         {header}
-        <CardContent className="flex flex-1 items-center justify-center">
+        <CardContent className="flex min-h-65 flex-1 items-center justify-center">
           <p className="text-center text-sm text-muted-foreground">
             {t("dashboard.overview.trend.notEnoughData")}
             <br />
@@ -164,7 +166,7 @@ export default function SpendingTrendingChart({ period }: Props) {
   }
 
   return (
-    <Card className="flex flex-col">
+    <Card className="flex min-w-0 flex-col">
       {header}
 
       <CardContent className="flex-1">
@@ -177,7 +179,7 @@ export default function SpendingTrendingChart({ period }: Props) {
           <ResponsiveContainer width="100%" height={260}>
             <AreaChart
               data={spendingTrend}
-              margin={{ top: 4, right: 4, left: -20, bottom: 0 }}
+              margin={{ top: 4, right: 4, left: 0, bottom: 0 }}
             >
               <defs>
                 <linearGradient id="income" x1="0" y1="0" x2="0" y2="1">
@@ -214,10 +216,14 @@ export default function SpendingTrendingChart({ period }: Props) {
                 axisLine={false}
               />
               <YAxis
+                // Width measured from the longest label ("200 K RON"), so the
+                // amounts on the left are never cut off
+                width="auto"
                 tick={{ fontSize: 12, fill: "var(--muted-foreground)" }}
                 tickLine={false}
                 axisLine={false}
-                tickFormatter={(v) => formatCurrency(Number(v))}
+                // Short form on the axis (200K RON), full amount in the tooltip
+                tickFormatter={(v) => formatCompact(Number(v))}
               />
               <Tooltip
                 formatter={(value, name) => [

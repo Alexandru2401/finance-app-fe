@@ -16,6 +16,7 @@
   --radius-3xl: calc(var(--radius) + 12px);
   --radius-4xl: calc(var(--radius) + 16px);
   --color-background: var(--background);
+  --color-page: var(--page);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
@@ -112,14 +113,17 @@
     sans-serif;
   --radius: 0.625rem;
   --background: oklch(1 0 0);
+  /* Dashboard canvas (main + sidebar): a step below the cards in both themes */
+  --page: oklch(0.97 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
-  /* primary = the app's blue; ring follows it so focus matches the brand */
-  --primary: var(--finance-primary);
-  --primary-foreground: var(--finance-foreground);
+  /* primary stays neutral (black buttons in light, light buttons in dark);
+     the app's blue is finance-primary, which the focus ring uses */
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
   --muted: oklch(0.97 0 0);
@@ -147,8 +151,8 @@
   --breakdown-other: #a3a3a0;
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: var(--primary);
-  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
   --sidebar-accent: oklch(0.97 0 0);
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
@@ -189,6 +193,7 @@
   /* All dark surfaces share the same blue-gray hue (262), stepping up in lightness:
      background < sidebar < card < popover < muted/secondary < accent (hover) */
   --background: oklch(14.5% 0.018 262);
+  --page: oklch(16.5% 0.02 262);
   --foreground: oklch(93.9% 0.007 260.7);
   --card: oklch(20.4% 0.024 262.3);
   --card-foreground: oklch(93.9% 0.007 260.7);
@@ -199,6 +204,8 @@
   --muted: oklch(26.5% 0.026 262);
   --muted-foreground: oklch(61.7% 0.032 259.6);
   --accent: oklch(29% 0.03 262);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
   --accent-foreground: oklch(93.9% 0.007 260.7);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
@@ -209,6 +216,8 @@
   --breakdown-5: #d55181;
   --breakdown-other: #6b6b68;
   --sidebar: oklch(17.5% 0.021 262);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
   --sidebar-foreground: oklch(93.9% 0.007 260.7);
   --sidebar-accent: oklch(26.5% 0.026 262);
   --sidebar-accent-foreground: oklch(93.9% 0.007 260.7);

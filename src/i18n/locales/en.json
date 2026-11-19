@@ -927,7 +927,9 @@
         "cashFlow": "Cash flow",
         "sparklineCaption": "Cash flow · {{period}}",
         "sparklineLabel": "Monthly cash flow (income minus expenses): {{values}}",
-        "error": "Could not load your balance."
+        "error": "Could not load your balance.",
+        "sparklineError": "Could not load the cash flow.",
+        "allTimeError": "Could not load your total balance."
       },
       "breakdown": {
         "title": "Balance breakdown",
@@ -1641,9 +1643,14 @@
         "back": "Back",
         "next": "Next",
         "last": "Done",
-        "skip": "Skip"
+        "skip": "Skip",
+        "begin": "Let's go"
       },
       "overview": {
+        "welcome": {
+          "title": "Welcome, {{name}}!",
+          "content": "Let's take a quick tour of this page, so you know where to find your balance, spending and latest transactions. It takes less than a minute."
+        },
         "period": {
           "title": "Pick a period",
           "content": "Every card on this page updates to the period you select here."
