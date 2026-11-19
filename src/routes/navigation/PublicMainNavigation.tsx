@@ -13,17 +13,18 @@ import {
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import SitePreferences from "@/components/SitePreferences";
-import { useTheme } from "@/hooks/useTheme";
 
 type SubmenuKey = "prices";
 
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
+import { useTheme } from "@/hooks/useTheme";
 
 export default function PublicMainNavigation() {
   const [openMenu, setOpenMenu] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const { theme } = useTheme();
+  // Logo files per theme (public/logo/*-white / *-dark)
+  const { dark } = useTheme();
 
   // Fundal + umbră doar după ce pagina a fost derulată
   useEffect(() => {
@@ -62,9 +63,11 @@ export default function PublicMainNavigation() {
           : "border-transparent bg-background",
       )}
     >
-      <div className="h-20 w-36">
+      <div className="flex h-20 w-36 items-center">
         <img
-          src={theme === "dark" ? "/logo-no-bg-dark.png" : "/logo-no-bg.png"}
+          src={dark ? "/logo/logo-dark.webp" : "/logo/logo-white.webp"}
+          alt="SavingBox"
+          className="h-10 w-auto max-w-full object-contain"
         />
       </div>
 

@@ -2,9 +2,18 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/logo-mark.png" />
+    <!-- ?v=: browsers cache the favicon on their own; bump it when the icon changes.
+         The dark one follows the browser / OS theme (the tab bar), not the
+         app's own toggle; browsers without media on icons keep the first -->
+    <link rel="icon" type="image/webp" href="/logo/logo-mark-white.webp?v=3" />
+    <link
+      rel="icon"
+      type="image/webp"
+      href="/logo/logo-mark-dark.webp?v=3"
+      media="(prefers-color-scheme: dark)"
+    />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>frontend</title>
+    <title>SavingBox</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link

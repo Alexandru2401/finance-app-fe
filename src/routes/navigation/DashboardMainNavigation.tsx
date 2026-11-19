@@ -1,6 +1,6 @@
 import { FEATURES } from "@/lib/features";
 import { Link, useLocation } from "react-router";
-import { Menu, PanelLeftOpen, Search, X } from "lucide-react";
+import { Menu, PanelLeftClose, PanelLeftOpen, Search, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { dashboardNavigation } from "@/components/dashboard/routes/DashboardNavigation";
 import SearchDialog from "@/components/dashboard/shared/SearchDialog";
@@ -20,6 +20,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import { useTheme } from "@/hooks/useTheme";
 import { useTranslation } from "react-i18next";
 
 const isMac =
@@ -38,6 +39,8 @@ export default function DashboardMainNavigation() {
   const [open, setOpen] = useState(true);
   const [mobileOpen, setMobileOpen] = useState(false);
   const isMobile = useIsMobile();
+  // Logo files per theme (public/logo/*-white / *-dark)
+  const { dark } = useTheme();
   const location = useLocation();
   const [searchOpen, setSearchOpen] = useState(false);
   const { t } = useTranslation();
@@ -70,18 +73,22 @@ export default function DashboardMainNavigation() {
           !showLabels && "justify-center px-0",
         )}
       >
-        {/* Collapsed sidebar: only the mark, the full wordmark doesn't fit in 64px */}
+        {/* Collapsed sidebar: only the mark, the full wordmark doesn't fit in
+            64px. Both 48px tall (the most the mark fits in 64px), so the logo
+            and the menu below don't move when the sidebar opens / closes */}
         {showLabels ? (
           <img
-            src="/logo.png"
+            src={dark ? "/logo/logo-dark.webp" : "/logo/logo-white.webp"}
             alt={t("dashboard.nav.logoAlt")}
-            className="h-18 shrink-0 rounded-lg object-cover"
+            className="h-12 w-auto shrink-0 object-contain"
           />
         ) : (
           <img
-            src="/logo-mark.png"
+            src={
+              dark ? "/logo/logo-mark-dark.webp" : "/logo/logo-mark-white.webp"
+            }
             alt={t("dashboard.nav.logoAlt")}
-            className="h-10 w-10 shrink-0 object-contain"
+            className="h-12 w-auto shrink-0 object-contain"
           />
         )}
       </div>
@@ -234,7 +241,9 @@ export default function DashboardMainNavigation() {
 
         <Link to="/dashboard" className="flex items-center">
           <img
-            src="/logo-mark.png"
+            src={
+              dark ? "/logo/logo-mark-dark.webp" : "/logo/logo-mark-white.webp"
+            }
             alt={t("dashboard.nav.logoAlt")}
             className="h-8 w-8 object-contain"
           />
@@ -266,11 +275,17 @@ export default function DashboardMainNavigation() {
       >
         {/* Toggle button */}
         <button
+          type="button"
           onClick={() => setOpen((prev) => !prev)}
-          className="absolute cursor-pointer top-4 -right-5 z-10 flex h-8 w-8 items-center justify-center rounded-full border bg-background shadow hover:bg-accent transition-colors"
           aria-label={t("dashboard.nav.toggleSidebar")}
+          aria-expanded={open}
+          className="absolute -right-5 top-4 z-10 flex size-8 cursor-pointer items-center justify-center rounded-full border bg-background shadow transition-colors hover:bg-accent"
         >
-          <PanelLeftOpen className="h-4 w-4" />
+          {open ? (
+            <PanelLeftClose className="h-4 w-4" aria-hidden="true" />
+          ) : (
+            <PanelLeftOpen className="h-4 w-4" aria-hidden="true" />
+          )}
         </button>
 
         {renderNav(open)}
