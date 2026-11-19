@@ -30,7 +30,7 @@ export default function LanguageSwitcher({
           variant="ghost"
           aria-label={t("language.label")}
           className={cn(
-            "group h-9 cursor-pointer gap-1.5 rounded-full px-3 text-muted-foreground hover:bg-amber-400/15 hover:text-foreground data-[state=open]:bg-amber-400/15 data-[state=open]:text-foreground",
+            "group h-9 cursor-pointer gap-1.5 rounded-full px-3 text-muted-foreground hover:bg-brand/15 hover:text-foreground data-[state=open]:bg-brand/15 data-[state=open]:text-foreground",
             className,
           )}
         >
@@ -47,7 +47,7 @@ export default function LanguageSwitcher({
         sideOffset={10}
         className="w-52 rounded-xl p-1.5 shadow-xl"
       >
-        <DropdownMenuLabel className="pb-1 text-[11px] font-medium uppercase text-muted-foreground">
+        <DropdownMenuLabel className="pb-1 text-2xs font-medium uppercase text-muted-foreground">
           {t("language.label")}
         </DropdownMenuLabel>
         <DropdownMenuSeparator className="mb-1" />
@@ -66,9 +66,9 @@ export default function LanguageSwitcher({
             >
               <span
                 className={cn(
-                  "flex size-7 items-center justify-center rounded-sm text-[11px] font-bold uppercase tracking-wide transition-colors",
+                  "flex size-7 items-center justify-center rounded-sm text-2xs font-bold uppercase tracking-wide transition-colors",
                   active
-                    ? "bg-amber-400 text-black shadow-sm"
+                    ? "bg-brand text-brand-foreground shadow-sm"
                     : "bg-muted text-muted-foreground",
                 )}
               >
@@ -82,7 +82,7 @@ export default function LanguageSwitcher({
                   {t(`language.${lng}Hint`)}
                 </span>
               </span>
-              {active && <Check className="ml-auto size-4 text-amber-500" />}
+              {active && <Check className="ml-auto size-4 text-brand-text" />}
             </DropdownMenuItem>
           );
         })}

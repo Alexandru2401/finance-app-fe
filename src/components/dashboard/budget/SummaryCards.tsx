@@ -55,7 +55,7 @@ function TargetProgress({
           </>
         )}
       </div>
-      <div className="h-1.5 w-full rounded-full bg-slate-200 dark:bg-slate-800">
+      <div className="h-1.5 w-full rounded-full bg-muted">
         <div
           className={`h-1.5 rounded-full transition-all ${barClassName}`}
           style={{ width: `${width}%` }}

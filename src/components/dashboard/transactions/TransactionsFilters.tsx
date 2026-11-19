@@ -36,7 +36,7 @@ const TYPES = ["income", "expenses", "savings"] as const;
 const CHIP_CLASS =
   "gap-1.5 rounded-full border-finance-primary/30 bg-finance-primary/10 py-1 pl-3 pr-1 text-sm font-normal text-foreground";
 const CHIP_REMOVE_CLASS =
-  "inline-flex size-5 cursor-pointer items-center justify-center rounded-full bg-foreground/10 text-foreground/70 transition-colors hover:bg-destructive hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive/50";
+  "inline-flex size-5 cursor-pointer items-center justify-center rounded-full bg-foreground/10 text-foreground/70 transition-colors hover:bg-destructive hover:text-finance-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive/50";
 
 // Long lists (days, categories) scroll instead of filling the screen
 const LONG_LIST_CLASS =
@@ -201,7 +201,7 @@ export default function TransactionsFilters({
               <SlidersHorizontal className="h-4 w-4" aria-hidden="true" />
               {t("dashboard.transactions.filters.more")}
               {moreFilters > 0 && (
-                <span className="flex size-5 items-center justify-center rounded-full bg-finance-primary text-xs text-white tabular-nums">
+                <span className="flex size-5 items-center justify-center rounded-full bg-finance-primary text-xs text-finance-foreground tabular-nums">
                   {moreFilters}
                 </span>
               )}

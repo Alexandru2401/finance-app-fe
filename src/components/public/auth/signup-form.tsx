@@ -114,7 +114,7 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
                 required
                 value={formData.email}
                 onChange={(e) => handleChange("email", e)}
-                // className={errors.email ? "border-red-500" : ""}
+                // className={errors.email ? "border-finance-danger" : ""}
               />
               <FieldDescription>{t("auth.signup.emailHint")}</FieldDescription>
             </Field>

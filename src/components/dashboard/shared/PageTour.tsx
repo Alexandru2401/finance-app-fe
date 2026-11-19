@@ -122,7 +122,7 @@ function TourTooltip({
           <Button
             {...primaryProps}
             size="sm"
-            className="bg-finance-primary text-white hover:bg-finance-primary/90"
+            className="bg-finance-primary text-finance-foreground hover:bg-finance-primary/90"
           >
             {isLastStep
               ? t("dashboard.tours.buttons.last")

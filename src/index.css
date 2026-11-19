@@ -56,6 +56,28 @@
   --color-finance-danger-bg: var(--finance-danger-bg);
   --color-finance-warning-bg: var(--finance-warning-bg);
   --color-finance-primary-bg: var(--finance-primary-bg);
+  --color-finance-foreground: var(--finance-foreground);
+  --color-finance-warning-foreground: var(--finance-warning-foreground);
+
+  /* Brand yellow: fills, text on top of it, and readable text/icons on normal surfaces */
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-brand-text: var(--brand-text);
+
+  /* Always-dark surfaces (footer, newsletter box, black CTA button) */
+  --color-inverse: var(--inverse);
+  --color-inverse-foreground: var(--inverse-foreground);
+  --color-inverse-muted: var(--inverse-muted);
+  --color-inverse-border: var(--inverse-border);
+  --color-inverse-input: var(--inverse-input);
+
+  /* Backdrop behind modals, sheets and mobile menus */
+  --color-overlay: var(--overlay);
+
+  /* Extra small text (badges, counters, hints) */
+  --text-2xs: 0.6875rem;
+  --text-3xs: 0.625rem;
+
   --animate-marquee: marquee 20s linear infinite;
 }
 
@@ -115,6 +137,20 @@
   --finance-danger-bg: #fee2e2;
   --finance-warning-bg: #fef3c7;
   --finance-primary-bg: #e7ecfc;
+  --finance-foreground: #ffffff;
+  --finance-warning-foreground: #1a1a1a;
+
+  --brand: #ffd649;
+  --brand-foreground: #1a1a1a;
+  --brand-text: #8a6d00;
+
+  --inverse: #000000;
+  --inverse-foreground: #ffffff;
+  --inverse-muted: #94a3b8;
+  --inverse-border: #1e293b;
+  --inverse-input: #0f172a;
+
+  --overlay: rgb(0 0 0 / 0.5);
 }
 
 .dark {
@@ -165,6 +201,8 @@
   --finance-danger-bg: #2d1515;
   --finance-warning-bg: #2a1f0a;
   --finance-primary-bg: #12233d;
+
+  --brand-text: #ffd649;
 }
 
 @layer base {

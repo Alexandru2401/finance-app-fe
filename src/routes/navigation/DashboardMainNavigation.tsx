@@ -97,7 +97,7 @@ export default function DashboardMainNavigation() {
               <span className="flex-1 truncate text-left">
                 {t("dashboard.nav.search")}
               </span>
-              <kbd className="text-[11px] font-medium">{shortcutLabel}</kbd>
+              <kbd className="text-2xs font-medium">{shortcutLabel}</kbd>
             </button>
           ) : (
             <Tooltip>
@@ -165,7 +165,7 @@ export default function DashboardMainNavigation() {
 
                     {/* Badge "New" — necesita camp optional `badge` in date
                       {showLabels && badge && (
-                        <span className="ml-auto rounded-full bg-finance-warning px-2 py-0.5 text-[11px] font-semibold text-black">
+                        <span className="ml-auto rounded-full bg-finance-warning px-2 py-0.5 text-2xs font-semibold text-finance-warning-foreground">
                           {badge}
                         </span>
                       )}
@@ -275,7 +275,7 @@ export default function DashboardMainNavigation() {
         onClick={() => setMobileOpen(false)}
         aria-hidden="true"
         className={clsx(
-          "fixed inset-0 z-40 bg-black/50 transition-opacity duration-300 md:hidden",
+          "fixed inset-0 z-40 bg-overlay transition-opacity duration-300 md:hidden",
           mobileOpen ? "opacity-100" : "pointer-events-none opacity-0",
         )}
       />

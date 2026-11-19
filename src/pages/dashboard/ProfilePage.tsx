@@ -107,7 +107,7 @@ function ProfileBtn({ label, ...props }: profileBtnProps) {
   return (
     <Button
       size="sm"
-      className="bg-finance-success hover:bg-finance-success/90 text-white font-semibold cursor-pointer"
+      className="bg-finance-success hover:bg-finance-success/90 text-finance-foreground font-semibold cursor-pointer"
       {...props}
     >
       {label}

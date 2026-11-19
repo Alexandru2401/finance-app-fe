@@ -68,7 +68,7 @@ export default function TargetsPanel({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
+      <div className="absolute inset-0 bg-overlay" onClick={onClose} />
       <div
         className={`relative z-10 max-h-[90vh] w-full overflow-y-auto rounded-xl ${showHistory ? "max-w-3xl" : "max-w-lg"} border border-muted/30 bg-background p-6 shadow-2xl`}
       >

@@ -24,7 +24,7 @@ export default function HomeCardCta() {
     <section className="w-full bg-background px-3 sm:px-6 py-8 sm:py-16">
       <div className="mx-auto max-w-6xl">
         <div className="mb-6 max-w-2xl">
-          <p className="mb-2 text-xs font-semibold uppercase text-amber-400">
+          <p className="mb-2 text-xs font-semibold uppercase text-brand">
             {t("home.featureCards.eyebrow")}
           </p>
           <h2 className="text-3xl font-bold tracking-tight text-foreground md:text-4xl">
@@ -38,7 +38,7 @@ export default function HomeCardCta() {
         <div className="grid gap-x-8 gap-y-10 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3">
           {features.map(({ icon: Icon, key }) => (
             <div key={key}>
-              <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-amber-400">
+              <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-brand">
                 <Icon size={20} />
               </div>
               <h3 className="text-base font-semibold text-foreground">

@@ -476,7 +476,7 @@ export default function BudgetPage() {
       {showForm && (
         <>
           <div
-            className="fixed inset-0 z-40 bg-black/30"
+            className="fixed inset-0 z-40 bg-overlay"
             onClick={() => setShowForm(false)}
           />
           <aside className="fixed inset-y-0 right-0 z-50 max-w-md overflow-y-auto bg-background shadow-2xl border-l border-muted/30 md:max-w-xl lg:max-w-2xl">

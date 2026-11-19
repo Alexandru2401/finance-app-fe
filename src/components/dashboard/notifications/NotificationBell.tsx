@@ -114,7 +114,7 @@ export default function NotificationBell({ className }: NotificationBellProps) {
           {hasUnread && (
             <span
               aria-hidden="true"
-              className="absolute -right-1 -top-1 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-finance-danger px-1 text-[10px] font-semibold tabular-nums text-white ring-2 ring-card"
+              className="absolute -right-1 -top-1 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-finance-danger px-1 text-3xs font-semibold tabular-nums text-finance-foreground ring-2 ring-card"
             >
               {unread > 99 ? "99+" : unread}
             </span>
@@ -134,7 +134,7 @@ export default function NotificationBell({ className }: NotificationBellProps) {
               {t("dashboard.notifications.title")}
             </p>
             {hasUnread && (
-              <span className="rounded-full bg-finance-danger/10 px-2 py-0.5 text-[11px] font-semibold text-finance-danger">
+              <span className="rounded-full bg-finance-danger/10 px-2 py-0.5 text-2xs font-semibold text-finance-danger">
                 {t("dashboard.notifications.newCount", { count: unread })}
               </span>
             )}

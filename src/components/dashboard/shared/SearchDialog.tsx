@@ -399,7 +399,7 @@ function SearchPanel({ onClose }: { onClose: () => void }) {
           className="h-14 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
         />
         {loading && <Spinner className="h-4 w-4 text-muted-foreground" />}
-        <kbd className="rounded border bg-muted px-1.5 py-0.5 text-[11px] font-medium text-muted-foreground">
+        <kbd className="rounded border bg-muted px-1.5 py-0.5 text-2xs font-medium text-muted-foreground">
           Esc
         </kbd>
       </div>
@@ -486,7 +486,7 @@ function SearchPanel({ onClose }: { onClose: () => void }) {
       </div>
 
       {/* ===== FOOTER ===== */}
-      <div className="hidden items-center gap-4 border-t px-4 py-2 text-[11px] text-muted-foreground sm:flex">
+      <div className="hidden items-center gap-4 border-t px-4 py-2 text-2xs text-muted-foreground sm:flex">
         <span className="flex items-center gap-1">
           <kbd className="rounded border bg-muted px-1">↑</kbd>
           <kbd className="rounded border bg-muted px-1">↓</kbd>

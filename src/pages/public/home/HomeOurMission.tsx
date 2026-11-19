@@ -53,7 +53,7 @@ export default function OurMission() {
               </p>
               <Button
                 asChild
-                className="w-fit bg-amber-500 text-black hover:bg-finance-warning/90"
+                className="w-fit bg-brand text-brand-foreground hover:bg-brand/90"
               >
                 <Link to="/signin">{t("home.mission.personal.cta")}</Link>
               </Button>

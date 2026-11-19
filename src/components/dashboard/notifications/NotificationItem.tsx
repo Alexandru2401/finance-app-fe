@@ -75,7 +75,7 @@ export default function NotificationItem({
             >
               {title}
             </span>
-            <span className="shrink-0 pt-0.5 text-[11px] text-muted-foreground">
+            <span className="shrink-0 pt-0.5 text-2xs text-muted-foreground">
               {timeAgo}
             </span>
           </span>

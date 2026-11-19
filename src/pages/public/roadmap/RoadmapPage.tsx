@@ -102,7 +102,7 @@ export default function RoadmapPage() {
       <div className="text-center mb-12">
         <Badge
           variant="outline"
-          className="mb-4 border-amber-400/60 text-amber-500"
+          className="mb-4 border-brand/60 text-brand-text"
         >
           {t("roadmap.badge")}
         </Badge>
@@ -173,7 +173,7 @@ function RoadmapCard({
   return (
     <li className="rounded-2xl border bg-card p-5 shadow-sm">
       <div className="mb-3 flex items-center justify-between gap-3">
-        <Icon className="h-6 w-6 text-amber-500" aria-hidden />
+        <Icon className="h-6 w-6 text-brand-text" aria-hidden />
         {FEATURES.roadmapVotes && (
           <button
             type="button"
@@ -183,8 +183,8 @@ function RoadmapCard({
             className={cn(
               "inline-flex min-h-9 items-center gap-1.5 rounded-full border px-3 py-1 text-sm transition cursor-pointer disabled:cursor-not-allowed disabled:opacity-60",
               voted
-                ? "border-red-500/40 bg-red-500/10 text-red-500"
-                : "text-muted-foreground hover:border-red-500/40 hover:text-red-500",
+                ? "border-finance-danger/40 bg-finance-danger/10 text-finance-danger"
+                : "text-muted-foreground hover:border-finance-danger/40 hover:text-finance-danger",
             )}
           >
             <Heart
@@ -221,7 +221,7 @@ function FeedbackSection() {
     >
       <div className="grid gap-8 lg:grid-cols-3">
         <div>
-          <Lightbulb className="mb-4 h-8 w-8 text-amber-500" aria-hidden />
+          <Lightbulb className="mb-4 h-8 w-8 text-brand-text" aria-hidden />
           <h2 className="mb-2 text-2xl md:text-3xl font-bold">
             {t("roadmap.feedback.title")}
           </h2>
@@ -239,7 +239,7 @@ function FeedbackSection() {
               <div className="flex flex-wrap gap-3">
                 <Button
                   asChild
-                  className="bg-amber-400 text-black hover:bg-amber-300"
+                  className="bg-brand text-brand-foreground hover:bg-brand/90"
                 >
                   <Link to="/login">{t("nav.login")}</Link>
                 </Button>
@@ -314,11 +314,11 @@ function FeedbackForm() {
             aria-invalid={!!error}
             className={cn(
               "min-h-36 w-full resize-y rounded-md border border-input bg-transparent px-3 py-2 text-sm outline-none transition placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50",
-              error && "border-red-500",
+              error && "border-finance-danger",
             )}
           />
           <div className="flex justify-between gap-4 text-sm">
-            <p className="text-red-500">
+            <p className="text-finance-danger">
               {error && t(`roadmap.feedback.errors.${error}`)}
             </p>
             <p className="text-muted-foreground tabular-nums">
@@ -331,7 +331,7 @@ function FeedbackForm() {
           type="submit"
           size="lg"
           disabled={isSubmitting}
-          className="w-fit bg-amber-400 text-black hover:bg-amber-300 cursor-pointer"
+          className="w-fit bg-brand text-brand-foreground hover:bg-brand/90 cursor-pointer"
         >
           {isSubmitting
             ? t("roadmap.feedback.submitting")

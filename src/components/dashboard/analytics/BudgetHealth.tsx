@@ -182,14 +182,14 @@ export default function BudgetHealth({
             <PopoverTrigger asChild>
               <button
                 type="button"
-                className="flex cursor-pointer items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground transition-colors hover:text-foreground"
+                className="flex cursor-pointer items-center gap-1.5 text-2xs font-semibold uppercase tracking-wide text-muted-foreground transition-colors hover:text-foreground"
               >
                 <Info size={13} aria-hidden="true" />
                 {t("dashboard.analytics.health.why")}
               </button>
             </PopoverTrigger>
             <PopoverContent align="center" className="w-80">
-              <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+              <p className="mb-2 text-2xs font-semibold uppercase tracking-wide text-muted-foreground">
                 {t("dashboard.analytics.health.why")}
               </p>
               <ul className="space-y-2">

@@ -905,7 +905,7 @@ function DeleteCategoryButton({
             {t("dashboard.settings.categories.cancel")}
           </AlertDialogCancel>
           <AlertDialogAction
-            className="bg-finance-danger text-white hover:bg-finance-danger/90"
+            className="bg-finance-danger text-finance-foreground hover:bg-finance-danger/90"
             disabled={deleting}
             onClick={(e) => {
               // Keep the dialog open until the request finishes

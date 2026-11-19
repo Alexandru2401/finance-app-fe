@@ -85,7 +85,7 @@ export default function UpgradePlansPage() {
             className="cursor-pointer rounded-full px-4 py-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
           >
             Yearly
-            <span className="ml-1.5 text-xs font-semibold text-[#8a6d00] dark:text-[#ffd649]">
+            <span className="ml-1.5 text-xs font-semibold text-brand-text">
               −20%
             </span>
           </button>
@@ -99,12 +99,12 @@ export default function UpgradePlansPage() {
             key={plan.name}
             className={
               plan.featured
-                ? "relative border-[#ffd649] shadow-md md:-mt-3"
+                ? "relative border-brand shadow-md md:-mt-3"
                 : "relative"
             }
           >
             {plan.featured && (
-              <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#ffd649] text-black hover:bg-[#ffd649]">
+              <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-brand text-brand-foreground hover:bg-brand">
                 Most popular
               </Badge>
             )}
@@ -128,7 +128,7 @@ export default function UpgradePlansPage() {
                   <li key={feature.label} className="flex items-start gap-2.5">
                     {feature.included ? (
                       <Check
-                        className="mt-0.5 h-4 w-4 shrink-0 text-[#8a6d00] dark:text-[#ffd649]"
+                        className="mt-0.5 h-4 w-4 shrink-0 text-brand-text"
                         aria-hidden="true"
                       />
                     ) : (
@@ -155,7 +155,7 @@ export default function UpgradePlansPage() {
                 variant={plan.featured ? "default" : "outline"}
                 className={
                   plan.featured
-                    ? "w-full cursor-pointer bg-[#ffd649] text-black hover:bg-[#ffd649]/90"
+                    ? "w-full cursor-pointer bg-brand text-brand-foreground hover:bg-brand/90"
                     : "w-full cursor-pointer"
                 }
               >

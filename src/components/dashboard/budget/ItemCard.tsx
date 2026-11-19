@@ -220,7 +220,7 @@ export default function ItemCard({ section, onShowForm }: ItemCardProps) {
                         size="sm"
                         onClick={() => setNotesId(item.item_id)}
                         aria-label={t("dashboard.budget.items.viewDetails")}
-                        className="cursor-pointer  hover:bg-slate-400/20"
+                        className="cursor-pointer  hover:bg-muted"
                       >
                         <FileText size={18} className="text-finance-warning" />
                       </Button>
@@ -231,7 +231,7 @@ export default function ItemCard({ section, onShowForm }: ItemCardProps) {
                         size="sm"
                         onClick={() => startEdit(item)}
                         aria-label={t("dashboard.budget.items.edit")}
-                        className="cursor-pointer  hover:bg-slate-400/20"
+                        className="cursor-pointer  hover:bg-muted"
                       >
                         <Pencil size={16} className="text-finance-primary" />
                       </Button>
@@ -242,7 +242,7 @@ export default function ItemCard({ section, onShowForm }: ItemCardProps) {
                         size="sm"
                         onClick={() => setDeletingItem(item)}
                         aria-label={t("dashboard.budget.items.delete")}
-                        className="cursor-pointer  hover:bg-slate-400/20"
+                        className="cursor-pointer  hover:bg-muted"
                       >
                         <Trash2 size={18} className="text-finance-danger" />
                       </Button>

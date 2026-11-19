@@ -144,7 +144,7 @@ export default function NotificationsPage() {
           <TabsTrigger value="unread" className="cursor-pointer gap-1.5">
             {t("dashboard.notifications.filters.unread")}
             {unreadCount !== null && unreadCount > 0 && (
-              <span className="rounded-full bg-finance-danger px-1.5 text-[10px] font-semibold leading-4 text-white">
+              <span className="rounded-full bg-finance-danger px-1.5 text-3xs font-semibold leading-4 text-finance-foreground">
                 {unreadCount > 99 ? "99+" : unreadCount}
               </span>
             )}
