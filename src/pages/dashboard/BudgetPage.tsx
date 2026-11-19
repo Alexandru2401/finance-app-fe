@@ -4,14 +4,7 @@ import ItemCard from "@/components/dashboard/budget/ItemCard";
 import { Button } from "@/components/ui/button";
 import { CalendarDays, ExternalLink, Plus, Tags, Target } from "lucide-react";
 import { Link } from "react-router";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetFooter,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
+import { ResponsiveSheet } from "@/components/dashboard/shared/ResponsiveSheet";
 import { CategoriesManager } from "@/components/dashboard/settings/CategoriesSettings";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -512,28 +505,24 @@ export default function BudgetPage() {
         </>
       )}
 
-      <Sheet open={openCategories} onOpenChange={setOpenCategories}>
-        <SheetContent className="w-full overflow-y-auto sm:max-w-lg">
-          <SheetHeader>
-            <SheetTitle>{t("dashboard.settings.categories.title")}</SheetTitle>
-            <SheetDescription>
-              {t("dashboard.settings.categories.description")}
-            </SheetDescription>
-          </SheetHeader>
-          <div className="px-4">
-            {/* Opens on the active tab; a delete can change the list names */}
-            <CategoriesManager initialType={activeTab} onChange={refresh} />
-          </div>
-          <SheetFooter>
-            <Button variant="link" size="sm" asChild className="gap-1.5">
-              <Link to="/dashboard/settings?tab=categories">
-                <ExternalLink size={14} />
-                {t("dashboard.budget.categories.openSettings")}
-              </Link>
-            </Button>
-          </SheetFooter>
-        </SheetContent>
-      </Sheet>
+      <ResponsiveSheet
+        open={openCategories}
+        onOpenChange={setOpenCategories}
+        title={t("dashboard.settings.categories.title")}
+        description={t("dashboard.settings.categories.description")}
+        className="sm:max-w-lg"
+        footer={
+          <Button variant="link" size="sm" asChild className="gap-1.5">
+            <Link to="/dashboard/settings?tab=categories">
+              <ExternalLink size={14} />
+              {t("dashboard.budget.categories.openSettings")}
+            </Link>
+          </Button>
+        }
+      >
+        {/* Opens on the active tab; a delete can change the list names */}
+        <CategoriesManager initialType={activeTab} onChange={refresh} />
+      </ResponsiveSheet>
 
       {openTargets && (
         <TargetsPanel

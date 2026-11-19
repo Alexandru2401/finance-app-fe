@@ -6,13 +6,7 @@ import PageTour, {
 } from "@/components/dashboard/shared/PageTour";
 import BudgetForm from "@/components/dashboard/budget/BudgetForm";
 import { Button } from "@/components/ui/button";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
+import { ResponsiveSheet } from "@/components/dashboard/shared/ResponsiveSheet";
 import { Plus } from "lucide-react";
 import {
   DEFAULT_FILTERS,
@@ -347,24 +341,20 @@ export default function TransactionsPage() {
       </PageHeader>
 
       {/* Same form as on the Budget page; it stays open to add more in a row */}
-      <Sheet open={showAddForm} onOpenChange={setShowAddForm}>
-        <SheetContent className="w-full overflow-y-auto sm:max-w-xl">
-          <SheetHeader>
-            <SheetTitle>{t("dashboard.budget.form.title")}</SheetTitle>
-            <SheetDescription>
-              {t("dashboard.budget.form.subtitle")}
-            </SheetDescription>
-          </SheetHeader>
-          <div className="px-4 pb-6">
-            {/* The list is fetched again, so the new transaction shows up
-                if it matches the current filters */}
-            <BudgetForm
-              onCreated={() => setRefreshKey((k) => k + 1)}
-              onCategoryCreated={addCategory}
-            />
-          </div>
-        </SheetContent>
-      </Sheet>
+      <ResponsiveSheet
+        open={showAddForm}
+        onOpenChange={setShowAddForm}
+        title={t("dashboard.budget.form.title")}
+        description={t("dashboard.budget.form.subtitle")}
+        className="sm:max-w-xl"
+      >
+        {/* The list is fetched again, so the new transaction shows up
+            if it matches the current filters */}
+        <BudgetForm
+          onCreated={() => setRefreshKey((k) => k + 1)}
+          onCategoryCreated={addCategory}
+        />
+      </ResponsiveSheet>
       <TransactionsFilters
         filters={filters}
         onChange={changeFilters}
