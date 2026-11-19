@@ -12,7 +12,7 @@ export default function PublicFooter() {
           {/* Brand */}
           <div className="space-y-4">
             <h3 className="text-xl font-semibold text-inverse-foreground">
-              FinanceApp
+              SavingBox
             </h3>
             <p className="text-sm leading-relaxed text-inverse-muted">
               {t("footer.tagline")}

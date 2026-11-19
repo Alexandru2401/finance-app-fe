@@ -180,7 +180,7 @@
     "contact": "Contact",
     "email": "Email: {{email}}",
     "phone": "Telefon: {{phone}}",
-    "copyright": "© {{year}} FinanceApp. Toate drepturile rezervate.",
+    "copyright": "© {{year}} SavingBox. Toate drepturile rezervate.",
     "privacy": "Politica de confidențialitate",
     "terms": "Termeni și condiții",
     "backToTop": "Înapoi sus"
@@ -507,20 +507,20 @@
     "questionsText": "Echipa noastră te ajută cu drag. Scrie-ne la {{email}}.",
     "terms": {
       "title": "Termeni și condiții",
-      "intro": "Acești Termeni și condiții reglementează accesul și utilizarea FinanceApp, platforma de bugetare personală și pentru afaceri operată de FinanceApp SRL. Te rugăm să îi citești cu atenție înainte de a-ți crea un cont.",
+      "intro": "Acești Termeni și condiții reglementează accesul și utilizarea SavingBox, platforma de bugetare personală și pentru afaceri operată de SavingBox SRL. Te rugăm să îi citești cu atenție înainte de a-ți crea un cont.",
       "sections": {
         "acceptance": {
           "title": "1. Acceptarea termenilor",
           "paragraphs": [
-            "Prin crearea unui cont, accesarea sau utilizarea FinanceApp („Serviciul”), ești de acord să respecți acești Termeni și Politica noastră de confidențialitate. Dacă nu ești de acord, te rugăm să nu folosești Serviciul.",
-            "Dacă folosești FinanceApp în numele unei companii, confirmi că ai dreptul să accepți acești Termeni în numele acesteia."
+            "Prin crearea unui cont, accesarea sau utilizarea SavingBox („Serviciul”), ești de acord să respecți acești Termeni și Politica noastră de confidențialitate. Dacă nu ești de acord, te rugăm să nu folosești Serviciul.",
+            "Dacă folosești SavingBox în numele unei companii, confirmi că ai dreptul să accepți acești Termeni în numele acesteia."
           ]
         },
         "service": {
           "title": "2. Descrierea serviciului",
           "paragraphs": [
-            "FinanceApp te ajută să îți urmărești veniturile și cheltuielile, să creezi bugete, să setezi obiective de economisire, să vezi analize și să primești recomandări despre obiceiurile tale de cheltuire.",
-            "FinanceApp este un instrument de organizare financiară. Nu oferă consultanță de investiții, fiscală, juridică sau contabilă, iar recomandările din aplicație nu trebuie considerate sfaturi financiare profesionale."
+            "SavingBox te ajută să îți urmărești veniturile și cheltuielile, să creezi bugete, să setezi obiective de economisire, să vezi analize și să primești recomandări despre obiceiurile tale de cheltuire.",
+            "SavingBox este un instrument de organizare financiară. Nu oferă consultanță de investiții, fiscală, juridică sau contabilă, iar recomandările din aplicație nu trebuie considerate sfaturi financiare profesionale."
           ]
         },
         "account": {
@@ -533,7 +533,7 @@
         "plans": {
           "title": "4. Planuri, plăți și perioada de probă",
           "paragraphs": [
-            "FinanceApp este disponibil printr-un plan Gratuit și abonamentele plătite Pro și Premium. Prețurile actuale sunt afișate pe pagina Prețuri, în RON pentru România și în USD pentru alte regiuni, și includ TVA acolo unde este cazul.",
+            "SavingBox este disponibil printr-un plan Gratuit și abonamentele plătite Pro și Premium. Prețurile actuale sunt afișate pe pagina Prețuri, în RON pentru România și în USD pentru alte regiuni, și includ TVA acolo unde este cazul.",
             "Toate planurile plătite includ o perioadă de probă gratuită de 14 zile, fără card necesar. Abonamentele se reînnoiesc automat la sfârșitul fiecărei perioade de facturare, dacă nu sunt anulate înainte de data reînnoirii.",
             "Poți trece la un plan superior sau inferior ori poți anula oricând din setările contului, fără taxe de anulare. Oferim garanția banilor înapoi timp de 30 de zile pentru primul abonament plătit."
           ]
@@ -541,7 +541,7 @@
         "userData": {
           "title": "5. Conținutul tău",
           "paragraphs": [
-            "Păstrezi dreptul deplin de proprietate asupra tranzacțiilor, bugetelor, categoriilor și celorlalte date pe care le adaugi în FinanceApp („Conținutul tău”). Ne acorzi o licență limitată de a stoca și procesa Conținutul tău exclusiv pentru a-ți furniza Serviciul.",
+            "Păstrezi dreptul deplin de proprietate asupra tranzacțiilor, bugetelor, categoriilor și celorlalte date pe care le adaugi în SavingBox („Conținutul tău”). Ne acorzi o licență limitată de a stoca și procesa Conținutul tău exclusiv pentru a-ți furniza Serviciul.",
             "Ești responsabil pentru corectitudinea datelor introduse. Analizele și rapoartele sunt generate automat pe baza acestor date."
           ]
         },
@@ -554,21 +554,21 @@
         "thirdParty": {
           "title": "7. Conectarea băncilor și servicii terțe",
           "paragraphs": [
-            "Unele funcții îți permit să conectezi conturi bancare prin furnizori terți autorizați. Aceste conexiuni sunt doar de citire: FinanceApp nu poate iniția plăți și nu poate muta bani în numele tău.",
+            "Unele funcții îți permit să conectezi conturi bancare prin furnizori terți autorizați. Aceste conexiuni sunt doar de citire: SavingBox nu poate iniția plăți și nu poate muta bani în numele tău.",
             "Serviciile terților sunt guvernate de propriii termeni, iar noi nu răspundem pentru disponibilitatea lor sau pentru corectitudinea datelor pe care le furnizează."
           ]
         },
         "intellectualProperty": {
           "title": "8. Proprietate intelectuală",
           "paragraphs": [
-            "Numele FinanceApp, logo-ul, designul, software-ul și conținutul (cu excepția Conținutului tău) aparțin FinanceApp SRL și sunt protejate de legislația privind proprietatea intelectuală. Nu le poți copia sau folosi fără acordul nostru prealabil scris."
+            "Numele SavingBox, logo-ul, designul, software-ul și conținutul (cu excepția Conținutului tău) aparțin SavingBox SRL și sunt protejate de legislația privind proprietatea intelectuală. Nu le poți copia sau folosi fără acordul nostru prealabil scris."
           ]
         },
         "liability": {
           "title": "9. Limitarea răspunderii",
           "paragraphs": [
-            "Serviciul este furnizat „ca atare” și „în măsura disponibilității”. Depunem toate eforturile ca FinanceApp să fie sigur și disponibil, dar nu garantăm că va funcționa neîntrerupt sau fără erori.",
-            "În limita maximă permisă de lege, FinanceApp SRL nu răspunde pentru daune indirecte sau pentru deciziile financiare luate pe baza informațiilor din aplicație. Răspunderea noastră totală este limitată la suma plătită de tine în ultimele 12 luni înainte de reclamație."
+            "Serviciul este furnizat „ca atare” și „în măsura disponibilității”. Depunem toate eforturile ca SavingBox să fie sigur și disponibil, dar nu garantăm că va funcționa neîntrerupt sau fără erori.",
+            "În limita maximă permisă de lege, SavingBox SRL nu răspunde pentru daune indirecte sau pentru deciziile financiare luate pe baza informațiilor din aplicație. Răspunderea noastră totală este limitată la suma plătită de tine în ultimele 12 luni înainte de reclamație."
           ]
         },
         "termination": {
@@ -594,7 +594,7 @@
         "contact": {
           "title": "13. Contact",
           "paragraphs": [
-            "FinanceApp SRL, Str. Exemplu nr. 10, Sector 1, București, România. Nr. Registrul Comerțului J40/1234/2024, CUI RO12345678.",
+            "SavingBox SRL, Str. Exemplu nr. 10, Sector 1, București, România. Nr. Registrul Comerțului J40/1234/2024, CUI RO12345678.",
             "Email: legal@financeapp.com · Telefon: +40 21 123 4567"
           ]
         }
@@ -602,12 +602,12 @@
     },
     "privacy": {
       "title": "Politica de confidențialitate",
-      "intro": "Datele tale financiare sunt personale. Această Politică de confidențialitate explică ce informații colectează FinanceApp, de ce le colectăm, cum le protejăm și ce drepturi ai conform Regulamentului General privind Protecția Datelor (GDPR).",
+      "intro": "Datele tale financiare sunt personale. Această Politică de confidențialitate explică ce informații colectează SavingBox, de ce le colectăm, cum le protejăm și ce drepturi ai conform Regulamentului General privind Protecția Datelor (GDPR).",
       "sections": {
         "controller": {
           "title": "1. Cine suntem",
           "paragraphs": [
-            "Operatorul de date este FinanceApp SRL, Str. Exemplu nr. 10, Sector 1, București, România, Nr. Registrul Comerțului J40/1234/2024, CUI RO12345678.",
+            "Operatorul de date este SavingBox SRL, Str. Exemplu nr. 10, Sector 1, București, România, Nr. Registrul Comerțului J40/1234/2024, CUI RO12345678.",
             "Îl poți contacta pe Responsabilul nostru cu protecția datelor la dpo@financeapp.com."
           ]
         },
@@ -672,7 +672,7 @@
         "children": {
           "title": "10. Minori",
           "paragraphs": [
-            "FinanceApp nu este destinat persoanelor sub 18 ani și nu colectăm în mod intenționat date de la minori."
+            "SavingBox nu este destinat persoanelor sub 18 ani și nu colectăm în mod intenționat date de la minori."
           ]
         },
         "changes": {
@@ -691,7 +691,7 @@
     }
   },
   "blog": {
-    "badge": "Blog FinanceApp",
+    "badge": "Blog SavingBox",
     "title": "Banii, pe înțelesul tuturor",
     "subtitle": "Ghiduri practice, povești reale și sfaturi de la experți care te ajută să îți faci bugetul mai inteligent, să economisești mai mult și să crești cu încredere.",
     "searchPlaceholder": "Caută articole...",
@@ -704,7 +704,7 @@
     "latest": "Articole recente",
     "articleCta": {
       "title": "Pune totul în practică",
-      "text": "Creează-ți un cont gratuit FinanceApp și începe să îți urmărești bugetul în câteva minute.",
+      "text": "Creează-ți un cont gratuit SavingBox și începe să îți urmărești bugetul în câteva minute.",
       "button": "Începe gratuit"
     },
     "categories": {
@@ -723,7 +723,7 @@
     },
     "share": {
       "title": "Împărtășește-ți povestea",
-      "text": "Te-a ajutat FinanceApp să îți atingi un obiectiv financiar? Povestește-ne și inspiră comunitatea.",
+      "text": "Te-a ajutat SavingBox să îți atingi un obiectiv financiar? Povestește-ne și inspiră comunitatea.",
       "button": "Scrie-ne"
     },
     "posts": {
@@ -732,7 +732,7 @@
         "excerpt": "Împarte venitul în nevoi, dorințe și economii. Iată cum aplici această regulă clasică unui salariu din România și cum o adaptezi vieții tale.",
         "body": [
           "Regula 50/30/20 este una dintre cele mai simple metode de a începe un buget: 50% din venitul net merge pe nevoi (chirie, utilități, cumpărături, transport), 30% pe dorințe (ieșiri, hobby-uri, călătorii) și 20% pe economii și plata datoriilor.",
-          "Începe prin a analiza tranzacțiile din ultimele trei luni în FinanceApp. Marchează fiecare cheltuială drept nevoie sau dorință și compară rezultatul cu procentele țintă. Majoritatea oamenilor sunt surprinși cât de mult ocupă categoria „dorințe”.",
+          "Începe prin a analiza tranzacțiile din ultimele trei luni în SavingBox. Marchează fiecare cheltuială drept nevoie sau dorință și compară rezultatul cu procentele țintă. Majoritatea oamenilor sunt surprinși cât de mult ocupă categoria „dorințe”.",
           "Regula este un punct de plecare, nu o lege. Dacă locuiești într-un oraș scump, o împărțire 60/20/20 poate fi mai realistă. Important este ca economiile să fie puse deoparte primele, automat, la începutul fiecărei luni."
         ]
       },
@@ -741,7 +741,7 @@
         "excerpt": "Trei până la șase luni de cheltuieli pare mult. Le împărțim în pași mici și realiști pe care îi poate urma oricine.",
         "body": [
           "Un fond de urgență te protejează de costuri neprevăzute — o reparație la mașină, o factură medicală sau o perioadă fără venit — fără să te îndatorezi.",
-          "Stabilește un prim mini-obiectiv: o lună de cheltuieli esențiale. Creează un obiectiv de economisire în FinanceApp și setează un transfer automat în ziua salariului, chiar dacă este de doar 100 de lei.",
+          "Stabilește un prim mini-obiectiv: o lună de cheltuieli esențiale. Creează un obiectiv de economisire în SavingBox și setează un transfer automat în ziua salariului, chiar dacă este de doar 100 de lei.",
           "Ține banii într-un cont de economii separat, ușor accesibil. După ce atingi primul prag, crește obiectivul la trei luni, apoi la șase."
         ]
       },
@@ -768,7 +768,7 @@
         "excerpt": "Magazinele online sunt gândite să te facă să cumperi repede. O regulă simplă de așteptare te poate scuti de mii de lei pe an.",
         "body": [
           "Înainte de orice achiziție neesențială de peste 200 de lei, adaugă produsul într-o listă de dorințe și așteaptă 48 de ore. De cele mai multe ori impulsul pur și simplu dispare.",
-          "Dezabonează-te de la emailurile promoționale, șterge cardurile salvate din aplicațiile de cumpărături și setează în FinanceApp un buget lunar de „bani de distracție” pe care să îi cheltui fără vinovăție."
+          "Dezabonează-te de la emailurile promoționale, șterge cardurile salvate din aplicațiile de cumpărături și setează în SavingBox un buget lunar de „bani de distracție” pe care să îi cheltui fără vinovăție."
         ]
       },
       "freelancer": {
@@ -810,7 +810,7 @@
     }
   },
   "roadmap": {
-    "badge": "Roadmap FinanceApp",
+    "badge": "Roadmap SavingBox",
     "title": "Ce urmează în aplicație",
     "subtitle": "Votează ce îți dorești cel mai mult și spune-ne ce ți-ar plăcea să vezi. Ideile tale ne ajută să stabilim prioritățile.",
     "cta": "Propune o idee",
