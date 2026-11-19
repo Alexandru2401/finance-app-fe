@@ -72,7 +72,7 @@ export default function PublicPricesPersonalPage() {
               }`}
             >
               {plan.popular && (
-                <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-emerald-400">
+                <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-finance-success">
                   {t("prices.mostPopular")}
                 </Badge>
               )}

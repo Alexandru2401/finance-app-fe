@@ -15,7 +15,7 @@ export default function HomeHeroSection() {
           <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-center lg:text-left md:text-6xl">
             <Trans
               i18nKey="home.hero.title"
-              components={{ highlight: <span className="text-amber-400" /> }}
+              components={{ highlight: <span className="text-brand" /> }}
             />
           </h1>
 
@@ -27,7 +27,7 @@ export default function HomeHeroSection() {
             <Button
               asChild
               size="lg"
-              className="gap-2 bg-amber-400 text-black hover:bg-finance-warning/90"
+              className="gap-2 bg-brand text-brand-foreground hover:bg-brand/90"
             >
               <Link to="/signin">
                 {t("home.hero.getStarted")}
@@ -45,7 +45,7 @@ export default function HomeHeroSection() {
           <ul className="mt-8 flex justify-center sm:justify-center flex-wrap lg:justify-start gap-x-6 gap-y-2">
             {perks.map((key) => (
               <li key={key} className="flex items-center gap-1.5 text-sm">
-                <Check size={15} className="text-amber-400" />
+                <Check size={15} className="text-brand" />
                 {t(`home.hero.perks.${key}`)}
               </li>
             ))}
@@ -60,7 +60,7 @@ export default function HomeHeroSection() {
               className="relative z-20"
             />
 
-            <div className="absolute top-50 -left-1 sm:left-0 z-10  h-50 w-95 sm:w-100 rounded-full bg-amber-400" />
+            <div className="absolute top-50 -left-1 sm:left-0 z-10  h-50 w-95 sm:w-100 rounded-full bg-brand" />
           </div>
         </div>
       </div>

@@ -39,7 +39,7 @@
         "secure": "Secure & private",
         "sync": "Sync everywhere"
       },
-      "imageAlt": "Finance app preview"
+      "imageAlt": "SavingBox preview"
     },
     "featureCards": {
       "eyebrow": "Powerful features",
@@ -180,7 +180,7 @@
     "contact": "Contact",
     "email": "Email: {{email}}",
     "phone": "Phone: {{phone}}",
-    "copyright": "© {{year}} FinanceApp. All rights reserved.",
+    "copyright": "© {{year}} SavingBox. All rights reserved.",
     "privacy": "Privacy Policy",
     "terms": "Terms and Conditions",
     "backToTop": "Back to top"
@@ -507,20 +507,20 @@
     "questionsText": "Our team is happy to help. Write to us at {{email}}.",
     "terms": {
       "title": "Terms and Conditions",
-      "intro": "These Terms and Conditions govern your access to and use of FinanceApp, the personal and business budgeting platform operated by FinanceApp SRL. Please read them carefully before creating an account.",
+      "intro": "These Terms and Conditions govern your access to and use of SavingBox, the personal and business budgeting platform operated by SavingBox SRL. Please read them carefully before creating an account.",
       "sections": {
         "acceptance": {
           "title": "1. Acceptance of the terms",
           "paragraphs": [
-            "By creating an account, accessing or using FinanceApp (the \"Service\"), you agree to be bound by these Terms and by our Privacy Policy. If you do not agree, please do not use the Service.",
-            "If you use FinanceApp on behalf of a company, you confirm that you are authorized to accept these Terms on its behalf."
+            "By creating an account, accessing or using SavingBox (the \"Service\"), you agree to be bound by these Terms and by our Privacy Policy. If you do not agree, please do not use the Service.",
+            "If you use SavingBox on behalf of a company, you confirm that you are authorized to accept these Terms on its behalf."
           ]
         },
         "service": {
           "title": "2. Description of the service",
           "paragraphs": [
-            "FinanceApp helps you track income and expenses, create budgets, set savings targets, view analytics and receive insights about your spending habits.",
-            "FinanceApp is a financial organization tool. It does not provide investment, tax, legal or accounting advice, and the insights shown in the app should not be treated as professional financial advice."
+            "SavingBox helps you track income and expenses, create budgets, set savings targets, view analytics and receive insights about your spending habits.",
+            "SavingBox is a financial organization tool. It does not provide investment, tax, legal or accounting advice, and the insights shown in the app should not be treated as professional financial advice."
           ]
         },
         "account": {
@@ -533,7 +533,7 @@
         "plans": {
           "title": "4. Plans, payments and trial",
           "paragraphs": [
-            "FinanceApp is offered through a Free plan and paid Pro and Premium subscriptions. Current prices are shown on the Prices page, in RON for Romania and in USD for other regions, and include VAT where applicable.",
+            "SavingBox is offered through a Free plan and paid Pro and Premium subscriptions. Current prices are shown on the Prices page, in RON for Romania and in USD for other regions, and include VAT where applicable.",
             "All paid plans include a 14-day free trial, with no credit card required to start. Subscriptions renew automatically at the end of each billing period unless cancelled before the renewal date.",
             "You can upgrade, downgrade or cancel at any time from your account settings, with no cancellation fees. We offer a 30-day money-back guarantee for your first paid subscription."
           ]
@@ -541,7 +541,7 @@
         "userData": {
           "title": "5. Your content",
           "paragraphs": [
-            "You keep full ownership of the transactions, budgets, categories and other data you add to FinanceApp (\"Your Content\"). You grant us a limited license to store and process Your Content only to provide the Service to you.",
+            "You keep full ownership of the transactions, budgets, categories and other data you add to SavingBox (\"Your Content\"). You grant us a limited license to store and process Your Content only to provide the Service to you.",
             "You are responsible for the accuracy of the data you enter. Analytics and reports are generated automatically from that data."
           ]
         },
@@ -554,21 +554,21 @@
         "thirdParty": {
           "title": "7. Bank connections and third-party services",
           "paragraphs": [
-            "Some features let you connect bank accounts through licensed third-party providers. Those connections are read-only: FinanceApp can never initiate payments or move money on your behalf.",
+            "Some features let you connect bank accounts through licensed third-party providers. Those connections are read-only: SavingBox can never initiate payments or move money on your behalf.",
             "Third-party services are governed by their own terms, and we are not responsible for their availability or for the accuracy of the data they provide."
           ]
         },
         "intellectualProperty": {
           "title": "8. Intellectual property",
           "paragraphs": [
-            "The FinanceApp name, logo, design, software and content (excluding Your Content) are the property of FinanceApp SRL and are protected by intellectual property laws. You may not copy or use them without our prior written permission."
+            "The SavingBox name, logo, design, software and content (excluding Your Content) are the property of SavingBox SRL and are protected by intellectual property laws. You may not copy or use them without our prior written permission."
           ]
         },
         "liability": {
           "title": "9. Limitation of liability",
           "paragraphs": [
-            "The Service is provided \"as is\" and \"as available\". We work hard to keep FinanceApp secure and available, but we do not guarantee that it will be uninterrupted or error-free.",
-            "To the maximum extent permitted by law, FinanceApp SRL is not liable for indirect or consequential damages, or for financial decisions you make based on information shown in the app. Our total liability is limited to the amount you paid us in the 12 months before the claim."
+            "The Service is provided \"as is\" and \"as available\". We work hard to keep SavingBox secure and available, but we do not guarantee that it will be uninterrupted or error-free.",
+            "To the maximum extent permitted by law, SavingBox SRL is not liable for indirect or consequential damages, or for financial decisions you make based on information shown in the app. Our total liability is limited to the amount you paid us in the 12 months before the claim."
           ]
         },
         "termination": {
@@ -594,7 +594,7 @@
         "contact": {
           "title": "13. Contact",
           "paragraphs": [
-            "FinanceApp SRL, 10 Exemplu Street, District 1, Bucharest, Romania. Trade Register no. J40/1234/2024, VAT no. RO12345678.",
+            "SavingBox SRL, 10 Exemplu Street, District 1, Bucharest, Romania. Trade Register no. J40/1234/2024, VAT no. RO12345678.",
             "Email: legal@financeapp.com · Phone: +40 21 123 4567"
           ]
         }
@@ -602,12 +602,12 @@
     },
     "privacy": {
       "title": "Privacy Policy",
-      "intro": "Your financial data is personal. This Privacy Policy explains what information FinanceApp collects, why we collect it, how we protect it and what rights you have under the General Data Protection Regulation (GDPR).",
+      "intro": "Your financial data is personal. This Privacy Policy explains what information SavingBox collects, why we collect it, how we protect it and what rights you have under the General Data Protection Regulation (GDPR).",
       "sections": {
         "controller": {
           "title": "1. Who we are",
           "paragraphs": [
-            "The data controller is FinanceApp SRL, 10 Exemplu Street, District 1, Bucharest, Romania, Trade Register no. J40/1234/2024, VAT no. RO12345678.",
+            "The data controller is SavingBox SRL, 10 Exemplu Street, District 1, Bucharest, Romania, Trade Register no. J40/1234/2024, VAT no. RO12345678.",
             "You can reach our Data Protection Officer at dpo@financeapp.com."
           ]
         },
@@ -672,7 +672,7 @@
         "children": {
           "title": "10. Children",
           "paragraphs": [
-            "FinanceApp is not intended for people under 18, and we do not knowingly collect data from minors."
+            "SavingBox is not intended for people under 18, and we do not knowingly collect data from minors."
           ]
         },
         "changes": {
@@ -691,7 +691,7 @@
     }
   },
   "blog": {
-    "badge": "FinanceApp Blog",
+    "badge": "SavingBox Blog",
     "title": "Money, made simple",
     "subtitle": "Practical guides, real stories and expert tips to help you budget smarter, save more and grow with confidence.",
     "searchPlaceholder": "Search articles...",
@@ -704,7 +704,7 @@
     "latest": "Latest articles",
     "articleCta": {
       "title": "Put this into practice",
-      "text": "Create your free FinanceApp account and start tracking your budget in minutes.",
+      "text": "Create your free SavingBox account and start tracking your budget in minutes.",
       "button": "Get started for free"
     },
     "categories": {
@@ -723,7 +723,7 @@
     },
     "share": {
       "title": "Share your story",
-      "text": "Has FinanceApp helped you reach a financial goal? Tell us about it and inspire our community.",
+      "text": "Has SavingBox helped you reach a financial goal? Tell us about it and inspire our community.",
       "button": "Write to us"
     },
     "posts": {
@@ -732,7 +732,7 @@
         "excerpt": "Split your income into needs, wants and savings. Here is how to apply this classic rule to a Romanian salary and adjust it to your life.",
         "body": [
           "The 50/30/20 rule is one of the easiest ways to start budgeting: 50% of your net income goes to needs (rent, utilities, groceries, transport), 30% to wants (eating out, hobbies, travel) and 20% to savings and paying off debt.",
-          "Start by looking at the last three months of transactions in FinanceApp. Tag each expense as a need or a want and compare the result with the target percentages. Most people are surprised by how much the \"wants\" category really takes.",
+          "Start by looking at the last three months of transactions in SavingBox. Tag each expense as a need or a want and compare the result with the target percentages. Most people are surprised by how much the \"wants\" category really takes.",
           "The rule is a starting point, not a law. If you live in an expensive city, a 60/20/20 split might be more realistic. What matters is that savings get paid first, automatically, at the beginning of every month."
         ]
       },
@@ -741,7 +741,7 @@
         "excerpt": "Three to six months of expenses sounds like a lot. We break it down into small, realistic steps anyone can follow.",
         "body": [
           "An emergency fund protects you from unexpected costs — a car repair, a medical bill or a period without income — without going into debt.",
-          "Set a first mini-goal of one month of essential expenses. Create a savings target in FinanceApp and set up an automatic transfer on payday, even if it is only 100 lei.",
+          "Set a first mini-goal of one month of essential expenses. Create a savings target in SavingBox and set up an automatic transfer on payday, even if it is only 100 lei.",
           "Keep the money in a separate, easily accessible savings account. Once you hit the first milestone, raise the target to three months, then six."
         ]
       },
@@ -768,7 +768,7 @@
         "excerpt": "Online stores are designed to make you buy fast. A simple waiting rule can save you thousands of lei per year.",
         "body": [
           "Before any non-essential purchase over 200 lei, add the item to a wishlist and wait 48 hours. Most of the time the urge simply disappears.",
-          "Unsubscribe from promotional emails, remove saved cards from shopping apps and set a monthly \"fun money\" budget in FinanceApp for guilt-free spending."
+          "Unsubscribe from promotional emails, remove saved cards from shopping apps and set a monthly \"fun money\" budget in SavingBox for guilt-free spending."
         ]
       },
       "freelancer": {
@@ -810,7 +810,7 @@
     }
   },
   "roadmap": {
-    "badge": "FinanceApp Roadmap",
+    "badge": "SavingBox Roadmap",
     "title": "What's coming to the app",
     "subtitle": "Vote for what you want most and tell us what you'd like to see. Your ideas help us set our priorities.",
     "cta": "Suggest an idea",
@@ -927,7 +927,9 @@
         "cashFlow": "Cash flow",
         "sparklineCaption": "Cash flow · {{period}}",
         "sparklineLabel": "Monthly cash flow (income minus expenses): {{values}}",
-        "error": "Could not load your balance."
+        "error": "Could not load your balance.",
+        "sparklineError": "Could not load the cash flow.",
+        "allTimeError": "Could not load your total balance."
       },
       "breakdown": {
         "title": "Balance breakdown",
@@ -1047,6 +1049,7 @@
         "addEntry": "Add entry",
         "addMore": "Add more items",
         "viewDetails": "View details",
+        "actions": "Actions",
         "edit": "Edit",
         "delete": "Delete",
         "cancel": "Cancel",
@@ -1058,7 +1061,8 @@
         "noTarget": "No target set",
         "ofTarget": "{{pct}}% of target",
         "ofLimit": "{{pct}}% of limit",
-        "ofGoal": "{{pct}}% of goal"
+        "ofGoal": "{{pct}}% of goal",
+        "loadError": "Couldn't load this month's totals."
       },
       "targets": {
         "title": "Set your targets for {{month}}",
@@ -1105,7 +1109,8 @@
           "empty": "No savings this month."
         },
         "other": "Other",
-        "total": "Total:"
+        "total": "Total:",
+        "loadError": "Couldn't load the category breakdown."
       },
       "insights": {
         "title": "Insights",
@@ -1125,7 +1130,8 @@
         "incomeTrendNoData": "No income last month to compare with.",
         "savingsRate": "Savings rate",
         "savingsRateValue": "{{pct}}% of income",
-        "savingsRateNoIncome": "No income this month."
+        "savingsRateNoIncome": "No income this month.",
+        "loadError": "Couldn't load."
       },
       "categories": {
         "button": "Categories",
@@ -1206,7 +1212,11 @@
           "amount": "Remove amount filter"
         },
         "more": "Filters",
-        "reset": "Reset these filters"
+        "reset": "Reset these filters",
+        "optionsError": "Some filter options (categories, years) couldn't be loaded.",
+        "period": "Period",
+        "done": "Done",
+        "activeCount": "{{count}} active"
       },
       "table": {
         "caption": "A list of your recent transactions.",
@@ -1248,10 +1258,11 @@
       "analytics": "Analytics",
       "profile": "Profile",
       "search": "Search",
+      "menu": "Menu",
       "openMenu": "Open menu",
       "closeMenu": "Close menu",
       "toggleSidebar": "Toggle sidebar",
-      "logoAlt": "Logo",
+      "logoAlt": "SavingBox",
       "settings": "Settings"
     },
     "search": {
@@ -1519,6 +1530,7 @@
       "bellUnread_one": "Notifications: {{count}} unread",
       "bellUnread_other": "Notifications: {{count}} unread",
       "markAll": "Mark all as read",
+      "actions": "Actions",
       "markRead": "Mark as read",
       "delete": "Delete the notification",
       "deleted": "Notification deleted.",
@@ -1641,9 +1653,14 @@
         "back": "Back",
         "next": "Next",
         "last": "Done",
-        "skip": "Skip"
+        "skip": "Skip",
+        "begin": "Let's go"
       },
       "overview": {
+        "welcome": {
+          "title": "Welcome, {{name}}!",
+          "content": "Let's take a quick tour of this page, so you know where to find your balance, spending and latest transactions. It takes less than a minute."
+        },
         "period": {
           "title": "Pick a period",
           "content": "Every card on this page updates to the period you select here."

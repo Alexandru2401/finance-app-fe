@@ -9,6 +9,8 @@ import { ChartPie } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useCurrency } from "@/hooks/useCurrency";
+import FitAmount from "@/components/dashboard/shared/FitAmount";
+import CardError from "@/components/dashboard/shared/CardError";
 import { getCategoryTotals, type CategoryTotal } from "@/api/budget";
 import { monthPeriod } from "@/lib/periods";
 
@@ -43,8 +45,9 @@ export default function ExtraInfo({
 }: ExtraInfoProps) {
   const { t } = useTranslation();
   const { format } = useCurrency();
-  // Key of the request the rows belong to, so a new tab / month shows loading
-  const requestKey = `${activeTab}#${month}#${refreshKey}`;
+  // Key of the request the rows belong to, so a new tab / month / retry shows loading
+  const [attempt, setAttempt] = useState(0);
+  const requestKey = `${activeTab}#${month}#${refreshKey}#${attempt}`;
   const [result, setResult] = useState<{
     key: string;
     rows: CategoryTotal[] | null;
@@ -124,9 +127,11 @@ export default function ExtraInfo({
           <span className="text-xs text-muted-foreground">
             {t("dashboard.budget.extraInfo.total")}
           </span>
-          <span className="text-sm font-semibold tabular-nums">
-            {format(total)}
-          </span>
+          {/* The hole is ~4.5rem wide: large totals shorten to fit it */}
+          <FitAmount
+            value={total}
+            className="w-18 text-center text-sm font-semibold"
+          />
         </div>
       </div>
     );
@@ -134,22 +139,34 @@ export default function ExtraInfo({
 
   function body() {
     if (loading) {
+      // Same pieces as the real body: the ring (w-28) and legend rows of
+      // dot + name + amount, each as tall as a text-sm line
       return (
         <div className="space-y-4">
-          <Skeleton className="mx-auto size-28 rounded-full" />
-          <div className="space-y-2">
-            {Array.from({ length: 3 }, (_, i) => (
-              <Skeleton key={i} className="h-5 w-full" />
-            ))}
+          <div className="relative mx-auto aspect-square w-28">
+            <Skeleton className="size-full rounded-full" />
+            <div className="absolute inset-3.5 rounded-full bg-card" />
           </div>
+          <ul className="space-y-2" aria-hidden="true">
+            {Array.from({ length: 3 }, (_, i) => (
+              <li key={i} className="flex h-5 items-center gap-2">
+                <Skeleton className="size-2.5 shrink-0 rounded-full" />
+                <Skeleton className="h-3.5 w-24" />
+                <Skeleton className="ml-auto h-3.5 w-20" />
+              </li>
+            ))}
+          </ul>
         </div>
       );
     }
     if (result?.rows === null) {
       return (
-        <p className="flex h-full items-center justify-center text-center text-sm text-destructive">
-          {t("dashboard.common.loadError")}
-        </p>
+        <div className="flex h-full">
+          <CardError
+            message={t("dashboard.budget.extraInfo.loadError")}
+            onRetry={() => setAttempt((n) => n + 1)}
+          />
+        </div>
       );
     }
     if (shown.length === 0) {

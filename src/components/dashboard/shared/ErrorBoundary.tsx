@@ -30,7 +30,7 @@ export default class ErrorBoundary extends Component<Props, State> {
         this.props.fallback || (
           <div className="flex items-center justify-center h-2/3">
             <div className="text-center border-(--crm-white) border p-10 rounded-2xl">
-              <h2 className="text-lg font-semibold text-red-500 mb-2">
+              <h2 className="text-lg font-semibold text-finance-danger mb-2">
                 Ceva nu a mers bine - eroare la randare
               </h2>
               <p className="text-sm text-(--crm-surface-color) mb-4">
@@ -38,7 +38,7 @@ export default class ErrorBoundary extends Component<Props, State> {
               </p>
               <button
                 onClick={() => this.setState({ hasError: false, error: null })}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm mb-4"
+                className="px-4 py-2 bg-finance-primary text-finance-foreground rounded-lg text-sm mb-4"
               >
                 Încearcă din nou
               </button>

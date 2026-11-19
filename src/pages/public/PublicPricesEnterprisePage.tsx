@@ -92,7 +92,7 @@ export default function PublicPricesEnterprisePage() {
         <span className={annual ? "font-semibold" : "text-muted-foreground"}>
           {t("pricesEnterprise.annual")}
         </span>
-        <Badge className="bg-emerald-400">
+        <Badge className="bg-finance-success">
           {t("pricesEnterprise.save", { percent: ANNUAL_DISCOUNT * 100 })}
         </Badge>
       </div>
@@ -112,7 +112,7 @@ export default function PublicPricesEnterprisePage() {
               }`}
             >
               {plan.popular && (
-                <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-emerald-400">
+                <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-finance-success">
                   {t("pricesEnterprise.mostPopular")}
                 </Badge>
               )}

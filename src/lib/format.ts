@@ -40,3 +40,23 @@ export function formatCurrency(
   });
   return `${prefix}${before}${value}${after}`;
 }
+
+/**
+ * Short form for large amounts, e.g. 200000 -> "200K RON" / "$1.2M" (in Romanian:
+ * "200 K RON", "1,2 mil. RON"). For tight spots (mobile, chart axes); show the
+ * full value somewhere too (title, tooltip), since this one is rounded.
+ */
+export function formatCurrencyCompact(
+  amount: number,
+  currency: Currency = DEFAULT_CURRENCY,
+  sign: "auto" | "+" | "-" = "auto",
+  locale?: string,
+) {
+  const prefix = sign === "auto" ? (amount < 0 ? "-" : "") : sign;
+  const { before, after } = SYMBOLS[currency];
+  const value = Math.abs(amount).toLocaleString(locale, {
+    notation: "compact",
+    maximumFractionDigits: 1,
+  });
+  return `${prefix}${before}${value}${after}`;
+}

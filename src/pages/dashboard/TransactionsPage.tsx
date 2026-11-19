@@ -6,13 +6,7 @@ import PageTour, {
 } from "@/components/dashboard/shared/PageTour";
 import BudgetForm from "@/components/dashboard/budget/BudgetForm";
 import { Button } from "@/components/ui/button";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
+import { ResponsiveSheet } from "@/components/dashboard/shared/ResponsiveSheet";
 import { Plus } from "lucide-react";
 import {
   DEFAULT_FILTERS,
@@ -106,12 +100,19 @@ export default function TransactionsPage() {
     () => searchParams.get("add") === "1",
   );
   const [exporting, setExporting] = useState(false);
+  // Categories / years (the filter options) failed; "Try again" reloads both
+  const [optionsError, setOptionsError] = useState(false);
+  const [optionsAttempt, setOptionsAttempt] = useState(0);
+  const retryOptions = () => {
+    setOptionsError(false);
+    setOptionsAttempt((n) => n + 1);
+  };
 
   useEffect(() => {
     getCategories()
       .then(setCategories)
-      .catch(() => setCategories([]));
-  }, []);
+      .catch(() => setOptionsError(true));
+  }, [optionsAttempt]);
 
   // Fetched again after every change (add / edit / delete), since a
   // transaction can add or remove a year
@@ -119,11 +120,11 @@ export default function TransactionsPage() {
     let ignore = false;
     getTransactionYears()
       .then((data) => !ignore && setYears(data.map(String)))
-      .catch(() => {});
+      .catch(() => !ignore && setOptionsError(true));
     return () => {
       ignore = true;
     };
-  }, [refreshKey]);
+  }, [refreshKey, optionsAttempt]);
 
   // The selected year stays in the list even if it no longer has transactions
   const yearOptions =
@@ -330,43 +331,53 @@ export default function TransactionsPage() {
 
   return (
     <section className="px-4 py-4 max-w-7xl mx-auto">
+      {/* The actions (tour, add) live in the toolbar under the title, with
+          the search: tour, search, export, filters, add */}
       <PageHeader
         title={t("dashboard.transactions.title")}
         subtitle={t("dashboard.transactions.subtitle")}
-      >
-        <PageTour tour="transactions" steps={TRANSACTIONS_TOUR} />
-        <Button
-          data-tour="add"
-          size="sm"
-          onClick={() => setShowAddForm(true)}
-          className="cursor-pointer gap-1.5"
-        >
-          <Plus size={16} />
-          {t("dashboard.transactions.add")}
-        </Button>
-      </PageHeader>
+      />
 
       {/* Same form as on the Budget page; it stays open to add more in a row */}
-      <Sheet open={showAddForm} onOpenChange={setShowAddForm}>
-        <SheetContent className="w-full overflow-y-auto sm:max-w-xl">
-          <SheetHeader>
-            <SheetTitle>{t("dashboard.budget.form.title")}</SheetTitle>
-            <SheetDescription>
-              {t("dashboard.budget.form.subtitle")}
-            </SheetDescription>
-          </SheetHeader>
-          <div className="px-4 pb-6">
-            {/* The list is fetched again, so the new transaction shows up
-                if it matches the current filters */}
-            <BudgetForm
-              onCreated={() => setRefreshKey((k) => k + 1)}
-              onCategoryCreated={addCategory}
-            />
-          </div>
-        </SheetContent>
-      </Sheet>
+      <ResponsiveSheet
+        open={showAddForm}
+        onOpenChange={setShowAddForm}
+        title={t("dashboard.budget.form.title")}
+        description={t("dashboard.budget.form.subtitle")}
+        className="sm:max-w-xl"
+      >
+        {/* The list is fetched again, so the new transaction shows up
+            if it matches the current filters */}
+        <BudgetForm
+          onCreated={() => setRefreshKey((k) => k + 1)}
+          onCategoryCreated={addCategory}
+        />
+      </ResponsiveSheet>
       <TransactionsFilters
+        start={
+          <PageTour
+            tour="transactions"
+            steps={TRANSACTIONS_TOUR}
+            className="h-8 shrink-0 @3xl:h-9"
+          />
+        }
+        end={
+          // Icon only on phones, like the Guided tour button
+          <Button
+            data-tour="add"
+            onClick={() => setShowAddForm(true)}
+            className="h-8 shrink-0 cursor-pointer gap-2 px-3 @3xl:h-9"
+            aria-label={t("dashboard.transactions.add")}
+          >
+            <Plus size={16} aria-hidden="true" />
+            <span className="hidden @md:inline">
+              {t("dashboard.transactions.add")}
+            </span>
+          </Button>
+        }
         filters={filters}
+        optionsError={optionsError}
+        onRetryOptions={retryOptions}
         onChange={changeFilters}
         onClear={clearFilters}
         years={yearOptions}

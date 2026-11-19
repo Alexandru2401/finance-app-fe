@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { addUserInfo, type TourName } from "@/api/user";
 import { useAuth } from "@/hooks/useAuth";
+import { useIsMobile } from "@/hooks/useIsMobile";
 import { cn } from "@/lib/utils";
 import type ro from "@/i18n/locales/ro.json";
 
@@ -27,6 +28,10 @@ export interface TourStep<T extends TourName = TourName> {
   key: keyof Tours[T] & string;
   // Runs before the step, e.g. to open the panel the step points at
   before?: () => void;
+  // ms to wait after before(), e.g. for a sheet to finish sliding in (default 150)
+  wait?: number;
+  // Intro / outro step: a centered card with no target (no data-tour needed)
+  center?: boolean;
 }
 
 /** The tooltip of the tour, built from the app's Card and Button. */
@@ -46,17 +51,17 @@ function TourTooltip({
   return (
     <Card
       {...tooltipProps}
-      className="w-[min(22rem,calc(100vw-2rem))] gap-4 p-5 shadow-lg"
+      className="w-[min(22rem,calc(100vw-1.5rem))] gap-3 p-4 shadow-lg sm:gap-4 sm:p-5"
     >
       <div className="flex items-start justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-finance-primary-bg">
+        <div className="flex min-w-0 items-center gap-3">
+          <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-finance-primary-bg sm:size-9">
             <Compass
               className="h-4 w-4 text-finance-primary"
               aria-hidden="true"
             />
           </div>
-          <div>
+          <div className="min-w-0">
             <p className="text-xs font-medium text-muted-foreground">
               {t("dashboard.tours.buttons.progress", {
                 current: index + 1,
@@ -80,7 +85,9 @@ function TourTooltip({
         </Button>
       </div>
 
-      <p className="text-sm text-muted-foreground">{step.content}</p>
+      <p className="max-h-[40dvh] overflow-y-auto text-sm text-muted-foreground">
+        {step.content}
+      </p>
 
       {/* Progress dots */}
       <div className="flex gap-1.5" aria-hidden="true">
@@ -105,7 +112,7 @@ function TourTooltip({
             {...skipProps}
             variant="ghost"
             size="sm"
-            className="text-muted-foreground"
+            className="-ml-2 px-2 text-muted-foreground"
           >
             {t("dashboard.tours.buttons.skip")}
           </Button>
@@ -114,19 +121,28 @@ function TourTooltip({
         )}
         <div className="flex gap-2">
           {index > 0 && (
-            <Button {...backProps} variant="outline" size="sm">
+            <Button
+              {...backProps}
+              variant="outline"
+              size="sm"
+              aria-label={t("dashboard.tours.buttons.back")}
+            >
               <ChevronLeft aria-hidden="true" />
-              {t("dashboard.tours.buttons.back")}
+              <span className="hidden sm:inline">
+                {t("dashboard.tours.buttons.back")}
+              </span>
             </Button>
           )}
           <Button
             {...primaryProps}
             size="sm"
-            className="bg-finance-primary text-white hover:bg-finance-primary/90"
+            className="bg-finance-primary text-finance-foreground hover:bg-finance-primary/90"
           >
             {isLastStep
               ? t("dashboard.tours.buttons.last")
-              : t("dashboard.tours.buttons.next")}
+              : index === 0 && step.placement === "center"
+                ? t("dashboard.tours.buttons.begin")
+                : t("dashboard.tours.buttons.next")}
             {!isLastStep && <ChevronRight aria-hidden="true" />}
           </Button>
         </div>
@@ -140,6 +156,10 @@ interface PageTourProps<T extends TourName> {
   steps: TourStep<T>[];
   // Runs when the tour ends (finished or skipped), e.g. to close a panel
   onEnd?: () => void;
+  // Interpolation values for the step texts, e.g. { name } for "Welcome, {{name}}!"
+  values?: Record<string, string>;
+  // Extra classes for the "Guided tour" button, e.g. "h-9" in a toolbar
+  className?: string;
 }
 
 /**
@@ -151,10 +171,13 @@ export default function PageTour<T extends TourName>({
   tour,
   steps,
   onEnd,
+  values,
+  className,
 }: PageTourProps<T>) {
   const { t } = useTranslation();
   const { user, setUser } = useAuth();
   const [run, setRun] = useState(false);
+  const isMobile = useIsMobile();
 
   // undefined (older backend) = don't start on its own
   const pending =
@@ -167,19 +190,21 @@ export default function PageTour<T extends TourName>({
     return () => clearTimeout(timer);
   }, [pending]);
 
-  const joyrideSteps: Step[] = steps.map(({ key, before }) => {
+  const joyrideSteps: Step[] = steps.map(({ key, before, center, wait }) => {
     const path = `dashboard.tours.${tour}.${key}` as StepPath;
     return {
-      target: `[data-tour="${key}"]`,
-      title: t(`${path}.title`),
-      content: t(`${path}.content`),
-      placement: "auto",
+      target: center ? "body" : `[data-tour="${key}"]`,
+      title: t(`${path}.title`, values),
+      content: t(`${path}.content`, values),
+      // Phones: above or below the target (flips when there is no room);
+      // "auto" would also try left/right, where a narrow screen has no space
+      placement: center ? "center" : isMobile ? "bottom" : "auto",
       // Give React a moment to render what before() opened
       before: before
         ? () =>
             new Promise<void>((resolve) => {
               before();
-              setTimeout(resolve, 150);
+              setTimeout(resolve, wait ?? 150);
             })
         : undefined,
     };
@@ -208,7 +233,7 @@ export default function PageTour<T extends TourName>({
         variant="outline"
         size="sm"
         onClick={() => setRun(true)}
-        className="cursor-pointer gap-1.5"
+        className={cn("cursor-pointer gap-1.5", className)}
         aria-label={t("dashboard.tours.buttons.start")}
       >
         <Compass size={16} aria-hidden="true" />
@@ -228,11 +253,16 @@ export default function PageTour<T extends TourName>({
           skipBeacon: true,
           closeButtonAction: "skip",
           arrowColor: "var(--card)",
-          overlayColor: "rgb(0 0 0 / 0.45)",
-          spotlightPadding: 8,
+          overlayColor: "var(--overlay)",
+          spotlightPadding: isMobile ? 4 : 8,
           spotlightRadius: 14,
+          offset: isMobile ? 8 : 10,
+          // Phones: clear the fixed top bar (h-14) when scrolling to a target
+          scrollOffset: isMobile ? 72 : 20,
           zIndex: 1000,
         }}
+        // Keep the tooltip at least 12px from the screen edges
+        floatingOptions={{ shiftOptions: { padding: 12 } }}
       />
     </>
   );

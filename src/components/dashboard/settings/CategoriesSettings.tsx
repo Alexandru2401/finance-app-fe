@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import {
   ApiRequestError,
   createCategory,
@@ -94,6 +95,9 @@ interface CategoriesManagerProps {
   initialType?: CategoryType;
   // Called after a category is added, renamed or deleted
   onChange?: () => void;
+  // Fill the parent's height (a fixed-height drawer / sheet): the tabs and
+  // the add field stay on top, only the list scrolls
+  fillHeight?: boolean;
 }
 
 // Used by the settings page and by the budget page's side panel.
@@ -101,6 +105,7 @@ interface CategoriesManagerProps {
 export function CategoriesManager({
   initialType = "expenses",
   onChange,
+  fillHeight = false,
 }: CategoriesManagerProps) {
   const { t } = useTranslation();
   // undefined = loading, null = request failed
@@ -174,6 +179,7 @@ export function CategoriesManager({
     <Tabs
       value={activeType}
       onValueChange={(v) => setActiveType(v as CategoryType)}
+      className={cn(fillHeight && "min-h-0 flex-1")}
     >
       <TabsList>
         {TYPES.map((type) => (
@@ -184,29 +190,40 @@ export function CategoriesManager({
       </TabsList>
 
       {TYPES.map((type) => (
-        <TabsContent key={type} value={type} className="mt-4">
+        <TabsContent
+          key={type}
+          value={type}
+          className={cn("mt-4", fillHeight && "flex min-h-0 flex-col")}
+        >
           <AddCategoryForm
             type={type}
             existing={categories?.filter((c) => c.type === type) ?? []}
             onCreated={addToList}
           />
 
-          {categories === undefined ? (
-            <CategoryListSkeleton />
-          ) : categories === null ? (
-            <CardError
-              message={t("dashboard.settings.categories.loadError")}
-              onRetry={retry}
-            />
-          ) : (
-            <CategoryList
-              categories={categories.filter((c) => c.type === type)}
-              recurring={recurring}
-              onRenamed={replaceInList}
-              onRecurringChanged={setRecurringOf}
-              onDeleted={removeFromList}
-            />
-          )}
+          {/* With fillHeight, the only scrolling part */}
+          <div
+            className={cn(
+              fillHeight && "-mr-2 min-h-0 flex-1 overflow-y-auto pr-2",
+            )}
+          >
+            {categories === undefined ? (
+              <CategoryListSkeleton />
+            ) : categories === null ? (
+              <CardError
+                message={t("dashboard.settings.categories.loadError")}
+                onRetry={retry}
+              />
+            ) : (
+              <CategoryList
+                categories={categories.filter((c) => c.type === type)}
+                recurring={recurring}
+                onRenamed={replaceInList}
+                onRecurringChanged={setRecurringOf}
+                onDeleted={removeFromList}
+              />
+            )}
+          </div>
         </TabsContent>
       ))}
     </Tabs>
@@ -905,7 +922,7 @@ function DeleteCategoryButton({
             {t("dashboard.settings.categories.cancel")}
           </AlertDialogCancel>
           <AlertDialogAction
-            className="bg-finance-danger text-white hover:bg-finance-danger/90"
+            className="bg-finance-danger text-finance-foreground hover:bg-finance-danger/90"
             disabled={deleting}
             onClick={(e) => {
               // Keep the dialog open until the request finishes
