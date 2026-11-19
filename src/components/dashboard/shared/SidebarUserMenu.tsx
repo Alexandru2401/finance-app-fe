@@ -20,6 +20,11 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import {
   Popover,
   PopoverContent,
   PopoverTrigger,
@@ -44,7 +49,7 @@ const isPlan = (value: unknown): value is Plan => PLANS.includes(value as Plan);
 interface SidebarUserMenuProps {
   /** false = collapsed sidebar: only the avatar, with a tooltip */
   showLabels: boolean;
-  /** Rendered in the mobile drawer: the menu opens upward, as wide as the drawer */
+  /** Rendered in the mobile drawer: the menu opens inline, above the avatar */
   mobile?: boolean;
   /** Called after a link is chosen (closes the mobile drawer) */
   onNavigate?: () => void;
@@ -91,33 +96,177 @@ export default function SidebarUserMenu({
     }
   }
 
-  const trigger = (
-    <PopoverTrigger asChild>
-      <button
-        type="button"
-        aria-label={t("dashboard.profileBadge.openMenu")}
-        className={cn(
-          "flex w-full cursor-pointer items-center gap-3 rounded-lg p-2 text-left outline-none transition-colors hover:bg-card focus-visible:ring-2 focus-visible:ring-finance-warning/40 data-[state=open]:bg-card",
-          !showLabels && "justify-center p-1.5",
-        )}
-      >
-        <UserAvatar className="h-9 w-9 shrink-0" />
-        {showLabels && (
-          <>
-            <span className="min-w-0 flex-1">
-              <span className="block truncate text-sm font-semibold text-foreground">
-                {name}
-              </span>
-              <span className="block truncate text-xs text-muted-foreground">
-                {user?.email}
-              </span>
+  const triggerButton = (
+    <button
+      type="button"
+      aria-label={t("dashboard.profileBadge.openMenu")}
+      className={cn(
+        "flex w-full cursor-pointer items-center gap-3 rounded-lg p-2 text-left outline-none transition-colors hover:bg-card focus-visible:ring-2 focus-visible:ring-finance-warning/40 data-[state=open]:bg-card",
+        !showLabels && "justify-center p-1.5",
+      )}
+    >
+      <UserAvatar className="h-9 w-9 shrink-0" />
+      {showLabels && (
+        <>
+          <span className="min-w-0 flex-1">
+            <span className="block truncate text-sm font-semibold text-foreground">
+              {name}
             </span>
-            <ChevronsUpDown className="h-4 w-4 shrink-0 text-muted-foreground" />
-          </>
-        )}
-      </button>
-    </PopoverTrigger>
+            <span className="block truncate text-xs text-muted-foreground">
+              {user?.email}
+            </span>
+          </span>
+          <ChevronsUpDown className="h-4 w-4 shrink-0 text-muted-foreground" />
+        </>
+      )}
+    </button>
   );
+
+  // Preferences, plan and links: the same in the popover and inline
+  const sections = (
+    <>
+      {/* ===== PREFERINTE ===== */}
+      <div className="space-y-1 p-2">
+        <h4 className="flex items-center gap-2 px-2 py-1 text-sm font-semibold">
+          <Settings className="h-4 w-4" />
+          {t("dashboard.profileBadge.settings")}
+        </h4>
+
+        <div className="flex items-center justify-between rounded-lg px-2 py-2">
+          <div className="flex items-center gap-2">
+            {dark ? (
+              <Moon className="h-4 w-4 text-primary" />
+            ) : (
+              <Sun className="h-4 w-4 text-primary" />
+            )}
+            <Label htmlFor="dark-mode" className="cursor-pointer font-normal">
+              {t("dashboard.profileBadge.darkMode")}
+            </Label>
+          </div>
+          <Switch id="dark-mode" checked={dark} onCheckedChange={toggleTheme} />
+        </div>
+
+        <div className="flex items-center justify-between rounded-lg px-2 py-2">
+          <div className="flex items-center gap-2">
+            <Languages className="h-4 w-4 text-primary" />
+            <span id="language-label" className="text-sm">
+              {t("language.label")}
+            </span>
+          </div>
+          <div
+            role="group"
+            aria-labelledby="language-label"
+            className="flex rounded-full bg-muted p-0.5"
+          >
+            {SUPPORTED_LANGUAGES.map((lng) => {
+              const active = i18n.resolvedLanguage === lng;
+
+              return (
+                <button
+                  key={lng}
+                  type="button"
+                  aria-pressed={active}
+                  aria-label={t(`language.${lng}`)}
+                  onClick={() => changeLanguage(lng)}
+                  className={cn(
+                    "cursor-pointer rounded-full px-2.5 py-0.5 text-xs font-semibold uppercase transition-colors",
+                    active
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  {lng}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      <Separator />
+
+      {/* ===== PLAN ===== */}
+      <div className="p-2">
+        <div className="flex items-center justify-between rounded-lg border border-primary/20 bg-linear-to-r from-primary/10 to-primary/5 gap-2 p-2.5">
+          <div className="flex items-start gap-2">
+            <Crown className="h-4 w-4 text-primary" />
+            <div>
+              <p className="text-sm font-medium">
+                {t("dashboard.profileBadge.currentPlan")}
+              </p>
+              <p className="text-xs text-muted-foreground">{planLabel}</p>
+            </div>
+          </div>
+          {FEATURES.payments && (
+            <Button asChild variant="outline" size="sm" className="text-xs">
+              <Link to="/dashboard/upgrade-plans" onClick={close}>
+                <CreditCard className="mr-1 h-3 w-3" />
+                {t("dashboard.profileBadge.upgrade")}
+              </Link>
+            </Button>
+          )}
+        </div>
+      </div>
+
+      <Separator />
+
+      {/* ===== LINK-URI ===== */}
+      <div className="p-2">
+        {[
+          {
+            to: "/dashboard/profile",
+            icon: User,
+            label: t("dashboard.profileBadge.viewProfile"),
+          },
+          {
+            to: "/dashboard/settings",
+            icon: Settings,
+            label: t("dashboard.profileBadge.allSettings"),
+          },
+        ].map(({ to, icon: Icon, label }) => (
+          <Button
+            key={to}
+            asChild
+            variant="ghost"
+            className="w-full justify-start gap-3 hover:bg-muted"
+          >
+            <Link to={to} onClick={close}>
+              <Icon className="h-4 w-4" />
+              {label}
+            </Link>
+          </Button>
+        ))}
+
+        <Separator className="my-2" />
+
+        <Button
+          variant="ghost"
+          className="w-full justify-start gap-3 text-finance-danger hover:bg-finance-danger-bg hover:text-finance-danger"
+          onClick={handleLogout}
+        >
+          <LogOut className="h-4 w-4" />
+          {t("dashboard.profileBadge.logout")}
+        </Button>
+      </div>
+    </>
+  );
+
+  // Mobile drawer: no floating popover, the menu opens inside the sidebar,
+  // above the avatar. It is absolute (over the page links, anchored to the
+  // avatar row), so opening it doesn't resize the sidebar or add a scrollbar
+  // to the links. Only the menu is a padded card; the avatar row stays as is
+  if (mobile) {
+    return (
+      <Collapsible open={open} onOpenChange={setOpen} className="relative">
+        <CollapsibleContent className="absolute inset-x-0 bottom-full z-10 mb-2 max-h-[55dvh] overflow-y-auto overscroll-contain rounded-xl border bg-card p-1.5 shadow-lg">
+          {sections}
+        </CollapsibleContent>
+        <CollapsibleTrigger asChild>{triggerButton}</CollapsibleTrigger>
+      </Collapsible>
+    );
+  }
+
+  const trigger = <PopoverTrigger asChild>{triggerButton}</PopoverTrigger>;
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -132,15 +281,12 @@ export default function SidebarUserMenu({
         </Tooltip>
       )}
 
-      {/* Desktop: to the right of the sidebar, aligned to the bottom of the avatar.
-          Mobile drawer: above the avatar, exactly as wide as the drawer (w-64);
-          alignOffset -12 cancels the p-3 around the row */}
+      {/* To the right of the sidebar, aligned to the bottom of the avatar */}
       <PopoverContent
-        side={mobile ? "top" : "right"}
-        align={mobile ? "start" : "end"}
-        alignOffset={mobile ? -12 : 0}
+        side="right"
+        align="end"
         sideOffset={12}
-        className={cn("max-w-[calc(100vw-2rem)] p-0", mobile ? "w-64" : "w-72")}
+        className="w-72 max-w-[calc(100vw-2rem)] p-0"
       >
         {/* ===== HEADER ===== */}
         <div className="flex items-center gap-2.5 p-3">
@@ -155,133 +301,7 @@ export default function SidebarUserMenu({
 
         <Separator />
 
-        {/* ===== PREFERINTE ===== */}
-        <div className="space-y-1 p-2">
-          <h4 className="flex items-center gap-2 px-2 py-1 text-sm font-semibold">
-            <Settings className="h-4 w-4" />
-            {t("dashboard.profileBadge.settings")}
-          </h4>
-
-          <div className="flex items-center justify-between rounded-lg px-2 py-2">
-            <div className="flex items-center gap-2">
-              {dark ? (
-                <Moon className="h-4 w-4 text-primary" />
-              ) : (
-                <Sun className="h-4 w-4 text-primary" />
-              )}
-              <Label htmlFor="dark-mode" className="cursor-pointer font-normal">
-                {t("dashboard.profileBadge.darkMode")}
-              </Label>
-            </div>
-            <Switch
-              id="dark-mode"
-              checked={dark}
-              onCheckedChange={toggleTheme}
-            />
-          </div>
-
-          <div className="flex items-center justify-between rounded-lg px-2 py-2">
-            <div className="flex items-center gap-2">
-              <Languages className="h-4 w-4 text-primary" />
-              <span id="language-label" className="text-sm">
-                {t("language.label")}
-              </span>
-            </div>
-            <div
-              role="group"
-              aria-labelledby="language-label"
-              className="flex rounded-full bg-muted p-0.5"
-            >
-              {SUPPORTED_LANGUAGES.map((lng) => {
-                const active = i18n.resolvedLanguage === lng;
-
-                return (
-                  <button
-                    key={lng}
-                    type="button"
-                    aria-pressed={active}
-                    aria-label={t(`language.${lng}`)}
-                    onClick={() => changeLanguage(lng)}
-                    className={cn(
-                      "cursor-pointer rounded-full px-2.5 py-0.5 text-xs font-semibold uppercase transition-colors",
-                      active
-                        ? "bg-primary text-primary-foreground shadow-sm"
-                        : "text-muted-foreground hover:text-foreground",
-                    )}
-                  >
-                    {lng}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-
-        <Separator />
-
-        {/* ===== PLAN ===== */}
-        <div className="p-2">
-          <div className="flex items-center justify-between rounded-lg border border-primary/20 bg-linear-to-r from-primary/10 to-primary/5 gap-2 p-2.5">
-            <div className="flex items-start gap-2">
-              <Crown className="h-4 w-4 text-primary" />
-              <div>
-                <p className="text-sm font-medium">
-                  {t("dashboard.profileBadge.currentPlan")}
-                </p>
-                <p className="text-xs text-muted-foreground">{planLabel}</p>
-              </div>
-            </div>
-            {FEATURES.payments && (
-              <Button asChild variant="outline" size="sm" className="text-xs">
-                <Link to="/dashboard/upgrade-plans" onClick={close}>
-                  <CreditCard className="mr-1 h-3 w-3" />
-                  {t("dashboard.profileBadge.upgrade")}
-                </Link>
-              </Button>
-            )}
-          </div>
-        </div>
-
-        <Separator />
-
-        {/* ===== LINK-URI ===== */}
-        <div className="p-2">
-          {[
-            {
-              to: "/dashboard/profile",
-              icon: User,
-              label: t("dashboard.profileBadge.viewProfile"),
-            },
-            {
-              to: "/dashboard/settings",
-              icon: Settings,
-              label: t("dashboard.profileBadge.allSettings"),
-            },
-          ].map(({ to, icon: Icon, label }) => (
-            <Button
-              key={to}
-              asChild
-              variant="ghost"
-              className="w-full justify-start gap-3 hover:bg-muted"
-            >
-              <Link to={to} onClick={close}>
-                <Icon className="h-4 w-4" />
-                {label}
-              </Link>
-            </Button>
-          ))}
-
-          <Separator className="my-2" />
-
-          <Button
-            variant="ghost"
-            className="w-full justify-start gap-3 text-finance-danger hover:bg-finance-danger-bg hover:text-finance-danger"
-            onClick={handleLogout}
-          >
-            <LogOut className="h-4 w-4" />
-            {t("dashboard.profileBadge.logout")}
-          </Button>
-        </div>
+        {sections}
       </PopoverContent>
     </Popover>
   );

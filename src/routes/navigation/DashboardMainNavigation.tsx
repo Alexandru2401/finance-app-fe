@@ -284,7 +284,8 @@ export default function DashboardMainNavigation() {
           side="left"
           showCloseButton={false}
           aria-describedby={undefined}
-          className="w-64 gap-0 bg-background p-0"
+          // 18rem (room for the inline user menu), at most 85% of the screen
+          className="w-72 max-w-[85vw] gap-0 bg-background p-0"
         >
           <SheetTitle className="sr-only">{t("dashboard.nav.menu")}</SheetTitle>
           <SheetClose asChild>
