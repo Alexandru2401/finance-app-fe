@@ -16,6 +16,7 @@ import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import {
   ChevronRight,
+  ExternalLink,
   Lock,
   LogOut,
   Mail,
@@ -290,7 +291,12 @@ export default function ProfilePage() {
                   </p>
                 </div>
               </div>
-              <ChevronRight className="w-4 h-4 text-muted-foreground" />
+              {/* A link to another page, not a section that opens here: the
+                  same "open" icon as the settings link on the Budget page */}
+              <ExternalLink
+                className="w-4 h-4 shrink-0 text-muted-foreground"
+                aria-hidden="true"
+              />
             </Link>
 
             {actions.map(({ id, key, icon: Icon, danger, ...action }) =>
