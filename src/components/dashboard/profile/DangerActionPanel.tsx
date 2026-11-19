@@ -167,7 +167,7 @@ export default function DangerActionPanel({ kind }: { kind: Kind }) {
               <Button
                 type="submit"
                 disabled={saving || !password}
-                className="cursor-pointer border-0 bg-finance-danger text-white hover:bg-finance-danger/90"
+                className="cursor-pointer border-0 bg-finance-danger text-finance-foreground hover:bg-finance-danger/90"
               >
                 {saving && <Spinner />}
                 {t(`${key}.confirm`)}

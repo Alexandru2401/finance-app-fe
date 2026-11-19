@@ -28,6 +28,8 @@ import { DEFAULT_PERIOD, PERIODS, type Period } from "@/lib/periods";
 type AllTime = { count: number; balance: number } | null | undefined;
 
 const TOUR_STEPS: TourStep<"overview">[] = [
+  // Centered welcome before pointing at anything
+  { key: "welcome", center: true },
   { key: "period" },
   { key: "netBalance" },
   { key: "balance" },
@@ -48,6 +50,11 @@ export default function DashboardHomePage() {
   // Without filters, the transactions endpoint returns the count and net of all
   // transactions; one row is enough to read them
   const [allTime, setAllTime] = useState<AllTime>(undefined);
+  const [allTimeAttempt, setAllTimeAttempt] = useState(0);
+  const retryAllTime = () => {
+    setAllTime(undefined);
+    setAllTimeAttempt((n) => n + 1);
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -61,10 +68,12 @@ export default function DashboardHomePage() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [allTimeAttempt]);
 
   return (
-    <section className="px-4 py-4 max-w-7xl mx-auto">
+    // @container: the grids below react to the space left next to the sidebar
+    // (open or collapsed), not to the viewport width
+    <section className="@container mx-auto max-w-7xl px-4 py-4">
       <PageHeader
         title={
           greeting.firstVisit
@@ -77,21 +86,22 @@ export default function DashboardHomePage() {
             : t("dashboard.overview.subtitle")
         }
       >
-        <PageTour tour="overview" steps={TOUR_STEPS} />
+        <PageTour tour="overview" steps={TOUR_STEPS} values={{ name }} />
         <Select
           value={period}
           onValueChange={(value) => setPeriod(value as Period)}
         >
           <SelectTrigger
             data-tour="period"
-            className="w-40"
+            // Grows with a longer period name instead of cutting it
+            className="w-fit min-w-40"
             aria-label={t("dashboard.overview.selectPeriod")}
           >
             <SelectValue
               placeholder={t(`dashboard.periods.${DEFAULT_PERIOD}`)}
             />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent position="popper">
             {PERIODS.map((p) => (
               <SelectItem key={p} value={p}>
                 {t(`dashboard.periods.${p}`)}
@@ -103,31 +113,40 @@ export default function DashboardHomePage() {
 
       {allTime?.count === 0 && <OnboardingCard />}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-6">
+      {/* min-w-0 on every grid item: without it a column can't shrink below
+          its content (chart, table) and spills out of the layout */}
+      <div className="mb-6 grid grid-cols-1 gap-6 @5xl:grid-cols-2">
         {/* Wrappers carry the tour targets (data-tour) */}
-        <div data-tour="netBalance" className="col-span-1 md:col-span-2 grid">
+        <div data-tour="netBalance" className="grid min-w-0">
           <NetBalance
             period={period}
             totalBalance={
               allTime === undefined ? undefined : (allTime?.balance ?? null)
             }
+            onRetryTotal={retryAllTime}
           />
         </div>
-        <div className="col-span-1 md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div data-tour="balance" className="grid">
-            <BalanceOverview period={period} />
-          </div>
-          <div data-tour="spending" className="grid">
-            <SpendingOverview period={period} />
+        {/* Own container: the two small cards sit side by side only when
+            this column is wide enough for both */}
+        <div className="@container min-w-0">
+          <div className="grid grid-cols-1 gap-6 @md:grid-cols-2">
+            <div data-tour="balance" className="grid min-w-0">
+              <BalanceOverview period={period} />
+            </div>
+            <div data-tour="spending" className="grid min-w-0">
+              <SpendingOverview period={period} />
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <div data-tour="trend" className="grid">
+      {/* Side by side only when the content area is >= 64rem (1024px); with
+          the sidebar open that means a ~1350px+ screen, otherwise they stack */}
+      <div className="grid grid-cols-1 gap-6 @5xl:grid-cols-2">
+        <div data-tour="trend" className="grid min-w-0">
           <SpendingTrendingChart period={period} />
         </div>
-        <div data-tour="table" className="grid">
+        <div data-tour="table" className="grid min-w-0">
           <OverviewTable />
         </div>
       </div>

@@ -10,6 +10,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { useCurrency } from "@/hooks/useCurrency";
 import { Skeleton } from "@/components/ui/skeleton";
+import InlineError from "@/components/dashboard/shared/InlineError";
 import {
   getBudgetTrend,
   getTopExpenses,
@@ -19,8 +20,11 @@ import {
 import { monthPeriod, shiftMonth } from "@/lib/periods";
 
 interface InsightsProps {
-  // null while the summary of the page is loading
+  // null while the summary of the page is loading (or if it failed)
   summary: BudgetSummary | null;
+  // The page's summary request failed: the insights built on it show an error
+  summaryError?: boolean;
+  onRetrySummary?: () => void;
   // "YYYY-MM-01", the month the Budget page shows
   month: string;
   // Bumped by the page after a change, so the data is fetched again
@@ -31,21 +35,22 @@ interface Insight {
   icon: ReactNode;
   tone: string;
   label: string;
-  // undefined = still loading
-  value: string | undefined;
+  // undefined = still loading, null = the request failed
+  value: string | undefined | null;
+  // Shown next to the error, reloads what the insight needs
+  onRetry?: () => void;
 }
 
 // Income of the month and of the one before, from the trend endpoint
 type IncomePair = { current: number; previous: number };
-
-// Shown when a request fails (e.g. 429); the toast from api/client explains why
-const ERROR = "—";
 
 const percent = (part: number, total: number) =>
   Math.round((part / total) * 100);
 
 export default function Insights({
   summary,
+  summaryError,
+  onRetrySummary,
   month,
   refreshKey,
 }: InsightsProps) {
@@ -62,6 +67,17 @@ export default function Insights({
   >();
   // undefined = loading
   const [income, setIncome] = useState<IncomePair | "error" | undefined>();
+  // Bumped by "Try again" on the top expense / income trend insights
+  const [attempt, setAttempt] = useState(0);
+  const retry = () => {
+    setTopExpense(undefined);
+    setIncome(undefined);
+    setAttempt((n) => n + 1);
+  };
+  // While the summary loads: skeleton; if it failed: error + retry
+  const noSummary = summaryError
+    ? { tone: "", value: null, onRetry: onRetrySummary }
+    : { tone: "", value: undefined };
 
   useEffect(() => {
     let ignore = false;
@@ -90,13 +106,12 @@ export default function Insights({
     return () => {
       ignore = true;
     };
-  }, [month, refreshKey]);
+  }, [month, refreshKey, attempt]);
 
   // Savings target: the message depends on how close the user is
   function savingsGoal(): Insight {
     const base = { icon: <Target className="h-4 w-4" /> };
-    if (!summary)
-      return { ...base, tone: "", label: k("goal"), value: undefined };
+    if (!summary) return { ...base, ...noSummary, label: k("goal") };
 
     const pct = summary.progress.savings;
     if (pct === null)
@@ -142,7 +157,8 @@ export default function Insights({
       label: k("topExpense"),
     };
     if (topExpense === undefined) return { ...base, value: undefined };
-    if (topExpense === "error") return { ...base, tone: "", value: ERROR };
+    if (topExpense === "error")
+      return { ...base, tone: "", value: null, onRetry: retry };
     if (topExpense === null)
       return {
         ...base,
@@ -157,7 +173,8 @@ export default function Insights({
     const base = { label: k("incomeTrend") };
     const up = { ...base, icon: <TrendingUp className="h-4 w-4" /> };
     if (income === undefined) return { ...up, tone: "", value: undefined };
-    if (income === "error") return { ...up, tone: "", value: ERROR };
+    if (income === "error")
+      return { ...up, tone: "", value: null, onRetry: retry };
     // Nothing to compare with
     if (income.previous === 0)
       return {
@@ -186,7 +203,7 @@ export default function Insights({
       icon: <PiggyBank className="h-4 w-4" />,
       label: k("savingsRate"),
     };
-    if (!summary) return { ...base, tone: "", value: undefined };
+    if (!summary) return { ...base, ...noSummary };
     if (summary.income === 0)
       return {
         ...base,
@@ -229,7 +246,16 @@ export default function Insights({
             <div className="min-w-0 flex-1">
               <p className="text-xs text-muted-foreground">{i.label}</p>
               {i.value === undefined ? (
-                <Skeleton className="mt-1 h-4 w-24" />
+                // h-5 = the text-sm line of the real value
+                <div className="flex h-5 items-center">
+                  <Skeleton className="h-3.5 w-28" />
+                </div>
+              ) : i.value === null ? (
+                <InlineError
+                  message={k("loadError")}
+                  onRetry={i.onRetry}
+                  className="min-h-5"
+                />
               ) : (
                 <p className="text-sm font-medium">{i.value}</p>
               )}

@@ -18,12 +18,17 @@ import type { Period } from "@/lib/periods";
 import { Receipt } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
+// Categorical palette (same as the Budget breakdown, colorblind-checked).
+// Not the finance-* colors: green/amber would read as income/warning here
+// The backend returns at most 5 categories (fetchTopExpenses(..., 5, ...))
+const TOP_COUNT = 5;
+
 const CATEGORY_BAR_COLORS = [
-  "[&>*]:bg-finance-primary",
-  "[&>*]:bg-finance-purple",
-  "[&>*]:bg-finance-warning",
-  "[&>*]:bg-finance-success",
-  "[&>*]:bg-muted-foreground",
+  "[&>*]:bg-breakdown-1",
+  "[&>*]:bg-breakdown-2",
+  "[&>*]:bg-breakdown-3",
+  "[&>*]:bg-breakdown-4",
+  "[&>*]:bg-breakdown-5",
 ];
 
 interface Props {
@@ -62,8 +67,8 @@ export default function SpendingOverview({ period }: Props) {
   return (
     <Card className="flex flex-col">
       <CardHeader>
-        <div className="flex items-start justify-between gap-2">
-          <div>
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
             <CardTitle className="flex items-center gap-2 text-base">
               {t("dashboard.overview.topSpendings.title")}
             </CardTitle>
@@ -72,44 +77,55 @@ export default function SpendingOverview({ period }: Props) {
               {t(`dashboard.periods.${period}`)}
             </CardDescription>
           </div>
-          <Button asChild variant="outline" size="sm">
+          <Button asChild variant="outline" size="sm" className="shrink-0">
             <Link to="transactions">{t("dashboard.common.seeAll")}</Link>
           </Button>
         </div>
       </CardHeader>
 
       <CardContent className="space-y-4">
+        {/* Error and empty keep the height of the full list (5 rows), so the
+            card doesn't shrink next to its neighbour */}
         {!loading && error ? (
-          <CardError
-            message={t("dashboard.overview.topSpendings.error")}
-            onRetry={onRetry}
-          />
+          <div className="flex min-h-52">
+            <CardError
+              message={t("dashboard.overview.topSpendings.error")}
+              onRetry={onRetry}
+            />
+          </div>
         ) : loading || !items ? (
           <div className="space-y-3 pt-2">
-            {[0, 1, 2, 3].map((i) => (
+            {Array.from({ length: TOP_COUNT }, (_, i) => (
               <div key={i} className="space-y-1">
-                <div className="flex justify-between text-sm">
-                  <Skeleton className="h-3.5 w-32" />
-                  <Skeleton className="h-3.5 w-12" />
+                {/* h-5 = the real text-sm row */}
+                <div className="flex h-5 items-center justify-between gap-3">
+                  <Skeleton className="h-3.5 w-28" />
+                  <Skeleton className="h-3.5 w-16" />
                 </div>
                 <Skeleton className="h-1.5 w-full rounded-full" />
               </div>
             ))}
           </div>
         ) : items.length === 0 ? (
-          <EmptyState
-            icon={Receipt}
-            message={t("dashboard.overview.topSpendings.empty")}
-          />
+          <div className="flex min-h-52">
+            <EmptyState
+              icon={Receipt}
+              message={t("dashboard.overview.topSpendings.empty")}
+            />
+          </div>
         ) : (
           <div className="space-y-3 pt-2">
             {items.map((item, i) => (
               <div key={item.item_id} className="space-y-1">
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">
+                {/* The amount keeps its full width; a long category name is cut instead */}
+                <div className="flex justify-between gap-3 text-sm">
+                  <span
+                    className="min-w-0 truncate text-muted-foreground"
+                    title={item.category || undefined}
+                  >
                     {item.category || t("dashboard.common.uncategorized")}
                   </span>
-                  <span className="font-medium tabular-nums">
+                  <span className="shrink-0 font-medium tabular-nums">
                     {formatCurrency(item.amount)}
                   </span>
                 </div>

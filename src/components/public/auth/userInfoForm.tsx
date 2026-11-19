@@ -29,8 +29,6 @@ import { useAuth } from "@/hooks/useAuth";
 import { CURRENCIES, type Currency } from "@/lib/format";
 import { SUPPORTED_LANGUAGES, type Language } from "@/i18n";
 
-const ACCENT = "#ffd649";
-
 const STEPS = ["Cont", "Nume", "Monedă", "Gata"];
 
 function Stepper({ current }: { current: number }) {
@@ -46,18 +44,16 @@ function Stepper({ current }: { current: number }) {
           <div key={label} className="flex flex-1 items-center last:flex-none">
             <div className="flex flex-col items-center gap-1">
               <div
-                className="flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold transition-colors"
-                style={
+                className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold transition-colors ${
                   filled
-                    ? { backgroundColor: ACCENT, color: "#1a1a1a" }
-                    : { backgroundColor: "transparent", color: "#9ca3af" }
-                }
+                    ? "bg-brand text-brand-foreground"
+                    : "bg-transparent text-muted-foreground"
+                }`}
               >
                 {isDone ? <Check className="h-4 w-4" /> : stepNum}
               </div>
               <span
-                className="text-xs"
-                style={{ color: filled ? ACCENT : "#9ca3af" }}
+                className={`text-xs ${filled ? "text-brand-text" : "text-muted-foreground"}`}
               >
                 {label}
               </span>
@@ -66,11 +62,8 @@ function Stepper({ current }: { current: number }) {
             {i < STEPS.length - 1 && (
               <div className="mx-2 h-0.5 flex-1 overflow-hidden rounded bg-muted">
                 <div
-                  className="h-full transition-all duration-300"
-                  style={{
-                    width: current > stepNum ? "100%" : "0%",
-                    backgroundColor: ACCENT,
-                  }}
+                  className="h-full bg-brand transition-all duration-300"
+                  style={{ width: current > stepNum ? "100%" : "0%" }}
                 />
               </div>
             )}
@@ -170,8 +163,7 @@ export default function UserInfoForm() {
             </CardContent>
             <CardFooter>
               <Button
-                className="w-full"
-                style={{ backgroundColor: ACCENT, color: "#1a1a1a" }}
+                className="w-full bg-brand text-brand-foreground hover:bg-brand/90"
                 disabled={name.trim().length < USERNAME_MIN}
                 onClick={() => setStep(3)}
               >
@@ -218,10 +210,9 @@ export default function UserInfoForm() {
                 Înapoi
               </Button>
               <Button
-                style={{ backgroundColor: ACCENT, color: "#1a1a1a" }}
                 disabled={!currency || loading}
                 onClick={handleFinish}
-                className="flex-1"
+                className="flex-1 bg-brand text-brand-foreground hover:bg-brand/90"
               >
                 {loading ? "Se salvează..." : "Finalizează"}
               </Button>
@@ -232,17 +223,13 @@ export default function UserInfoForm() {
         {step === 4 && (
           <>
             <CardContent className="flex flex-col items-center text-center">
-              <CheckCircle2
-                className="mb-2 h-12 w-12"
-                style={{ color: ACCENT }}
-              />
+              <CheckCircle2 className="mb-2 h-12 w-12 text-brand" />
               <CardTitle>Cont creat cu succes</CardTitle>
               <CardDescription>Totul e gata, {name.trim()}.</CardDescription>
             </CardContent>
             <CardFooter>
               <Button
-                className="w-full"
-                style={{ backgroundColor: ACCENT, color: "#1a1a1a" }}
+                className="w-full bg-brand text-brand-foreground hover:bg-brand/90"
                 onClick={() => navigate("/dashboard")}
               >
                 Să începem

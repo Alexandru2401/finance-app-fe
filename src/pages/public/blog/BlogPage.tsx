@@ -68,7 +68,7 @@ export default function BlogPage() {
       <div className="text-center mb-12">
         <Badge
           variant="outline"
-          className="mb-4 border-amber-400/60 text-amber-500"
+          className="mb-4 border-brand/60 text-brand-text"
         >
           {t("blog.badge")}
         </Badge>
@@ -105,13 +105,13 @@ export default function BlogPage() {
               alt=""
               className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105"
             />
-            <Badge className="absolute left-4 top-4 bg-amber-400 text-black">
+            <Badge className="absolute left-4 top-4 bg-brand text-brand-foreground">
               {t("blog.featured")}
             </Badge>
           </div>
           <div className="flex flex-col justify-center gap-4 p-6 md:p-10">
             <CategoryLabel category={featured.category} />
-            <h2 className="text-2xl md:text-3xl font-bold leading-tight group-hover:text-amber-500 transition-colors">
+            <h2 className="text-2xl md:text-3xl font-bold leading-tight group-hover:text-brand-text transition-colors">
               {t(`blog.posts.${featured.id}.title`)}
             </h2>
             <p className="text-muted-foreground leading-relaxed">
@@ -168,7 +168,7 @@ export default function BlogPage() {
               </div>
               <div className="flex flex-1 flex-col gap-3 p-6">
                 <CategoryLabel category={post.category} />
-                <h3 className="text-lg font-semibold leading-snug group-hover:text-amber-500 transition-colors">
+                <h3 className="text-lg font-semibold leading-snug group-hover:text-brand-text transition-colors">
                   {t(`blog.posts.${post.id}.title`)}
                 </h3>
                 <p className="line-clamp-3 text-sm text-muted-foreground leading-relaxed">
@@ -195,12 +195,12 @@ export default function BlogPage() {
         className={`mt-20 grid gap-6 ${FEATURES.newsletter ? "lg:grid-cols-3" : ""}`}
       >
         {FEATURES.newsletter && (
-          <div className="rounded-2xl bg-black p-8 text-white md:p-10 lg:col-span-2">
-            <Mail className="mb-4 h-8 w-8 text-amber-400" />
+          <div className="rounded-2xl bg-inverse p-8 text-inverse-foreground md:p-10 lg:col-span-2">
+            <Mail className="mb-4 h-8 w-8 text-brand" />
             <h2 className="mb-2 text-2xl md:text-3xl font-bold">
               {t("blog.newsletter.title")}
             </h2>
-            <p className="mb-6 max-w-xl text-slate-300">
+            <p className="mb-6 max-w-xl text-inverse-foreground/80">
               {t("blog.newsletter.text")}
             </p>
             <form
@@ -212,12 +212,12 @@ export default function BlogPage() {
                 required
                 placeholder={t("blog.newsletter.placeholder")}
                 aria-label={t("blog.newsletter.placeholder")}
-                className="h-11 border-slate-700 bg-slate-900 text-white placeholder:text-slate-500"
+                className="h-11 border-inverse-border bg-inverse-input text-inverse-foreground placeholder:text-inverse-muted/80"
               />
               <Button
                 type="submit"
                 size="lg"
-                className="h-11 bg-amber-400 text-black hover:bg-amber-300 cursor-pointer"
+                className="h-11 bg-brand text-brand-foreground hover:bg-brand/90 cursor-pointer"
               >
                 {t("blog.newsletter.button")}
               </Button>
@@ -226,7 +226,7 @@ export default function BlogPage() {
         )}
 
         <div className="flex flex-col rounded-2xl border bg-card p-8 md:p-10">
-          <PenLine className="mb-4 h-8 w-8 text-amber-500" />
+          <PenLine className="mb-4 h-8 w-8 text-brand-text" />
           <h2 className="mb-2 text-2xl font-bold">{t("blog.share.title")}</h2>
           <p className="mb-6 text-muted-foreground">{t("blog.share.text")}</p>
           <Button asChild variant="outline" className="mt-auto w-fit">
@@ -276,7 +276,7 @@ export default function BlogPage() {
                   </p>
                   <Button
                     asChild
-                    className="bg-amber-400 text-black hover:bg-amber-300"
+                    className="bg-brand text-brand-foreground hover:bg-brand/90"
                   >
                     <Link to="/signin">
                       {t("blog.articleCta.button")}
@@ -296,7 +296,7 @@ export default function BlogPage() {
 function CategoryLabel({ category }: { category: BlogCategory }) {
   const { t } = useTranslation();
   return (
-    <span className="text-xs font-semibold uppercase tracking-wider text-amber-500">
+    <span className="text-xs font-semibold uppercase tracking-wider text-brand-text">
       {t(`blog.categories.${category}`)}
     </span>
   );
@@ -311,7 +311,7 @@ function PostMeta({ post }: { post: BlogPost }) {
   return (
     <div className="flex items-center gap-3 text-sm">
       <Avatar className="h-9 w-9">
-        <AvatarFallback className="bg-amber-400/20 text-xs font-semibold text-amber-600">
+        <AvatarFallback className="bg-brand/20 text-xs font-semibold text-brand-text">
           {initials(post.author)}
         </AvatarFallback>
       </Avatar>

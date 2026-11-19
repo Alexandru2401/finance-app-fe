@@ -87,7 +87,7 @@ export default function ChangeNamePanel() {
         type="submit"
         size="sm"
         disabled={saving || unchanged || clean === ""}
-        className="cursor-pointer bg-finance-success font-semibold text-white hover:bg-finance-success/90"
+        className="cursor-pointer bg-finance-success font-semibold text-finance-foreground hover:bg-finance-success/90"
       >
         {saving && <Spinner />}
         {saving

@@ -42,7 +42,9 @@ export default function PreferencesSettings() {
             <div
               role="group"
               aria-label={t("language.label")}
-              className="flex rounded-full bg-muted p-0.5"
+              // inline-flex: as wide as its buttons; a plain flex stretched
+              // to the whole row on phones (the row stacks there)
+              className="inline-flex rounded-full bg-muted p-0.5"
             >
               {SUPPORTED_LANGUAGES.map((lng) => {
                 const active = i18n.resolvedLanguage === lng;

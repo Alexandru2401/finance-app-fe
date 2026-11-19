@@ -5,6 +5,9 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  /* Figtree for body text, labels and paragraphs; Poppins for headings */
+  --font-sans: var(--font-family);
+  --font-heading: var(--title-font-family);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -13,6 +16,7 @@
   --radius-3xl: calc(var(--radius) + 12px);
   --radius-4xl: calc(var(--radius) + 16px);
   --color-background: var(--background);
+  --color-page: var(--page);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
@@ -53,17 +57,71 @@
   --color-finance-danger-bg: var(--finance-danger-bg);
   --color-finance-warning-bg: var(--finance-warning-bg);
   --color-finance-primary-bg: var(--finance-primary-bg);
+  --color-finance-purple-bg: var(--finance-purple-bg);
+
+  /* Categorical palette (Budget breakdown), usable as bg-breakdown-1 etc. */
+  --color-breakdown-1: var(--breakdown-1);
+  --color-breakdown-2: var(--breakdown-2);
+  --color-breakdown-3: var(--breakdown-3);
+  --color-breakdown-4: var(--breakdown-4);
+  --color-breakdown-5: var(--breakdown-5);
+  --color-breakdown-other: var(--breakdown-other);
+
+  /* Tailwind's shadow scale, with the color driven by the theme (stronger in dark) */
+  --shadow-2xs: 0 1px var(--shadow-color-soft);
+  --shadow-xs: 0 1px 2px 0 var(--shadow-color-soft);
+  --shadow-sm:
+    0 1px 3px 0 var(--shadow-color), 0 1px 2px -1px var(--shadow-color);
+  --shadow-md:
+    0 4px 6px -1px var(--shadow-color), 0 2px 4px -2px var(--shadow-color);
+  --shadow-lg:
+    0 10px 15px -3px var(--shadow-color), 0 4px 6px -4px var(--shadow-color);
+  --shadow-xl:
+    0 20px 25px -5px var(--shadow-color), 0 8px 10px -6px var(--shadow-color);
+  --shadow-2xl: 0 25px 50px -12px var(--shadow-color-strong);
+  --color-finance-foreground: var(--finance-foreground);
+  --color-finance-warning-foreground: var(--finance-warning-foreground);
+
+  /* Brand yellow: fills, text on top of it, and readable text/icons on normal surfaces */
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-brand-text: var(--brand-text);
+
+  /* Always-dark surfaces (footer, newsletter box, black CTA button) */
+  --color-inverse: var(--inverse);
+  --color-inverse-foreground: var(--inverse-foreground);
+  --color-inverse-muted: var(--inverse-muted);
+  --color-inverse-border: var(--inverse-border);
+  --color-inverse-input: var(--inverse-input);
+
+  /* Backdrop behind modals, sheets and mobile menus */
+  --color-overlay: var(--overlay);
+
+  /* Extra small text (badges, counters, hints) */
+  --text-2xs: 0.6875rem;
+  --text-3xs: 0.625rem;
+
   --animate-marquee: marquee 20s linear infinite;
 }
 
 :root {
+  --font-family:
+    Figtree, Roboto, Noto Sans Hebrew, Noto Kufi Arabic, Noto Sans JP,
+    sans-serif;
+  --title-font-family:
+    Poppins, Roboto, Noto Sans Hebrew, Noto Kufi Arabic, Noto Sans JP,
+    sans-serif;
   --radius: 0.625rem;
   --background: oklch(1 0 0);
+  /* Dashboard canvas (main + sidebar): a step below the cards in both themes */
+  --page: oklch(0.97 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
+  /* primary stays neutral (black buttons in light, light buttons in dark);
+     the app's blue is finance-primary, which the focus ring uses */
   --primary: oklch(0.205 0 0);
   --primary-foreground: oklch(0.985 0 0);
   --secondary: oklch(0.97 0 0);
@@ -72,15 +130,18 @@
   --muted-foreground: oklch(0.556 0 0);
   --accent: oklch(0.97 0 0);
   --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
+  /* single red for the whole app (shadcn destructive = finance-danger) */
+  --destructive: var(--finance-danger);
   --border: oklch(0.922 0 0);
   --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
+  --ring: var(--finance-primary);
+  /* Generic chart palette = the colorblind-checked breakdown palette.
+     Set only here: .dark sits on <html> too, so these pick up the dark breakdown values. */
+  --chart-1: var(--breakdown-1);
+  --chart-2: var(--breakdown-2);
+  --chart-3: var(--breakdown-3);
+  --chart-4: var(--breakdown-4);
+  --chart-5: var(--breakdown-5);
   /* Stacked bar on the Budget page (categorical, colorblind-checked; Other = gray) */
   --breakdown-1: #2a78d6;
   --breakdown-2: #eb6834;
@@ -95,67 +156,92 @@
   --sidebar-accent: oklch(0.97 0 0);
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --sidebar-ring: var(--ring);
 
   --finance-primary: #3b5bdb;
   --finance-success: #0a6640;
   --finance-danger: #b91c1c;
   --finance-warning: #c47a00;
-  --finance-purple: #a78bfa;
+  --finance-purple: #7c3aed;
   --finance-success-bg: #e8f5ef;
   --finance-danger-bg: #fee2e2;
   --finance-warning-bg: #fef3c7;
   --finance-primary-bg: #e7ecfc;
+  --finance-purple-bg: #f1ecfe;
+  --finance-foreground: #ffffff;
+  --finance-warning-foreground: #1a1a1a;
+
+  --brand: #ffd649;
+  --brand-foreground: #1a1a1a;
+  --brand-text: #8a6d00;
+
+  --inverse: #000000;
+  --inverse-foreground: #ffffff;
+  --inverse-muted: #94a3b8;
+  --inverse-border: #1e293b;
+  --inverse-input: #0f172a;
+
+  --overlay: rgb(0 0 0 / 0.5);
+
+  /* Shadow strength (Tailwind's defaults are tuned for white backgrounds) */
+  --shadow-color-soft: rgb(0 0 0 / 0.05);
+  --shadow-color: rgb(0 0 0 / 0.1);
+  --shadow-color-strong: rgb(0 0 0 / 0.25);
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
+  /* All dark surfaces share the same blue-gray hue (262), stepping up in lightness:
+     background < sidebar < card < popover < muted/secondary < accent (hover) */
+  --background: oklch(14.5% 0.018 262);
+  --page: oklch(16.5% 0.02 262);
   --foreground: oklch(93.9% 0.007 260.7);
   --card: oklch(20.4% 0.024 262.3);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
+  --card-foreground: oklch(93.9% 0.007 260.7);
+  --popover: oklch(23% 0.026 262);
+  --popover-foreground: oklch(93.9% 0.007 260.7);
+  --secondary: oklch(26.5% 0.026 262);
+  --secondary-foreground: oklch(93.9% 0.007 260.7);
+  --muted: oklch(26.5% 0.026 262);
+  --muted-foreground: oklch(61.7% 0.032 259.6);
+  --accent: oklch(29% 0.03 262);
   --primary: oklch(0.922 0 0);
   --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(61.7% 0.032 259.6);
-  --accent: oklch(16.2% 0.014 258.4);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
+  --accent-foreground: oklch(93.9% 0.007 260.7);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
   --breakdown-1: #3987e5;
   --breakdown-2: #d95926;
   --breakdown-3: #199e70;
   --breakdown-4: #c98500;
   --breakdown-5: #d55181;
   --breakdown-other: #6b6b68;
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar: oklch(17.5% 0.021 262);
   --sidebar-primary: oklch(0.488 0.243 264.376);
   --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(93.9% 0.007 260.7);
+  --sidebar-accent: oklch(26.5% 0.026 262);
+  --sidebar-accent-foreground: oklch(93.9% 0.007 260.7);
   --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
 
   --finance-primary: #4a90e2;
   --finance-success: #3fbf7f;
   --finance-danger: #f0533e;
-  --finance-warning: #f5b833;
+  /* more orange than the brand yellow (#ffd649), so a warning never reads as a brand accent */
+  --finance-warning: #f59e0b;
   --finance-purple: #a78bfa;
   --finance-success-bg: #0c2b1f;
   --finance-danger-bg: #2d1515;
   --finance-warning-bg: #2a1f0a;
   --finance-primary-bg: #12233d;
+  --finance-purple-bg: #221a3a;
+  /* the dark-mode fills are light, so text on them is dark (white was ~2.3–3.5:1) */
+  --finance-foreground: #0b1220;
+
+  --brand-text: #ffd649;
+
+  --shadow-color-soft: rgb(0 0 0 / 0.3);
+  --shadow-color: rgb(0 0 0 / 0.5);
+  --shadow-color-strong: rgb(0 0 0 / 0.7);
 }
 
 @layer base {
@@ -163,8 +249,28 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans;
   }
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  [data-slot="card-title"],
+  [data-slot="dialog-title"],
+  [data-slot="sheet-title"],
+  [data-slot="alert-dialog-title"] {
+    @apply font-heading;
+  }
+}
+
+/* Guided tour (react-joyride) over an open Sheet / Drawer: Radix modals set
+   pointer-events: none on <body>, and the tour renders in its own portal
+   under <body>, so its buttons would stop working. ResponsiveSheet also
+   ignores outside clicks coming from this portal */
+#react-joyride-portal {
+  pointer-events: auto;
 }
 
 @keyframes marquee {

@@ -53,7 +53,7 @@ CI (`.github/workflows`) runs lint, format:check, test:run, build and Playwright
   - A page passes `steps` whose keys match `data-tour="<key>"` attributes. A step's `before` can open what the step points at.
   - Texts live under `dashboard.tours.<tour>.<key>`.
   - When a tour is finished or skipped, the FE sends `PATCH /auth/user-info { completeTour: "<tour>" }`, which adds the tour to `users.completed_tours`. A new tour name must also be added to `TourName` (`api/user.ts`) and to `ALLOWED_TOURS` in the backend.
-  - Avoid steps inside a Radix modal (`Sheet`/`Dialog`): the modal disables pointer events outside it, so the tour's buttons stop working.
+  - Steps inside a `ResponsiveSheet` work: it ignores outside clicks from the tour's portal (`keepOpenForTour`), and `index.css` sets `pointer-events: auto` on `#react-joyride-portal`. Inside a plain `Dialog` / `Sheet` the tour's buttons stop working (pointer events disabled outside the modal), so do the same there first. A step whose `before` opens a panel can set `wait` (ms) for its animation.
 - **Dates:** budget dates are calendar days (`DATE` in the DB), sent by the backend as `YYYY-MM-DD`. Use the helpers in `lib/date.ts` (`parseDay`, `formatDay`, `parseMonth`, `todayString`), not `new Date(...)`, which reads `YYYY-MM-DD` as UTC.
 
 ## Documentation

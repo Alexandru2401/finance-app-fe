@@ -133,10 +133,10 @@ export function LoginForm({
                   placeholder={t("auth.emailPlaceholder")}
                   value={formData.email}
                   onChange={(e) => handleChange("email", e)}
-                  className={errors.email ? "border-red-500" : ""}
+                  className={errors.email ? "border-finance-danger" : ""}
                 />
                 {errors.email && (
-                  <p className="text-sm text-red-500 min-h-5">
+                  <p className="text-sm text-finance-danger min-h-5">
                     {t(`auth.errors.${errors.email}`)}
                   </p>
                 )}
@@ -149,10 +149,10 @@ export function LoginForm({
                   id="password"
                   value={formData.password}
                   onChange={(e) => handleChange("password", e)}
-                  className={errors.password ? "border-red-500" : ""}
+                  className={errors.password ? "border-finance-danger" : ""}
                 />
                 {errors.password && (
-                  <p className="text-sm text-red-500 min-h-5">
+                  <p className="text-sm text-finance-danger min-h-5">
                     {t(`auth.errors.${errors.password}`)}
                   </p>
                 )}

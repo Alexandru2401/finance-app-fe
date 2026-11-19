@@ -60,12 +60,12 @@ export default function ThemeToggle({ className }: { className?: string }) {
       aria-label={label}
       title={label}
       className={cn(
-        "relative size-9 cursor-pointer rounded-full text-muted-foreground hover:bg-amber-400/15 hover:text-foreground",
+        "relative size-9 cursor-pointer rounded-full text-muted-foreground hover:bg-brand/15 hover:text-foreground",
         className,
       )}
     >
-      <Sun className="size-[1.15rem] rotate-0 scale-100 text-amber-500 transition-all duration-500 dark:-rotate-90 dark:scale-0" />
-      <Moon className="absolute size-[1.15rem] rotate-90 scale-0 transition-all duration-500 dark:rotate-0 dark:scale-100 dark:text-amber-300" />
+      <Sun className="size-[1.15rem] rotate-0 scale-100 text-brand-text transition-all duration-500 dark:-rotate-90 dark:scale-0" />
+      <Moon className="absolute size-[1.15rem] rotate-90 scale-0 transition-all duration-500 dark:rotate-0 dark:scale-100 dark:text-brand" />
     </Button>
   );
 }

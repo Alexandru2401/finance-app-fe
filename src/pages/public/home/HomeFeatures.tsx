@@ -20,7 +20,7 @@ export default function HomeFeatures() {
           <h2 className="text-3xl font-bold tracking-tight text-foreground md:text-4xl">
             <Trans
               i18nKey="home.features.title"
-              components={{ highlight: <span className="text-amber-400" /> }}
+              components={{ highlight: <span className="text-brand" /> }}
             />
           </h2>
           <p className="mt-4 text-muted-foreground">
@@ -45,7 +45,7 @@ export default function HomeFeatures() {
             <Button
               asChild
               size="lg"
-              className="gap-2 bg-amber-400 text-black hover:bg-finance-warning/90"
+              className="gap-2 bg-brand text-brand-foreground hover:bg-brand/90"
             >
               <Link to="/signin">
                 {t("home.features.seePricing")}

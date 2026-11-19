@@ -6,19 +6,26 @@ import {
   type AppNotification,
   type NotificationsPage as NotificationsResult,
 } from "@/api/notifications";
-import NotificationItem from "@/components/dashboard/notifications/NotificationItem";
+import NotificationItem, {
+  NotificationItemSkeleton,
+} from "@/components/dashboard/notifications/NotificationItem";
 import CardError from "@/components/dashboard/shared/CardError";
 import EmptyState from "@/components/dashboard/shared/EmptyState";
 import PageHeader from "@/components/dashboard/shared/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   refreshUnreadNotifications,
   useUnreadNotifications,
 } from "@/hooks/useUnreadNotifications";
-import { BellOff, Check, CheckCheck, Trash2 } from "lucide-react";
+import { BellOff, Check, CheckCheck, Ellipsis, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useSearchParams } from "react-router";
@@ -144,7 +151,7 @@ export default function NotificationsPage() {
           <TabsTrigger value="unread" className="cursor-pointer gap-1.5">
             {t("dashboard.notifications.filters.unread")}
             {unreadCount !== null && unreadCount > 0 && (
-              <span className="rounded-full bg-finance-danger px-1.5 text-[10px] font-semibold leading-4 text-white">
+              <span className="rounded-full bg-finance-danger px-1.5 text-3xs font-semibold leading-4 text-finance-foreground">
                 {unreadCount > 99 ? "99+" : unreadCount}
               </span>
             )}
@@ -152,12 +159,14 @@ export default function NotificationsPage() {
         </TabsList>
       </Tabs>
 
-      <Card className="shadow-none">
-        <CardContent>
+      {/* Phones: no outer card, the items are cards themselves (a card in a
+          card wastes the narrow width); from md the list sits in a card */}
+      <Card className="gap-0 border-0 bg-transparent py-0 shadow-none md:border md:bg-card md:py-4">
+        <CardContent className="px-0 md:px-6">
           {data === undefined ? (
             <div className="flex flex-col gap-2">
               {[0, 1, 2, 3].map((i) => (
-                <Skeleton key={i} className="h-16 w-full rounded-lg" />
+                <NotificationItemSkeleton key={i} />
               ))}
             </div>
           ) : data === null ? (
@@ -183,12 +192,44 @@ export default function NotificationsPage() {
                     onOpen={open}
                     actions={
                       <>
+                        {/* Narrow items: read / delete in a "..." menu */}
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="size-8 cursor-pointer @md:hidden"
+                              aria-label={t("dashboard.notifications.actions")}
+                            >
+                              <Ellipsis className="size-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            {notification.read_at === null && (
+                              <DropdownMenuItem
+                                onSelect={() => markRead(notification)}
+                              >
+                                <Check />
+                                {t("dashboard.notifications.markRead")}
+                              </DropdownMenuItem>
+                            )}
+                            <DropdownMenuItem
+                              variant="destructive"
+                              onSelect={() => remove(notification)}
+                            >
+                              <Trash2 />
+                              {t("dashboard.notifications.delete")}
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+
+                        {/* Wider items: the two buttons */}
                         {notification.read_at === null && (
                           <Button
                             variant="ghost"
                             size="icon"
                             onClick={() => markRead(notification)}
-                            className="size-8 cursor-pointer"
+                            className="hidden size-8 cursor-pointer @md:inline-flex"
                             aria-label={t("dashboard.notifications.markRead")}
                             title={t("dashboard.notifications.markRead")}
                           >
@@ -199,7 +240,7 @@ export default function NotificationsPage() {
                           variant="ghost"
                           size="icon"
                           onClick={() => remove(notification)}
-                          className="size-8 cursor-pointer text-finance-danger hover:bg-finance-danger-bg hover:text-finance-danger"
+                          className="hidden size-8 cursor-pointer text-finance-danger hover:bg-finance-danger-bg hover:text-finance-danger @md:inline-flex"
                           aria-label={t("dashboard.notifications.delete")}
                           title={t("dashboard.notifications.delete")}
                         >

@@ -293,7 +293,7 @@ export default function PayPage() {
       <section className="py-16 px-4 md:px-8 max-w-xl mx-auto">
         <Card className="text-center">
           <CardHeader>
-            <CircleCheck className="h-14 w-14 text-emerald-500 mx-auto mb-2" />
+            <CircleCheck className="h-14 w-14 text-finance-success mx-auto mb-2" />
             <CardTitle className="text-2xl">{t("pay.success.title")}</CardTitle>
             <CardDescription className="text-base">
               {t("pay.success.text", {
@@ -534,7 +534,7 @@ export default function PayPage() {
               >
                 {t("pay.summary.annual")}
               </span>
-              <Badge className="bg-emerald-400">
+              <Badge className="bg-finance-success">
                 {t("pay.summary.save", { percent: ANNUAL_DISCOUNT * 100 })}
               </Badge>
             </div>

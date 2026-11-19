@@ -1,6 +1,6 @@
 import { FEATURES } from "@/lib/features";
 import { Link, useLocation } from "react-router";
-import { Menu, PanelLeftOpen, Search, X } from "lucide-react";
+import { Menu, PanelLeftClose, PanelLeftOpen, Search, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { dashboardNavigation } from "@/components/dashboard/routes/DashboardNavigation";
 import SearchDialog from "@/components/dashboard/shared/SearchDialog";
@@ -13,6 +13,14 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import clsx from "clsx";
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import { useIsMobile } from "@/hooks/useIsMobile";
+import { useTheme } from "@/hooks/useTheme";
 import { useTranslation } from "react-i18next";
 
 const isMac =
@@ -30,6 +38,9 @@ const NOTIFICATIONS_ENABLED = FEATURES.notifications;
 export default function DashboardMainNavigation() {
   const [open, setOpen] = useState(true);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const isMobile = useIsMobile();
+  // Logo files per theme (public/logo/*-white / *-dark)
+  const { dark } = useTheme();
   const location = useLocation();
   const [searchOpen, setSearchOpen] = useState(false);
   const { t } = useTranslation();
@@ -54,7 +65,7 @@ export default function DashboardMainNavigation() {
   }, [location.pathname]);
 
   const renderNav = (showLabels: boolean, onNavigate?: () => void) => (
-    <nav className="flex h-full flex-col text-sm bg-accent">
+    <nav className="flex h-full flex-col text-sm bg-page">
       {/* ===== LOGO ===== */}
       <div
         className={clsx(
@@ -62,33 +73,35 @@ export default function DashboardMainNavigation() {
           !showLabels && "justify-center px-0",
         )}
       >
-        {/* Collapsed sidebar: only the mark, the full wordmark doesn't fit in 64px */}
+        {/* Collapsed sidebar: only the mark, the full wordmark doesn't fit in
+            64px. Both 48px tall (the most the mark fits in 64px), so the logo
+            and the menu below don't move when the sidebar opens / closes */}
         {showLabels ? (
           <img
-            src="/logo.png"
+            src={dark ? "/logo/logo-dark.webp" : "/logo/logo-white.webp"}
             alt={t("dashboard.nav.logoAlt")}
-            className="h-18 shrink-0 rounded-lg object-cover"
+            className="h-12 w-auto shrink-0 object-contain"
           />
         ) : (
           <img
-            src="/logo-mark.png"
+            src={
+              dark ? "/logo/logo-mark-dark.webp" : "/logo/logo-mark-white.webp"
+            }
             alt={t("dashboard.nav.logoAlt")}
-            className="h-10 w-10 shrink-0 object-contain"
+            className="h-12 w-auto shrink-0 object-contain"
           />
         )}
       </div>
 
       {/* ===== SEARCH ===== */}
-      {/* Looks like an input, but opens the search modal */}
-      {SEARCH_ENABLED && (
+      {/* Looks like an input, but opens the search modal. Desktop sidebar only:
+          on mobile the search button is in the top bar */}
+      {SEARCH_ENABLED && !onNavigate && (
         <div className={clsx("px-3 pb-4", !showLabels && "px-2")}>
           {showLabels ? (
             <button
               type="button"
-              onClick={() => {
-                onNavigate?.();
-                setSearchOpen(true);
-              }}
+              onClick={() => setSearchOpen(true)}
               aria-label={t("dashboard.nav.search")}
               aria-haspopup="dialog"
               className="flex h-10 w-full cursor-pointer items-center gap-2 rounded-lg border bg-background px-3 text-sm text-muted-foreground outline-none transition-colors hover:border-finance-warning/60 focus-visible:border-finance-warning focus-visible:ring-2 focus-visible:ring-finance-warning/40"
@@ -97,7 +110,7 @@ export default function DashboardMainNavigation() {
               <span className="flex-1 truncate text-left">
                 {t("dashboard.nav.search")}
               </span>
-              <kbd className="text-[11px] font-medium">{shortcutLabel}</kbd>
+              <kbd className="text-2xs font-medium">{shortcutLabel}</kbd>
             </button>
           ) : (
             <Tooltip>
@@ -165,7 +178,7 @@ export default function DashboardMainNavigation() {
 
                     {/* Badge "New" — necesita camp optional `badge` in date
                       {showLabels && badge && (
-                        <span className="ml-auto rounded-full bg-finance-warning px-2 py-0.5 text-[11px] font-semibold text-black">
+                        <span className="ml-auto rounded-full bg-finance-warning px-2 py-0.5 text-2xs font-semibold text-finance-warning-foreground">
                           {badge}
                         </span>
                       )}
@@ -228,7 +241,9 @@ export default function DashboardMainNavigation() {
 
         <Link to="/dashboard" className="flex items-center">
           <img
-            src="/logo-mark.png"
+            src={
+              dark ? "/logo/logo-mark-dark.webp" : "/logo/logo-mark-white.webp"
+            }
             alt={t("dashboard.nav.logoAlt")}
             className="h-8 w-8 object-contain"
           />
@@ -260,47 +275,47 @@ export default function DashboardMainNavigation() {
       >
         {/* Toggle button */}
         <button
+          type="button"
           onClick={() => setOpen((prev) => !prev)}
-          className="absolute cursor-pointer top-4 -right-5 z-10 flex h-8 w-8 items-center justify-center rounded-full border bg-background shadow hover:bg-accent transition-colors"
           aria-label={t("dashboard.nav.toggleSidebar")}
+          aria-expanded={open}
+          className="absolute -right-5 top-4 z-10 flex size-8 cursor-pointer items-center justify-center rounded-full border bg-background shadow transition-colors hover:bg-accent"
         >
-          <PanelLeftOpen className="h-4 w-4" />
+          {open ? (
+            <PanelLeftClose className="h-4 w-4" aria-hidden="true" />
+          ) : (
+            <PanelLeftOpen className="h-4 w-4" aria-hidden="true" />
+          )}
         </button>
 
         {renderNav(open)}
       </aside>
 
-      {/* Backdrop drawer - mobile */}
-      <div
-        onClick={() => setMobileOpen(false)}
-        aria-hidden="true"
-        className={clsx(
-          "fixed inset-0 z-40 bg-black/50 transition-opacity duration-300 md:hidden",
-          mobileOpen ? "opacity-100" : "pointer-events-none opacity-0",
-        )}
-      />
-
-      {/* Drawer propriu-zis - mobile */}
-      <aside
-        className={clsx(
-          "fixed left-0 top-0 z-50 h-dvh w-64 border-r bg-background transition-transform duration-300 md:hidden",
-          mobileOpen ? "translate-x-0" : "-translate-x-full",
-        )}
-      >
-        {/* Close button */}
-        <button
-          onClick={() => setMobileOpen(false)}
-          aria-label={t("dashboard.nav.closeMenu")}
-          className={clsx(
-            "absolute -right-4 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-accent transition-colors hover:bg-accent",
-            !mobileOpen && "hidden",
-          )}
+      {/* Mobile menu: shadcn Sheet from the left (focus trap, Escape,
+          aria-modal, scroll lock). Only on phones: closed past md, so its
+          overlay never covers the desktop layout */}
+      <Sheet open={mobileOpen && isMobile} onOpenChange={setMobileOpen}>
+        <SheetContent
+          side="left"
+          showCloseButton={false}
+          aria-describedby={undefined}
+          // 18rem (room for the inline user menu), at most 85% of the screen
+          className="w-72 max-w-[85vw] gap-0 bg-background p-0"
         >
-          <X className="h-4 w-4" />
-        </button>
+          <SheetTitle className="sr-only">{t("dashboard.nav.menu")}</SheetTitle>
+          <SheetClose asChild>
+            <button
+              type="button"
+              aria-label={t("dashboard.nav.closeMenu")}
+              className="absolute right-2 top-2 z-10 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-page transition-colors hover:bg-accent"
+            >
+              <X className="h-4 w-4" aria-hidden="true" />
+            </button>
+          </SheetClose>
 
-        {renderNav(true, () => setMobileOpen(false))}
-      </aside>
+          {renderNav(true, () => setMobileOpen(false))}
+        </SheetContent>
+      </Sheet>
 
       {SEARCH_ENABLED && (
         <SearchDialog open={searchOpen} onOpenChange={setSearchOpen} />
