@@ -71,10 +71,13 @@ export default function NewCategoryField({
         }),
       );
     } catch (err) {
+      const status = err instanceof ApiRequestError ? err.status : null;
       setError(
-        err instanceof ApiRequestError && err.status === 409
+        status === 409
           ? t("dashboard.budget.form.errors.categoryExists")
-          : t("dashboard.budget.form.toasts.categoryError"),
+          : status === 422
+            ? t("dashboard.budget.form.errors.categoryLimit")
+            : t("dashboard.budget.form.toasts.categoryError"),
       );
     } finally {
       setCreating(false);

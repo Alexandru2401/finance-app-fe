@@ -3,8 +3,9 @@
 Base URL: `VITE_API_URL` (implicit `http://localhost:3000/api/v1`).
 Toate cererile trimit `credentials: "include"` (cookie de sesiune) și `Content-Type: application/json`.
 
-> Backend-ul folosește `expense` (singular); frontend-ul folosește `expenses` — conversia se face în `src/api/`.
+> Tipurile (`budget_type`) sunt `income` / `expenses` / `savings` peste tot (DB, BE, FE). Cheile sumelor din răspunsuri (`summary`, `trend`, `target`) rămân `expense`, ca în `budget_targets`.
 > Valori `period`: `this-month` | `last-month` | `last-3` | `last-6` | `this-year`.
+> Zilele (`date`) vin ca `YYYY-MM-DD`; se citesc cu helperii din `src/lib/date.ts`, nu cu `new Date(...)`.
 
 ## Auth — `src/api/user.ts`, `src/context/AuthProvider.tsx`
 
@@ -17,30 +18,32 @@ Toate cererile trimit `credentials: "include"` (cookie de sesiune) și `Content-
 | GET    | `/auth/user-info` | —                                                                                                               | `{ success, message, user? }`              |
 | PATCH  | `/auth/user-info` | `{ username, currency }`                                                                                        | `{ success, message, user? }`              |
 
-`user`: `{ user_id, username, email, plan_type, currency, is_active, created_at }`
+`user`: `{ user_id, username, email, plan_type, currency, language, is_active, created_at, has_completed_onboarding, completed_tours }` (`is_active` lipsește din răspunsul la `PATCH`). Parola: min 8 caractere, max 72 bytes; `username`: 2–150 caractere.
 
 ## Categorii — `src/api/budget.ts`
 
-| Metodă | Rută                | Trimit                                         | Primesc                                                                                                                          |
-| ------ | ------------------- | ---------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| GET    | `/categories?type=` | `type` opțional (`income`/`expense`/`savings`) | `{ success, categories: [{ category_id, type, name }] }` (doar categoriile userului)                                             |
-| POST   | `/categories`       | `{ type, name }` (nume 2–50 caractere)         | 201 `{ success, category }`; 409 dacă numele există deja la acel tip (fără diferență între litere mari/mici); 400 dacă e invalid |
-| PATCH  | `/categories/:id`   | `{ name }` (doar numele; tipul nu se schimbă)  | 200 `{ success, category }`; 409 nume ocupat; 404 dacă nu e o categorie a userului                                               |
-| DELETE | `/categories/:id`   | —                                              | 200 `{ success, category }` (categoria ștearsă); 404 dacă nu e o categorie a userului. Tranzacțiile ei rămân fără categorie      |
+| Metodă | Rută                | Trimit                                          | Primesc                                                                                                                                                      |
+| ------ | ------------------- | ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| GET    | `/categories?type=` | `type` opțional (`income`/`expenses`/`savings`) | `{ success, categories: [{ category_id, type, name }] }` (doar categoriile userului); 400 dacă `type` e invalid                                              |
+| POST   | `/categories`       | `{ type, name }` (nume 2–50 caractere)          | 201 `{ success, category }`; 409 dacă numele există deja la acel tip (fără diferență între litere mari/mici); 422 peste 100 de categorii; 400 dacă e invalid |
+| PATCH  | `/categories/:id`   | `{ name }` (doar numele; tipul nu se schimbă)   | 200 `{ success, category }`; 409 nume ocupat; 404 dacă nu e o categorie a userului                                                                           |
+| DELETE | `/categories/:id`   | —                                               | 200 `{ success, category }` (categoria ștearsă); 404 dacă nu e o categorie a userului. Tranzacțiile ei rămân fără categorie                                  |
 
 ## Tranzacții — `src/api/transactions.ts`, `src/api/budget.ts`
 
-| Metodă | Rută                                     | Trimit                                                                          | Primesc                                                                                                       |
-| ------ | ---------------------------------------- | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
-| GET    | `/transactions?type=&limit=&page=&sort=` | toate opționale; `limit` implicit 10, max 100; `sort` = `newest`/`oldest`       | `{ success, transactions: [{ item_id, type, amount, date, category_id, category_name, notes }], total, net }` |
-| POST   | `/transactions`                          | `{ type, category_id, amount, date, notes? }`                                   | `{ message? }`                                                                                                |
-| PATCH  | `/transactions/:id`                      | `{ amount?, date?, category_id?, notes? }` (`notes: null` sau `""` șterge nota) | 2xx; eroare `{ message }` (4xx) / `{ error }` (500)                                                           |
-| DELETE | `/transactions/:id`                      | —                                                                               | 204 / 2xx; eroare `{ message }` / `{ error }`                                                                 |
+| Metodă | Rută                                     | Trimit                                                                                                                                                                                                  | Primesc                                                                                                                     |
+| ------ | ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| GET    | `/transactions?type=&limit=&page=&sort=` | toate opționale; `limit` implicit și max 15; `sort` = `newest`/`oldest`/`highest`/`lowest`; filtre `category_id`, `year`, `month`, `day`, `minAmount`, `maxAmount`, `search`; o valoare invalidă dă 400 | `{ success, transactions: [{ item_id, type, amount, date, category_id, category_name, notes, recurring_id }], total, net }` |
+| POST   | `/transactions`                          | `{ type, category_id, amount, date, notes? }` (`notes` max 1500)                                                                                                                                        | `{ message?, transaction }` (cu `recurring_id`); 422 peste 20.000 de tranzacții                                             |
+| PATCH  | `/transactions/:id`                      | `{ amount?, date?, category_id?, notes? }` (`notes: null` sau `""` șterge nota; max 1500)                                                                                                               | 2xx; eroare `{ message }` (4xx) / `{ error }` (500)                                                                         |
+| DELETE | `/transactions/:id`                      | —                                                                                                                                                                                                       | 204 / 2xx; eroare `{ message }` / `{ error }`                                                                               |
 
 ## Statistici buget — `src/api/budget.ts`
 
-| Metodă | Rută                           | Trimit                                     | Primesc                                                                                                    |
-| ------ | ------------------------------ | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- |
-| GET    | `/budget/summary?period=`      | `period` (implicit `last-month`)           | `{ success, summary: { income, expense, savings, net } }` (numerele pot veni ca string)                    |
-| GET    | `/budget/spending/top?period=` | `period` (implicit `last-month`)           | `{ success, topExpenses: [{ item_id, category_id, category, amount (string), date, notes, created_at }] }` |
-| GET    | `/budget/budget-trend?period=` | `period` opțional (fără = ultimele 6 luni) | `{ success, trend: [{ month, income, expense }] }`                                                         |
+| Metodă | Rută                           | Trimit                                     | Primesc                                                                                                         |
+| ------ | ------------------------------ | ------------------------------------------ | --------------------------------------------------------------------------------------------------------------- |
+| GET    | `/budget/summary?period=`      | `period` (implicit `last-month`)           | `{ success, summary: { income, expense, savings, net } }`                                                       |
+| GET    | `/budget/spending/top?period=` | `period` (implicit `last-month`)           | `{ success, topExpenses: [{ item_id, category_id, category, amount, date, notes, created_at }] }`               |
+| GET    | `/budget/budget-trend?period=` | `period` opțional (fără = ultimele 6 luni) | `{ success, trend: [{ month, income, expense }] }`                                                              |
+| GET    | `/budget/costs?period=`        | `period` (Analytics)                       | `{ success, costs: { fixed, variable } }`, fiecare `{ items: [{ category_id, category, amount, pct }], total }` |
+| GET    | `/budget/forecast?period=`     | `period` (Analytics; ca la trend)          | `{ success, forecast: { points: [{ month, savings, forecast }], average } }`                                    |

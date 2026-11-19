@@ -1,6 +1,9 @@
 import TransactionsFilters from "@/components/dashboard/transactions/TransactionsFilters";
 import TransactionsTable from "@/components/dashboard/transactions/TransactionsTable";
 import PageHeader from "@/components/dashboard/shared/PageHeader";
+import PageTour, {
+  type TourStep,
+} from "@/components/dashboard/shared/PageTour";
 import BudgetForm from "@/components/dashboard/budget/BudgetForm";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,6 +18,7 @@ import {
   DEFAULT_FILTERS,
   daysInMonth,
   filtersFromParams,
+  isValidFilterAmount,
   filtersToParams,
   type TransactionFilters,
 } from "@/components/dashboard/transactions/filters";
@@ -63,8 +67,18 @@ const SEARCH_DELAY = 300;
 
 const toNumber = (value: string) =>
   value === "all" ? undefined : Number(value);
+// An invalid amount (e.g. 3 decimals while typing) is not sent: the backend
+// answers 400 to it
 const toAmount = (value: string) =>
-  value.trim() === "" ? undefined : Number(value);
+  value.trim() === "" || !isValidFilterAmount(value)
+    ? undefined
+    : Number(value);
+
+const TRANSACTIONS_TOUR: TourStep<"transactions">[] = [
+  { key: "add" },
+  { key: "filters" },
+  { key: "table" },
+];
 
 export default function TransactionsPage() {
   const { t, i18n } = useTranslation();
@@ -320,7 +334,9 @@ export default function TransactionsPage() {
         title={t("dashboard.transactions.title")}
         subtitle={t("dashboard.transactions.subtitle")}
       >
+        <PageTour tour="transactions" steps={TRANSACTIONS_TOUR} />
         <Button
+          data-tour="add"
           size="sm"
           onClick={() => setShowAddForm(true)}
           className="cursor-pointer gap-1.5"

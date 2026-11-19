@@ -169,7 +169,10 @@ export default function UpgradePlansPage() {
       {/* Footer */}
       <p className="mt-10 text-center text-sm text-muted-foreground">
         Questions about billing?{" "}
-        <Link to="/settings" className="underline hover:text-foreground">
+        <Link
+          to="/dashboard/settings"
+          className="underline hover:text-foreground"
+        >
           Manage your subscription
         </Link>
       </p>

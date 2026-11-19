@@ -34,18 +34,15 @@ import RecurringBadge from "@/components/dashboard/shared/RecurringBadge";
 import { isValidAmount } from "@/lib/validation";
 import { useDateLocale } from "@/hooks/useDateLocale";
 import { cn } from "@/lib/utils";
+import { NOTES_MAX_LENGTH } from "@/schemas/budget-item.schema";
 import { TYPE_STYLES } from "./styles";
+import { formatDay, parseDay } from "@/lib/date";
 
 type TxType = Transaction["type"];
 
-const TYPES: TxType[] = ["income", "expense", "savings"];
+const TYPES: TxType[] = ["income", "expenses", "savings"];
 
-// Categories use "expenses" (frontend), transactions use "expense" (backend)
-const sameType = (category: Category, type: TxType) =>
-  (category.type === "expenses" ? "expense" : category.type) === type;
-
-// The backend sends a timestamp; new Date() keeps the local day
-const toDayString = (date: string) => format(new Date(date), "yyyy-MM-dd");
+const sameType = (category: Category, type: TxType) => category.type === type;
 
 const textareaClass =
   "min-h-24 w-full resize-y rounded-md border border-input bg-transparent px-3 py-2 text-sm outline-none transition focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50";
@@ -159,7 +156,7 @@ function NotesBody({
           {tx.recurring_id && <RecurringBadge />}
         </DialogTitle>
         <DialogDescription>
-          {new Date(tx.date).toLocaleDateString(i18n.language, {
+          {formatDay(tx.date, i18n.language, {
             day: "numeric",
             month: "long",
             year: "numeric",
@@ -175,7 +172,7 @@ function NotesBody({
           placeholder={t("dashboard.transactions.edit.notesPlaceholder")}
           aria-label={t("dashboard.transactions.table.notes")}
           className={cn(textareaClass, "min-h-32")}
-          maxLength={500}
+          maxLength={NOTES_MAX_LENGTH}
         />
       ) : (
         <div className="rounded-lg bg-muted/40 p-3">
@@ -301,7 +298,7 @@ function EditForm({
   const [type, setType] = useState<TxType>(tx.type);
   const [amount, setAmount] = useState(tx.amount.toFixed(2));
   const [categoryId, setCategoryId] = useState(tx.category_id ?? "");
-  const [date, setDate] = useState<Date | undefined>(new Date(tx.date));
+  const [date, setDate] = useState<Date | undefined>(parseDay(tx.date));
   const [notes, setNotes] = useState(tx.notes ?? "");
   const [submitted, setSubmitted] = useState(false);
 
@@ -329,7 +326,7 @@ function EditForm({
     if (numericAmount !== tx.amount) payload.amount = numericAmount;
     if (categoryId !== tx.category_id) payload.category_id = categoryId;
     const day = format(date, "yyyy-MM-dd");
-    if (day !== toDayString(tx.date)) payload.date = day;
+    if (day !== tx.date) payload.date = day;
     if (notes.trim() !== (tx.notes ?? "").trim()) payload.notes = notes.trim();
 
     if (Object.keys(payload).length === 0) {
@@ -410,7 +407,7 @@ function EditForm({
               {t("dashboard.budget.form.noCategories")}
             </p>
             <NewCategoryField
-              type={type === "expense" ? "expenses" : type}
+              type={type}
               categories={typeCategories}
               onCreated={(category) => {
                 onCategoryCreated(category);
@@ -485,7 +482,7 @@ function EditForm({
           onChange={(e) => setNotes(e.target.value)}
           placeholder={t("dashboard.transactions.edit.notesPlaceholder")}
           className={textareaClass}
-          maxLength={500}
+          maxLength={NOTES_MAX_LENGTH}
         />
       </div>
 

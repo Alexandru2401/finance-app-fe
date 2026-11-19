@@ -1,8 +1,9 @@
+import type { BudgetType } from "./budget";
 import { get, getFile } from "./client";
 
 export interface Transaction {
   item_id: string;
-  type: "income" | "expense" | "savings";
+  type: BudgetType;
   amount: number;
   date: string;
   category_id: string | null;
@@ -27,7 +28,7 @@ interface TransactionsResponse {
 type Result<T> = { ok: true; data: T } | { ok: false; error: string };
 
 export interface TransactionsParams {
-  type?: "income" | "expense" | "expenses" | "savings";
+  type?: BudgetType;
   // Backend default is 15 per page, max 15
   limit?: number;
   page?: number;
@@ -46,9 +47,7 @@ export interface TransactionsParams {
 // Same filters for the list and the CSV export
 function filtersQuery(params: TransactionsParams): URLSearchParams {
   const qs = new URLSearchParams();
-  // The backend uses "expense" (singular); the frontend uses "expenses"
-  if (params.type)
-    qs.set("type", params.type === "expenses" ? "expense" : params.type);
+  if (params.type) qs.set("type", params.type);
   if (params.sort) qs.set("sort", params.sort);
   if (params.year) qs.set("year", String(params.year));
   if (params.month) qs.set("month", String(params.month));

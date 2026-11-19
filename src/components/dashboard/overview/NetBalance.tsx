@@ -19,6 +19,7 @@ import CardError from "@/components/dashboard/shared/CardError";
 import { useCurrency } from "@/hooks/useCurrency";
 import type { Period } from "@/lib/periods";
 import { useTranslation } from "react-i18next";
+import { parseMonth } from "@/lib/date";
 
 interface Props {
   period: Period;
@@ -27,7 +28,7 @@ interface Props {
 }
 
 const formatMonth = (month: string, locale: string) =>
-  new Date(`${month}-01`).toLocaleDateString(locale, {
+  parseMonth(month).toLocaleDateString(locale, {
     month: "short",
     year: "numeric",
   });

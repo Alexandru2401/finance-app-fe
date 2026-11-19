@@ -29,7 +29,12 @@ import BudgetItemSchema, {
   type BudgetItemInput,
   type BudgetItemPayload,
 } from "@/schemas/budget-item.schema";
-import { addNewTransaction, getCategories, type Category } from "@/api/budget";
+import {
+  ApiRequestError,
+  addNewTransaction,
+  getCategories,
+  type Category,
+} from "@/api/budget";
 import {
   createRecurring,
   getRecurring,
@@ -37,7 +42,7 @@ import {
 } from "@/api/recurring";
 import NewCategoryField from "@/components/dashboard/shared/NewCategoryField";
 import { FEATURES } from "@/lib/features";
-import { firstRunDate } from "@/lib/recurring";
+import { firstRunDate, todayInRomania } from "@/lib/recurring";
 
 type BudgetType = BudgetItemInput["type"];
 
@@ -167,13 +172,13 @@ export default function BudgetForm({
   const notesNearLimit = notesRemaining <= NOTES_WARNING_THRESHOLD;
   const selectedDate = formData.date ? parseISO(formData.date) : undefined;
   // Shown under the recurring fields, so the user knows when it starts.
-  // Same as the backend: after today and after this transaction's date, so the
-  // same day is never added twice
-  const today = toDateString(new Date());
+  // Same as the backend: after today (in Romania) and after this transaction's
+  // date, so the same day is never added twice
+  const today = todayInRomania();
   const firstRun = parseISO(
     firstRunDate(
       parseDay(formData.dayOfMonth),
-      formData.date > today ? parseISO(formData.date) : new Date(),
+      formData.date > today ? formData.date : today,
     ),
   );
 
@@ -254,11 +259,18 @@ export default function BudgetForm({
     } catch (err) {
       // 409 = the category got a recurring rule meanwhile (e.g. another tab)
       const taken = err instanceof RecurringRequestError && err.status === 409;
+      // 422 = a per-user limit (transactions or recurring rules)
+      const limit =
+        (err instanceof RecurringRequestError ||
+          err instanceof ApiRequestError) &&
+        err.status === 422;
       toast.error(
         t(
           taken
             ? "dashboard.budget.form.recurring.alreadyRecurring"
-            : "dashboard.budget.form.toasts.addError",
+            : limit
+              ? "dashboard.budget.form.toasts.limitReached"
+              : "dashboard.budget.form.toasts.addError",
         ),
       );
       if (taken) setRecurringReloadKey((k) => k + 1);
@@ -314,7 +326,7 @@ export default function BudgetForm({
         </div>
 
         {/* Category */}
-        <div className="space-y-2">
+        <div data-tour="formCategory" className="space-y-2">
           <div className="flex items-center justify-between">
             <Label htmlFor="category">
               {t("dashboard.budget.form.category")}
@@ -461,7 +473,10 @@ export default function BudgetForm({
 
         {/* Recurring: added again automatically every month */}
         {FEATURES.recurring && (
-          <div className="space-y-4 rounded-lg border p-4">
+          <div
+            data-tour="formRecurring"
+            className="space-y-4 rounded-lg border p-4"
+          >
             <div className="flex items-start justify-between gap-4">
               <div className="space-y-1">
                 <Label

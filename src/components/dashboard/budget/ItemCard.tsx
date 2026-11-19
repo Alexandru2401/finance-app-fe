@@ -34,23 +34,20 @@ import {
   CardHeader,
   CardTitle,
 } from "../../ui/card";
+import { formatDay, todayString } from "@/lib/date";
 
 type BudgetType = "income" | "expenses" | "savings";
 
 const formatDate = (date: string, locale: string) =>
-  new Date(date).toLocaleDateString(locale, {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  });
+  formatDay(date, locale, { day: "2-digit", month: "short", year: "numeric" });
 
 // The dialogs from Transactions work with the transaction shape of the API
 const toTransaction = (item: BudgetItem): Transaction => ({
-  item_id: item.id,
-  type: item.type === "expenses" ? "expense" : item.type,
+  item_id: item.item_id,
+  type: item.type,
   amount: item.amount,
   // Items from the backend always have a date; the fallback keeps the dialogs safe
-  date: item.date ?? new Date().toISOString(),
+  date: item.date ?? todayString(),
   category_id: item.categoryId ?? null,
   category_name: item.category || null,
   notes: item.notes ?? null,
@@ -74,7 +71,7 @@ export default function ItemCard({ section, onShowForm }: ItemCardProps) {
   const [deletingItem, setDeletingItem] = useState<BudgetItem | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const findTx = (id: string | null) => {
-    const item = id && section.items.find((i) => i.id === id);
+    const item = id && section.items.find((i) => i.item_id === id);
     return item ? toTransaction(item) : null;
   };
 
@@ -94,7 +91,7 @@ export default function ItemCard({ section, onShowForm }: ItemCardProps) {
   }, []);
 
   const startEdit = (item: BudgetItem) => {
-    setEditingId(item.id);
+    setEditingId(item.item_id);
     // Categories can change from the form or the settings on the same page
     getCategories()
       .then(setCategories)
@@ -108,7 +105,7 @@ export default function ItemCard({ section, onShowForm }: ItemCardProps) {
   async function confirmDelete() {
     if (!deletingItem) return;
     setIsDeleting(true);
-    const deleted = await section.onDelete(deletingItem.id);
+    const deleted = await section.onDelete(deletingItem.item_id);
     setIsDeleting(false);
     if (deleted) setDeletingItem(null);
   }
@@ -186,7 +183,7 @@ export default function ItemCard({ section, onShowForm }: ItemCardProps) {
               <div className="space-y-1">
                 {section.items.slice(0, 5).map((item) => (
                   <div
-                    key={item.id}
+                    key={item.item_id}
                     className="flex items-center gap-3 rounded-lg border border-border/50 px-3 py-1.5"
                   >
                     <div
@@ -221,7 +218,7 @@ export default function ItemCard({ section, onShowForm }: ItemCardProps) {
                         type="button"
                         variant="ghost"
                         size="sm"
-                        onClick={() => setNotesId(item.id)}
+                        onClick={() => setNotesId(item.item_id)}
                         aria-label={t("dashboard.budget.items.viewDetails")}
                         className="cursor-pointer  hover:bg-slate-400/20"
                       >

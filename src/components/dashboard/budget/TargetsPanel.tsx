@@ -4,6 +4,7 @@ import { Label } from "@/components/ui/label";
 import TargetHistory from "@/components/dashboard/budget/TargetHistory";
 import type { BudgetTargetValues } from "@/api/budget";
 import { formatMonth } from "@/lib/periods";
+import { isValidTargetAmount } from "@/lib/validation";
 import { History } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -17,10 +18,18 @@ interface TargetsPanelProps {
   onClose: () => void;
 }
 
-// An empty input is not sent, so it keeps the saved value
+type Field = keyof BudgetTargetValues;
+
+const FIELDS: { key: Field; id: string }[] = [
+  { key: "income", id: "t-income" },
+  { key: "expense", id: "t-expenses" },
+  { key: "savings", id: "t-savings" },
+];
+
+// An empty input means "no target" and is saved as null
 const toInput = (value: number | null) => (value === null ? "" : String(value));
 const fromInput = (value: string) =>
-  value.trim() === "" ? null : Number(value) || 0;
+  value.trim() === "" ? null : Number(value);
 
 export default function TargetsPanel({
   targets,
@@ -37,13 +46,18 @@ export default function TargetsPanel({
   const [saving, setSaving] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
 
-  const parsed = {
+  const parsed: BudgetTargetValues = {
     income: fromInput(values.income),
     expense: fromInput(values.expense),
     savings: fromInput(values.savings),
   };
-  // The backend needs at least one value
-  const isEmpty = Object.values(parsed).every((value) => value === null);
+  // Same rule as the backend: >= 0, at most 2 decimals
+  const invalid = (field: Field) => {
+    const value = parsed[field];
+    return value !== null && !isValidTargetAmount(value);
+  };
+  const hasErrors = FIELDS.some(({ key }) => invalid(key));
+  const unchanged = FIELDS.every(({ key }) => parsed[key] === targets[key]);
 
   const handleSave = async () => {
     setSaving(true);
@@ -64,67 +78,39 @@ export default function TargetsPanel({
           })}
         </h2>
 
-        <div className="flex flex-wrap items-end gap-4">
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="t-income" className="text-xs text-muted-foreground">
-              {t("dashboard.budget.targets.income")}
-            </Label>
-            <Input
-              id="t-income"
-              type="number"
-              value={values.income}
-              onChange={(e) =>
-                setValues((v) => ({ ...v, income: e.target.value }))
-              }
-              onKeyDown={(e) =>
-                (e.key === "e" || e.key === "E") && e.preventDefault()
-              }
-              className="w-32"
-            />
-          </div>
-
-          <div className="flex flex-col gap-1.5">
-            <Label
-              htmlFor="t-expenses"
-              className="text-xs text-muted-foreground"
-            >
-              {t("dashboard.budget.targets.expense")}
-            </Label>
-            <Input
-              id="t-expenses"
-              type="number"
-              value={values.expense}
-              onChange={(e) =>
-                setValues((v) => ({ ...v, expense: e.target.value }))
-              }
-              onKeyDown={(e) =>
-                (e.key === "e" || e.key === "E") && e.preventDefault()
-              }
-              className="w-32"
-            />
-          </div>
-
-          <div className="flex flex-col gap-1.5">
-            <Label
-              htmlFor="t-savings"
-              className="text-xs text-muted-foreground"
-            >
-              {t("dashboard.budget.targets.savings")}
-            </Label>
-            <Input
-              id="t-savings"
-              type="number"
-              value={values.savings}
-              onChange={(e) =>
-                setValues((v) => ({ ...v, savings: e.target.value }))
-              }
-              onKeyDown={(e) =>
-                (e.key === "e" || e.key === "E") && e.preventDefault()
-              }
-              className="w-32"
-            />
-          </div>
+        <div className="flex flex-wrap items-start gap-4">
+          {FIELDS.map(({ key, id }) => (
+            <div key={key} className="flex flex-col gap-1.5">
+              <Label htmlFor={id} className="text-xs text-muted-foreground">
+                {t(`dashboard.budget.targets.${key}`)}
+              </Label>
+              <Input
+                id={id}
+                type="number"
+                min={0}
+                step="0.01"
+                value={values[key]}
+                onChange={(e) =>
+                  setValues((v) => ({ ...v, [key]: e.target.value }))
+                }
+                onKeyDown={(e) =>
+                  (e.key === "e" || e.key === "E") && e.preventDefault()
+                }
+                aria-invalid={invalid(key)}
+                aria-describedby={invalid(key) ? `${id}-error` : undefined}
+                className="w-32"
+              />
+              {invalid(key) && (
+                <p id={`${id}-error`} className="w-32 text-xs text-destructive">
+                  {t("dashboard.budget.targets.invalid")}
+                </p>
+              )}
+            </div>
+          ))}
         </div>
+        <p className="mt-3 text-xs text-muted-foreground">
+          {t("dashboard.budget.targets.emptyHint")}
+        </p>
 
         <div className="mt-6 flex flex-wrap items-center justify-between gap-2">
           <Button
@@ -148,7 +134,7 @@ export default function TargetsPanel({
             </Button>
             <Button
               onClick={handleSave}
-              disabled={saving || isEmpty}
+              disabled={saving || hasErrors || unchanged}
               className="cursor-pointer"
             >
               {saving

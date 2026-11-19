@@ -3,6 +3,10 @@ import type { Currency } from "@/lib/format";
 import type { Language } from "@/i18n";
 import { post, get, patch, del } from "./client";
 
+// Dashboard pages with a guided tour (same list as ALLOWED_TOURS in the backend)
+export type TourName =
+  "overview" | "budget" | "transactions" | "analytics" | "settings";
+
 interface AuthResponse {
   // Errors are { success: false, message }
   message: string;
@@ -11,20 +15,32 @@ interface AuthResponse {
   user?: User;
 }
 
-async function loginUser(email: string, password: string) {
+// captchaToken: single-use Cloudflare Turnstile token, checked by the backend
+async function loginUser(
+  email: string,
+  password: string,
+  captchaToken: string,
+) {
   const response = await post<AuthResponse>("/auth/login", {
     email,
     password,
+    captchaToken,
   });
 
   return response;
 }
 
-async function createUser(email: string, password: string, language: Language) {
+async function createUser(
+  email: string,
+  password: string,
+  language: Language,
+  captchaToken: string,
+) {
   const response = await post<AuthResponse>("/auth/register", {
     email,
     password,
     language,
+    captchaToken,
   });
   return response;
 }
@@ -48,12 +64,14 @@ async function logoutUser() {
 // the response user only has user_id, username, currency, language and
 // has_completed_onboarding. The backend keeps the value of every field that is
 // not sent. completeOnboarding marks the onboarding as finished (needs
-// username and currency in the same request)
+// username and currency in the same request). completeTour adds the page to
+// completed_tours (its guided tour was finished or skipped)
 async function addUserInfo(info: {
   username?: string;
   currency?: Currency;
   language?: Language;
   completeOnboarding?: true;
+  completeTour?: TourName;
 }) {
   const response = await patch<AuthResponse>("/auth/user-info", info);
   return response;

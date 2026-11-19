@@ -30,7 +30,7 @@ const monthNames = (locale: string) =>
     return name.charAt(0).toUpperCase() + name.slice(1);
   });
 
-const TYPES = ["income", "expense", "savings"] as const;
+const TYPES = ["income", "expenses", "savings"] as const;
 
 // Active filter chips: tinted so they stand out, with a clear remove button
 const CHIP_CLASS =
@@ -42,13 +42,12 @@ const CHIP_REMOVE_CLASS =
 const LONG_LIST_CLASS =
   "**:data-radix-select-viewport:max-h-[min(22rem,var(--radix-select-content-available-height))]";
 
-// Category types use "expenses", the type filter uses "expense"
 const CATEGORY_GROUPS: {
   type: Category["type"];
   filter: string;
 }[] = [
   { type: "income", filter: "income" },
-  { type: "expenses", filter: "expense" },
+  { type: "expenses", filter: "expenses" },
   { type: "savings", filter: "savings" },
 ];
 
@@ -177,7 +176,10 @@ export default function TransactionsFilters({
   return (
     <>
       {/* Search, all the filters in a popover, export; sorting is in the table headers */}
-      <div className="mb-4 flex flex-wrap items-center gap-2">
+      <div
+        data-tour="filters"
+        className="mb-4 flex flex-wrap items-center gap-2"
+      >
         <div className="relative min-w-50 max-w-sm flex-1">
           <Search
             className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"

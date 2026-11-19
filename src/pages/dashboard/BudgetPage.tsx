@@ -44,6 +44,9 @@ import {
 } from "@/api/budget";
 import { getTransactions, type Transaction } from "@/api/transactions";
 import PageHeader from "@/components/dashboard/shared/PageHeader";
+import PageTour, {
+  type TourStep,
+} from "@/components/dashboard/shared/PageTour";
 import { toast } from "sonner";
 import {
   DEFAULT_PERIOD,
@@ -55,8 +58,8 @@ import {
 
 function toBudgetItem(t: Transaction): BudgetItem {
   return {
-    id: t.item_id,
-    type: t.type === "expense" ? "expenses" : t.type,
+    item_id: t.item_id,
+    type: t.type,
     // Empty = no category; ItemCard shows the translated "Uncategorized"
     category: t.category_name ?? "",
     categoryId: t.category_id ?? undefined,
@@ -175,6 +178,18 @@ export default function BudgetPage() {
 
   const refresh = () => setRefreshKey((k) => k + 1);
 
+  // The last two steps open the add form: new category and recurring
+  const closeForm = () => setShowForm(false);
+  const openForm = () => setShowForm(true);
+  const tourSteps: TourStep<"budget">[] = [
+    { key: "month", before: closeForm },
+    { key: "target", before: closeForm },
+    { key: "categories", before: closeForm },
+    { key: "add", before: closeForm },
+    { key: "formCategory", before: openForm },
+    { key: "formRecurring", before: openForm },
+  ];
+
   // Jump to the tab of the new transaction so it shows up in the list
   function handleCreated(type: typeof activeTab) {
     setActiveTab(type);
@@ -285,7 +300,9 @@ export default function BudgetPage() {
         Object.fromEntries(
           Object.entries(prev).map(([tab, items]) => [
             tab,
-            items?.map((item) => (item.id === id ? { ...item, notes } : item)),
+            items?.map((item) =>
+              item.item_id === id ? { ...item, notes } : item,
+            ),
           ]),
         ),
       );
@@ -322,8 +339,11 @@ export default function BudgetPage() {
         {" "}
         <div className="flex flex-col md:items-end">
           <div className="flex flex-wrap md:flex-row md:items-center gap-2 mt-4">
+            <PageTour tour="budget" steps={tourSteps} onEnd={closeForm} />
+
             <Select value={selectedMonth} onValueChange={changeMonth}>
               <SelectTrigger
+                data-tour="month"
                 size="sm"
                 className="w-44 cursor-pointer"
                 aria-label={t("dashboard.budget.selectMonth")}
@@ -343,6 +363,7 @@ export default function BudgetPage() {
             <Button
               variant="outline"
               size="sm"
+              data-tour="target"
               onClick={() => setOpenTargets(true)}
               className="cursor-pointer gap-2"
             >
@@ -353,6 +374,7 @@ export default function BudgetPage() {
             <Button
               variant="outline"
               size="sm"
+              data-tour="categories"
               onClick={() => setOpenCategories(true)}
               className="cursor-pointer gap-2"
             >
@@ -362,6 +384,7 @@ export default function BudgetPage() {
 
             <Button
               variant="default"
+              data-tour="add"
               onClick={() => setShowForm((prev) => !prev)}
               className="cursor-pointer max-w-34 md:w-auto"
               size="sm"

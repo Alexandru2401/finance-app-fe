@@ -19,3 +19,10 @@ export const isValidAmount = (amount: number) =>
   amount > 0 &&
   amount <= MAX_AMOUNT &&
   hasAtMostTwoDecimals(amount);
+
+/** A target amount: like isValidAmount, but 0 is allowed. */
+export const isValidTargetAmount = (amount: number) =>
+  Number.isFinite(amount) &&
+  amount >= 0 &&
+  amount <= MAX_AMOUNT &&
+  hasAtMostTwoDecimals(amount);

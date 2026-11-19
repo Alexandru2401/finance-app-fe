@@ -2,6 +2,8 @@ import { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { format } from "date-fns/format";
 import {
+  getBudgetCosts,
+  getBudgetForecast,
   getBudgetHealth,
   getBudgetTrend,
   getCategoryTotals,
@@ -13,20 +15,21 @@ import AnalyticsPeriodPicker from "@/components/dashboard/analytics/AnalyticsPer
 import BudgetHealth from "@/components/dashboard/analytics/BudgetHealth";
 import ExpensesInfo from "@/components/dashboard/analytics/ExpensesInfo";
 import PageHeader from "@/components/dashboard/shared/PageHeader";
+import PageTour, {
+  type TourStep,
+} from "@/components/dashboard/shared/PageTour";
 import { usePeriodLabel } from "@/hooks/usePeriodLabel";
 import { useRequest } from "@/hooks/useRequest";
 import {
   addMonths,
   currentMonth,
-  fixedCosts,
-  savingsWithForecast,
   spendingChange,
   spendingTips,
-  variableCosts,
+  toCostRows,
 } from "@/lib/analytics";
 
-// Data from /budget/budget-trend, /budget/by-category, /recurring and
-// /budget/health (the score from analitycs.md)
+// Data from /budget/budget-trend, /budget/by-category, /recurring,
+// /budget/costs, /budget/forecast and /budget/health (the score from analitycs.md)
 
 // The api/budget helpers resolve { ok, data }; here a failure must reject, so
 // useRequest shows the error
@@ -37,6 +40,13 @@ const unwrap = <T,>(res: { ok: boolean; data: T | null }): T => {
 
 // A preset (this-month ... last-12, all) or a custom range "YYYY-MM:YYYY-MM"
 const DEFAULT_ANALYTICS_PERIOD = "last-6";
+
+const ANALYTICS_TOUR: TourStep<"analytics">[] = [
+  { key: "period" },
+  { key: "insights" },
+  { key: "chart" },
+  { key: "expenses" },
+];
 
 export default function AnalyticsPage() {
   const { t } = useTranslation();
@@ -67,11 +77,18 @@ export default function AnalyticsPage() {
   const loadRecurring = useCallback(() => getRecurring(), []);
   const recurring = useRequest("recurring", loadRecurring);
 
-  const loadExpenses = useCallback(
-    () => getCategoryTotals("expenses", period).then(unwrap),
+  const loadCosts = useCallback(
+    () => getBudgetCosts(period).then(unwrap),
     [period],
   );
-  const expenses = useRequest(`expenses#${period}`, loadExpenses);
+  const costs = useRequest(`costs#${period}`, loadCosts);
+
+  // Same months as the chart
+  const loadForecast = useCallback(
+    () => getBudgetForecast(trendPeriod).then(unwrap),
+    [trendPeriod],
+  );
+  const forecast = useRequest(`forecast#${trendPeriod}`, loadForecast);
 
   // Insights: the last complete month vs the 3 months before it
   const month = currentMonth();
@@ -112,19 +129,12 @@ export default function AnalyticsPage() {
   });
 
   const fixed = useMemo(
-    () => recurring.data && fixedCosts(recurring.data),
-    [recurring.data],
+    () => costs.data && toCostRows(costs.data.fixed.items, uncategorized),
+    [costs.data, uncategorized],
   );
   const variable = useMemo(
-    () =>
-      expenses.data &&
-      recurring.data &&
-      variableCosts(expenses.data, recurring.data, uncategorized),
-    [expenses.data, recurring.data, uncategorized],
-  );
-  const savings = useMemo(
-    () => trend.data && savingsWithForecast(trend.data),
-    [trend.data],
+    () => costs.data && toCostRows(costs.data.variable.items, uncategorized),
+    [costs.data, uncategorized],
   );
   const change = useMemo(
     () => insightTrend.data && spendingChange(insightTrend.data),
@@ -149,11 +159,17 @@ export default function AnalyticsPage() {
         title={t("dashboard.analytics.title")}
         subtitle={t("dashboard.analytics.subtitle")}
       >
-        <AnalyticsPeriodPicker value={period} onChange={setPeriod} />
+        <PageTour tour="analytics" steps={ANALYTICS_TOUR} />
+        <div data-tour="period">
+          <AnalyticsPeriodPicker value={period} onChange={setPeriod} />
+        </div>
       </PageHeader>
 
       <div className="flex flex-col gap-6">
-        <div className="flex flex-col-reverse gap-6 lg:flex-row lg:items-stretch lg:gap-10">
+        <div
+          data-tour="insights"
+          className="flex flex-col-reverse gap-6 lg:flex-row lg:items-stretch lg:gap-10"
+        >
           <AnalyticsInsight
             change={combine([insightTrend], change)}
             tips={combine([tipTotals, recurring], tips || undefined)}
@@ -161,14 +177,18 @@ export default function AnalyticsPage() {
           <BudgetHealth health={health} />
         </div>
 
-        <AnalyticsChart trend={trend} periodLabel={label(trendPeriod)} />
+        <div data-tour="chart" className="grid">
+          <AnalyticsChart trend={trend} periodLabel={label(trendPeriod)} />
+        </div>
 
-        <ExpensesInfo
-          fixed={combine([recurring], fixed || undefined)}
-          variable={combine([expenses, recurring], variable || undefined)}
-          savings={combine([trend], savings || undefined)}
-          periodLabel={periodLabel}
-        />
+        <div data-tour="expenses" className="grid">
+          <ExpensesInfo
+            fixed={combine([costs], fixed || undefined)}
+            variable={combine([costs], variable || undefined)}
+            savings={combine([forecast], forecast.data?.points)}
+            periodLabel={periodLabel}
+          />
+        </div>
       </div>
     </section>
   );

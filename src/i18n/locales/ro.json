@@ -198,6 +198,9 @@
       "unknown": "Eroare necunoscută",
       "generic": "A apărut o eroare: {{message}}"
     },
+    "captcha": {
+      "required": "Așteaptă finalizarea verificării de securitate."
+    },
     "login": {
       "title": "Autentifică-te în contul tău",
       "description": "Introdu emailul mai jos pentru a te autentifica",
@@ -961,7 +964,7 @@
         "amount": "Sumă",
         "types": {
           "income": "Venit",
-          "expense": "Cheltuială",
+          "expenses": "Cheltuială",
           "savings": "Economii"
         }
       },
@@ -1026,7 +1029,8 @@
           "amountPositive": "Suma trebuie să fie mai mare decât 0.",
           "amountDecimals": "Suma poate avea cel mult 2 zecimale.",
           "amountTooLarge": "Suma este prea mare.",
-          "notesTooLong": "Notele nu pot avea mai mult de {{max}} de caractere."
+          "notesTooLong": "Notele nu pot avea mai mult de {{max}} de caractere.",
+          "categoryLimit": "Poți avea cel mult 100 de categorii."
         },
         "toasts": {
           "categoryAdded": "Categoria „{{name}}” a fost adăugată.",
@@ -1034,7 +1038,8 @@
           "categoriesError": "Categoriile nu au putut fi încărcate.",
           "added": "Înregistrarea a fost adăugată!",
           "addError": "Înregistrarea nu a putut fi salvată. Încearcă din nou.",
-          "recurringAdded": "Se va adăuga automat începând cu {{date}}."
+          "recurringAdded": "Se va adăuga automat începând cu {{date}}.",
+          "limitReached": "Ai atins limita contului: cel mult 20.000 de tranzacții și 50 de reguli recurente."
         }
       },
       "items": {
@@ -1069,7 +1074,9 @@
         "saving": "Se salvează...",
         "save": "Salvează țintele",
         "saved": "Țintele au fost salvate.",
-        "saveError": "Țintele nu au putut fi salvate."
+        "saveError": "Țintele nu au putut fi salvate.",
+        "invalid": "Sumă ≥ 0, cu cel mult 2 zecimale.",
+        "emptyHint": "Lasă un câmp gol ca să nu ai țintă pentru el."
       },
       "history": {
         "title": "Istoric ținte",
@@ -1485,7 +1492,8 @@
           "exists": "Există deja o categorie cu acest nume.",
           "add": "Categoria nu a putut fi adăugată.",
           "delete": "Categoria nu a putut fi ștearsă.",
-          "rename": "Categoria nu a putut fi redenumită."
+          "rename": "Categoria nu a putut fi redenumită.",
+          "limit": "Poți avea cel mult 100 de categorii. Șterge una ca să adaugi alta."
         },
         "toasts": {
           "added": "Categoria „{{name}}” a fost adăugată.",
@@ -1503,7 +1511,8 @@
           "nextRun": "Următoarea: {{date}}.",
           "amountError": "Introdu o sumă mai mare decât 0, cu cel mult 2 zecimale.",
           "saveError": "Recurența nu a putut fi salvată. Încearcă din nou.",
-          "deleteHint": "Recurența ei se oprește; tranzacțiile adăugate deja rămân."
+          "deleteHint": "Recurența ei se oprește; tranzacțiile adăugate deja rămân.",
+          "limit": "Poți avea cel mult 50 de reguli recurente."
         }
       }
     },
@@ -1537,13 +1546,6 @@
         "recurringAdded": {
           "title": "Am adăugat „{{category}}”",
           "description": "{{amount}} · {{date}} · adăugată automat"
-        },
-        "recurringUpcoming": {
-          "title": "Urmează „{{category}}”",
-          "description": "{{amount}} se adaugă automat pe {{date}}"
-        },
-        "recurringPaused": {
-          "title": "Recurența „{{category}}” a fost oprită"
         },
         "unknown": "Notificare nouă"
       },
@@ -1635,6 +1637,118 @@
         "apply": "Aplică",
         "invalid": "Luna de început trebuie să fie înainte de cea de final.",
         "tooLong": "Intervalul poate avea cel mult 10 ani."
+      }
+    },
+    "tours": {
+      "buttons": {
+        "start": "Tur ghidat",
+        "progress": "Pasul {{current}} din {{total}}",
+        "back": "Înapoi",
+        "next": "Următorul",
+        "last": "Gata",
+        "skip": "Sari peste"
+      },
+      "overview": {
+        "period": {
+          "title": "Alege perioada",
+          "content": "Toate cardurile de pe pagină se actualizează după perioada selectată aici."
+        },
+        "netBalance": {
+          "title": "Sold net",
+          "content": "Diferența dintre venituri și cheltuieli în perioada aleasă, plus soldul tău total."
+        },
+        "balance": {
+          "title": "Venituri și cheltuieli",
+          "content": "O privire rapidă asupra banilor intrați și ieșiți."
+        },
+        "spending": {
+          "title": "Unde se duc banii",
+          "content": "Cheltuielile împărțite pe categorii, ca să vezi unde cheltui cel mai mult."
+        },
+        "trend": {
+          "title": "Evoluție în timp",
+          "content": "Graficul arată cum au evoluat cheltuielile de-a lungul perioadei."
+        },
+        "table": {
+          "title": "Tranzacții recente",
+          "content": "Ultimele tranzacții adăugate. De aici ajungi rapid la lista completă."
+        }
+      },
+      "budget": {
+        "month": {
+          "title": "Luna",
+          "content": "Bugetul se vede pe luni. Alege luna pe care vrei s-o vezi."
+        },
+        "target": {
+          "title": "Ținta ta",
+          "content": "Setează cât vrei să câștigi, să cheltui și să economisești luna aceasta."
+        },
+        "categories": {
+          "title": "Categorii",
+          "content": "Aici îți adaugi, redenumești sau ștergi categoriile."
+        },
+        "add": {
+          "title": "Adaugă o intrare",
+          "content": "Adaugi un venit, o cheltuială sau o economie."
+        },
+        "formCategory": {
+          "title": "Categorie nouă",
+          "content": "Nu găsești categoria potrivită? Apasă „Adaugă categorie nouă” și o creezi pe loc, fără să ieși din formular."
+        },
+        "formRecurring": {
+          "title": "Tranzacție recurentă",
+          "content": "Pornește „Recurentă” pentru plăți care se repetă (chirie, abonamente, salariu). Se adaugă singură în fiecare lună, în ziua aleasă."
+        }
+      },
+      "transactions": {
+        "add": {
+          "title": "Adaugă tranzacții",
+          "content": "Același formular ca în Buget: poți adăuga mai multe tranzacții la rând."
+        },
+        "filters": {
+          "title": "Caută și filtrează",
+          "content": "Caută după notițe sau categorie și filtrează după tip, dată sau sumă. Rezultatele le poți exporta în CSV."
+        },
+        "table": {
+          "title": "Lista tranzacțiilor",
+          "content": "Sortează după coloane, editează sau șterge o tranzacție. Cele recurente au un semn separat."
+        }
+      },
+      "analytics": {
+        "period": {
+          "title": "Perioada",
+          "content": "Alege intervalul pentru care vrei analiza."
+        },
+        "insights": {
+          "title": "Pe scurt",
+          "content": "Cum stai față de perioada anterioară și cât de sănătos e bugetul tău."
+        },
+        "chart": {
+          "title": "Evoluție",
+          "content": "Veniturile, cheltuielile și economiile tale în timp."
+        },
+        "expenses": {
+          "title": "Cheltuieli fixe și variabile",
+          "content": "Cât din bani se duce pe plăți fixe (cum sunt cele recurente) și cât pe restul."
+        }
+      },
+      "settings": {
+        "tabs": {
+          "title": "Setări",
+          "content": "Setările sunt împărțite în Preferințe și Categorii."
+        },
+        "preferences": {
+          "title": "Preferințe",
+          "content": "Limba, moneda și tema aplicației."
+        },
+        "categoryAdd": {
+          "title": "Adaugă o categorie",
+          "content": "Scrie numele și apasă „Adaugă”. Categoria apare imediat în formularul de tranzacții."
+        },
+        "categoryRow": {
+          "title": "Fă-o recurentă",
+          "content": "Apasă creionul ca s-o redenumești sau s-o faci recurentă: alegi suma și ziua, iar tranzacția se adaugă singură în fiecare lună."
+        }
       }
     }
   }

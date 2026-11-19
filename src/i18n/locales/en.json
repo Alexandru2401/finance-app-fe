@@ -198,6 +198,9 @@
       "unknown": "Unknown error",
       "generic": "An error has occurred: {{message}}"
     },
+    "captcha": {
+      "required": "Please wait for the security check to finish."
+    },
     "login": {
       "title": "Login to your account",
       "description": "Enter your email below to login to your account",
@@ -959,7 +962,7 @@
         "amount": "Amount",
         "types": {
           "income": "Income",
-          "expense": "Expense",
+          "expenses": "Expense",
           "savings": "Savings"
         }
       },
@@ -1024,7 +1027,8 @@
           "amountPositive": "Amount must be greater than 0.",
           "amountDecimals": "The amount can have at most 2 decimals.",
           "amountTooLarge": "The amount is too large.",
-          "notesTooLong": "Notes can't be longer than {{max}} characters."
+          "notesTooLong": "Notes can't be longer than {{max}} characters.",
+          "categoryLimit": "You can have at most 100 categories."
         },
         "toasts": {
           "categoryAdded": "Category \"{{name}}\" added.",
@@ -1032,7 +1036,8 @@
           "categoriesError": "Could not load categories.",
           "added": "Budget item added successfully!",
           "addError": "Could not save the item. Please try again.",
-          "recurringAdded": "It will be added automatically starting {{date}}."
+          "recurringAdded": "It will be added automatically starting {{date}}.",
+          "limitReached": "You reached the account limit: at most 20,000 transactions and 50 recurring rules."
         }
       },
       "items": {
@@ -1066,7 +1071,9 @@
         "saving": "Saving...",
         "save": "Save targets",
         "saved": "Targets saved.",
-        "saveError": "Could not save targets."
+        "saveError": "Could not save targets.",
+        "invalid": "Amount ≥ 0, with at most 2 decimals.",
+        "emptyHint": "Leave a field empty for no target."
       },
       "history": {
         "title": "Target history",
@@ -1482,7 +1489,8 @@
           "exists": "A category with this name already exists.",
           "add": "Could not add the category.",
           "delete": "Could not delete the category.",
-          "rename": "Could not rename the category."
+          "rename": "Could not rename the category.",
+          "limit": "You can have at most 100 categories. Delete one to add another."
         },
         "toasts": {
           "added": "Category \"{{name}}\" was added.",
@@ -1500,7 +1508,8 @@
           "nextRun": "Next: {{date}}.",
           "amountError": "Enter an amount greater than 0, with at most 2 decimals.",
           "saveError": "Could not save the recurrence. Please try again.",
-          "deleteHint": "Its recurrence stops; the transactions already added stay."
+          "deleteHint": "Its recurrence stops; the transactions already added stay.",
+          "limit": "You can have at most 50 recurring rules."
         }
       }
     },
@@ -1533,13 +1542,6 @@
         "recurringAdded": {
           "title": "Added \"{{category}}\"",
           "description": "{{amount}} · {{date}} · added automatically"
-        },
-        "recurringUpcoming": {
-          "title": "Coming up: \"{{category}}\"",
-          "description": "{{amount}} is added automatically on {{date}}"
-        },
-        "recurringPaused": {
-          "title": "The recurrence \"{{category}}\" was stopped"
         },
         "unknown": "New notification"
       },
@@ -1630,6 +1632,118 @@
         "apply": "Apply",
         "invalid": "The start month must be before the end month.",
         "tooLong": "The range can be at most 10 years."
+      }
+    },
+    "tours": {
+      "buttons": {
+        "start": "Guided tour",
+        "progress": "Step {{current}} of {{total}}",
+        "back": "Back",
+        "next": "Next",
+        "last": "Done",
+        "skip": "Skip"
+      },
+      "overview": {
+        "period": {
+          "title": "Pick a period",
+          "content": "Every card on this page updates to the period you select here."
+        },
+        "netBalance": {
+          "title": "Net balance",
+          "content": "The difference between income and expenses in the selected period, plus your total balance."
+        },
+        "balance": {
+          "title": "Income and expenses",
+          "content": "A quick look at the money coming in and going out."
+        },
+        "spending": {
+          "title": "Where your money goes",
+          "content": "Expenses split by category, so you can see where you spend the most."
+        },
+        "trend": {
+          "title": "Trend over time",
+          "content": "The chart shows how your spending evolved over the period."
+        },
+        "table": {
+          "title": "Recent transactions",
+          "content": "Your latest transactions. From here you can jump to the full list."
+        }
+      },
+      "budget": {
+        "month": {
+          "title": "Month",
+          "content": "The budget is shown per month. Pick the month you want to see."
+        },
+        "target": {
+          "title": "Your target",
+          "content": "Set how much you want to earn, spend and save this month."
+        },
+        "categories": {
+          "title": "Categories",
+          "content": "Add, rename or delete your categories here."
+        },
+        "add": {
+          "title": "Add an entry",
+          "content": "Add an income, an expense or a saving."
+        },
+        "formCategory": {
+          "title": "New category",
+          "content": "Can't find the right category? Click “Add new category” and create it right here, without leaving the form."
+        },
+        "formRecurring": {
+          "title": "Recurring transaction",
+          "content": "Turn on “Recurring” for payments that repeat (rent, subscriptions, salary). It is added automatically every month, on the day you pick."
+        }
+      },
+      "transactions": {
+        "add": {
+          "title": "Add transactions",
+          "content": "The same form as on the Budget page: you can add several in a row."
+        },
+        "filters": {
+          "title": "Search and filter",
+          "content": "Search by notes or category and filter by type, date or amount. You can export the results to CSV."
+        },
+        "table": {
+          "title": "Your transactions",
+          "content": "Sort by column, edit or delete a transaction. Recurring ones have their own badge."
+        }
+      },
+      "analytics": {
+        "period": {
+          "title": "Period",
+          "content": "Pick the range you want to analyse."
+        },
+        "insights": {
+          "title": "At a glance",
+          "content": "How you compare to the previous period and how healthy your budget is."
+        },
+        "chart": {
+          "title": "Trend",
+          "content": "Your income, expenses and savings over time."
+        },
+        "expenses": {
+          "title": "Fixed and variable expenses",
+          "content": "How much goes to fixed payments (like recurring ones) and how much to the rest."
+        }
+      },
+      "settings": {
+        "tabs": {
+          "title": "Settings",
+          "content": "Settings are split into Preferences and Categories."
+        },
+        "preferences": {
+          "title": "Preferences",
+          "content": "The language, currency and theme of the app."
+        },
+        "categoryAdd": {
+          "title": "Add a category",
+          "content": "Type the name and click “Add”. The category shows up right away in the transaction form."
+        },
+        "categoryRow": {
+          "title": "Make it recurring",
+          "content": "Click the pencil to rename it or make it recurring: pick the amount and the day, and the transaction is added automatically every month."
+        }
       }
     }
   }

@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import LoginSchema, { type LoginErrorKey } from "@/schemas/login.schema";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
@@ -23,6 +23,7 @@ import { useTranslation } from "react-i18next";
 
 import { loginUser } from "@/api/user";
 import { useAuth } from "@/hooks/useAuth";
+import { Turnstile, type TurnstileHandle } from "./Turnstile";
 
 export function LoginForm({
   className,
@@ -43,6 +44,8 @@ export function LoginForm({
   }>({});
 
   const [isSubmiting, setIsSubmiting] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const turnstileRef = useRef<TurnstileHandle>(null);
 
   function handleChange(
     identifier: string,
@@ -77,13 +80,24 @@ export function LoginForm({
 
     setErrors({});
 
+    if (!captchaToken) {
+      toast.error(t("auth.captcha.required"));
+      return;
+    }
+
     setIsSubmiting(true);
 
     try {
-      const response = await loginUser(formData.email, formData.password);
+      const response = await loginUser(
+        formData.email,
+        formData.password,
+        captchaToken,
+      );
 
       if (!response.ok) {
+        // the captcha token is spent, get a new one for the next try
         toast.error(response.data.message || t("auth.login.failed"));
+        turnstileRef.current?.reset();
         return;
       }
 
@@ -94,6 +108,7 @@ export function LoginForm({
       const errorMessage =
         err instanceof Error ? err.message : t("auth.errors.unknown");
       toast.error(t("auth.errors.generic", { message: errorMessage }));
+      turnstileRef.current?.reset();
     } finally {
       setIsSubmiting(false);
     }
@@ -144,7 +159,15 @@ export function LoginForm({
               </Field>
 
               <Field className="mt-3">
-                <Button type="submit" className="cursor-pointer w-full">
+                <Turnstile ref={turnstileRef} onToken={setCaptchaToken} />
+              </Field>
+
+              <Field>
+                <Button
+                  type="submit"
+                  className="cursor-pointer w-full"
+                  disabled={isSubmiting || !captchaToken}
+                >
                   {isSubmiting
                     ? t("auth.login.submitting")
                     : t("auth.login.submit")}
