@@ -5,6 +5,9 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  /* Figtree for body text, labels and paragraphs; Poppins for headings */
+  --font-sans: var(--font-family);
+  --font-heading: var(--title-font-family);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -57,6 +60,12 @@
 }
 
 :root {
+  --font-family:
+    Figtree, Roboto, Noto Sans Hebrew, Noto Kufi Arabic, Noto Sans JP,
+    sans-serif;
+  --title-font-family:
+    Poppins, Roboto, Noto Sans Hebrew, Noto Kufi Arabic, Noto Sans JP,
+    sans-serif;
   --radius: 0.625rem;
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
@@ -163,7 +172,19 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans;
+  }
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  [data-slot="card-title"],
+  [data-slot="dialog-title"],
+  [data-slot="sheet-title"],
+  [data-slot="alert-dialog-title"] {
+    @apply font-heading;
   }
 }
 
