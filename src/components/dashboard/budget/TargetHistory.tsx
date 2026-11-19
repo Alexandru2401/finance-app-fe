@@ -16,7 +16,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { formatMonth, monthPeriod } from "@/lib/periods";
-import { useCurrency } from "@/hooks/useCurrency";
+import CompactAmount from "@/components/dashboard/shared/CompactAmount";
+import InlineError from "@/components/dashboard/shared/InlineError";
 import { Download } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
@@ -35,8 +36,6 @@ interface TargetCellProps {
 }
 
 function TargetCell({ actual, target, pct }: TargetCellProps) {
-  const { format: formatMoney } = useCurrency();
-
   if (target === null) {
     return <span className="text-muted-foreground">—</span>;
   }
@@ -44,8 +43,16 @@ function TargetCell({ actual, target, pct }: TargetCellProps) {
   return (
     <div className="flex flex-col">
       <span>
-        {actual === undefined ? "—" : formatMoney(actual)}
-        <span className="text-muted-foreground"> / {formatMoney(target)}</span>
+        {/* 4 money columns: short form (200K) until the table has 48rem */}
+        {actual === undefined ? (
+          "—"
+        ) : (
+          <CompactAmount value={actual} fullFrom="3xl" />
+        )}
+        <span className="text-muted-foreground">
+          {" / "}
+          <CompactAmount value={target} fullFrom="3xl" />
+        </span>
       </span>
       <span className="text-xs text-muted-foreground">
         {pct === null || pct === undefined ? "—" : `${Math.round(pct)}%`}
@@ -71,6 +78,11 @@ export default function TargetHistory() {
   const { t, i18n } = useTranslation();
   // undefined while loading, null if the targets could not be loaded
   const [rows, setRows] = useState<HistoryRow[] | null | undefined>(undefined);
+  const [attempt, setAttempt] = useState(0);
+  const retry = () => {
+    setRows(undefined);
+    setAttempt((n) => n + 1);
+  };
   const [downloading, setDownloading] = useState(false);
 
   async function handleDownload() {
@@ -118,16 +130,47 @@ export default function TargetHistory() {
     return () => {
       ignore = true;
     };
-  }, []);
+  }, [attempt]);
 
   if (rows === undefined) {
     return (
       <>
-        <HistoryHeader />
-        <div className="space-y-2">
-          {[0, 1, 2].map((i) => (
-            <Skeleton key={i} className="h-10 w-full" />
-          ))}
+        {/* The export button only appears with data; same box, table and
+            two-line cells (amounts + %) as the real history */}
+        <HistoryHeader>
+          <Skeleton className="h-8 w-28 rounded-md" />
+        </HistoryHeader>
+        <div className="rounded-md border" aria-hidden="true">
+          <Table>
+            <TableHeader>
+              <TableRow className="hover:bg-transparent">
+                {[0, 1, 2, 3, 4].map((i) => (
+                  <TableHead key={i}>
+                    <Skeleton className="h-3.5 w-14" />
+                  </TableHead>
+                ))}
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {[0, 1, 2].map((row) => (
+                <TableRow key={row} className="hover:bg-transparent">
+                  <TableCell>
+                    <Skeleton className="h-3.5 w-16" />
+                  </TableCell>
+                  {[0, 1, 2, 3].map((i) => (
+                    <TableCell key={i}>
+                      <div className="flex h-5 items-center">
+                        <Skeleton className="h-3.5 w-20" />
+                      </div>
+                      <div className="flex h-4 items-center">
+                        <Skeleton className="h-3 w-8" />
+                      </div>
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </div>
       </>
     );
@@ -137,9 +180,11 @@ export default function TargetHistory() {
     return (
       <>
         <HistoryHeader />
-        <p className="text-sm text-destructive">
-          {t("dashboard.budget.history.loadError")}
-        </p>
+        <InlineError
+          message={t("dashboard.budget.history.loadError")}
+          onRetry={retry}
+          className="rounded-md border border-dashed px-3 py-6 justify-center text-sm"
+        />
       </>
     );
   }
@@ -171,7 +216,7 @@ export default function TargetHistory() {
             : t("dashboard.budget.history.download")}
         </Button>
       </HistoryHeader>
-      <div className="max-h-80 overflow-y-auto rounded-md border">
+      <div className="@container max-h-80 overflow-y-auto rounded-md border">
         <Table>
           <TableHeader>
             <TableRow>

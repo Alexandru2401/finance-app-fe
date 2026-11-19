@@ -1052,6 +1052,7 @@
         "addEntry": "Adaugă înregistrare",
         "addMore": "Adaugă mai multe",
         "viewDetails": "Vezi detalii",
+        "actions": "Acțiuni",
         "edit": "Editează",
         "delete": "Șterge",
         "cancel": "Anulează",
@@ -1063,7 +1064,8 @@
         "noTarget": "Nicio țintă setată",
         "ofTarget": "{{pct}}% din țintă",
         "ofLimit": "{{pct}}% din limită",
-        "ofGoal": "{{pct}}% din obiectiv"
+        "ofGoal": "{{pct}}% din obiectiv",
+        "loadError": "Totalurile lunii nu au putut fi încărcate."
       },
       "targets": {
         "title": "Setează țintele pentru {{month}}",
@@ -1110,7 +1112,8 @@
           "empty": "Nicio economie luna aceasta."
         },
         "other": "Altele",
-        "total": "Total:"
+        "total": "Total:",
+        "loadError": "Distribuția pe categorii nu a putut fi încărcată."
       },
       "insights": {
         "title": "Observații",
@@ -1130,7 +1133,8 @@
         "incomeTrendNoData": "Nu ai venituri luna trecută pentru comparație.",
         "savingsRate": "Rata de economisire",
         "savingsRateValue": "{{pct}}% din venituri",
-        "savingsRateNoIncome": "Niciun venit luna aceasta."
+        "savingsRateNoIncome": "Niciun venit luna aceasta.",
+        "loadError": "Nu s-a putut încărca."
       },
       "categories": {
         "button": "Categorii",
@@ -1253,6 +1257,7 @@
       "analytics": "Analize",
       "profile": "Profil",
       "search": "Caută",
+      "menu": "Meniu",
       "openMenu": "Deschide meniul",
       "closeMenu": "Închide meniul",
       "toggleSidebar": "Restrânge/extinde bara laterală",

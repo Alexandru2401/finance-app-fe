@@ -5,6 +5,8 @@ import { cn } from "@/lib/utils";
 interface Props {
   value: number;
   sign?: "auto" | "+" | "-";
+  // Always 2 decimals in the full form (the short form is rounded anyway)
+  fixed?: boolean;
   className?: string;
 }
 
@@ -15,11 +17,13 @@ interface Props {
  *
  * It is a block, so its width comes from the parent, not from the text. Don't
  * use it inside table cells: a cell grows with its content, so the text always
- * "fits" there.
+ * "fits" there (use CompactAmount instead). Its width must not come from its
+ * own text, or once shortened it never grows back: in a flex row give it
+ * `flex-1`, in a centered column a fixed width.
  */
-export default function FitAmount({ value, sign, className }: Props) {
+export default function FitAmount({ value, sign, fixed, className }: Props) {
   const { format, formatCompact } = useCurrency();
-  const full = format(value, sign);
+  const full = format(value, sign, fixed);
   const compact = formatCompact(value, sign);
 
   const boxRef = useRef<HTMLSpanElement>(null);

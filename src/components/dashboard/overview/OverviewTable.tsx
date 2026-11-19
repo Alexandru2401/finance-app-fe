@@ -20,8 +20,8 @@ import { useEffect, useState } from "react";
 import { getTransactions, type Transaction } from "@/api/transactions";
 import CardError from "@/components/dashboard/shared/CardError";
 import EmptyState from "@/components/dashboard/shared/EmptyState";
+import CompactAmount from "@/components/dashboard/shared/CompactAmount";
 import RecurringBadge from "@/components/dashboard/shared/RecurringBadge";
-import { useCurrency } from "@/hooks/useCurrency";
 import { ArrowLeftRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { formatDay } from "@/lib/date";
@@ -41,17 +41,12 @@ const AMOUNT_COLORS: Record<Transaction["type"], string> = {
 // Rows requested from the API (limit), also the number of skeleton rows
 const ROWS = 5;
 
-// From this amount up, narrow cards show the short form (10.000 -> 10K)
-const COMPACT_FROM = 10_000;
-
 const fmtDate = (date: string, locale: string) =>
   formatDay(date, locale, { month: "short", day: "numeric" });
 
 export default function OverviewTable() {
   const { t, i18n } = useTranslation();
-  const { format, formatCompact } = useCurrency();
   const sign = (type: Transaction["type"]) => (type === "expenses" ? "-" : "+");
-  const fmt = (n: number, type: Transaction["type"]) => format(n, sign(type));
   const [transactions, setTransactions] = useState<Transaction[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [attempt, setAttempt] = useState(0);
@@ -205,20 +200,8 @@ export default function OverviewTable() {
                     <TableCell
                       className={`whitespace-nowrap text-right font-medium tabular-nums ${AMOUNT_COLORS[tx.type]}`}
                     >
-                      {/* A cell grows with its text, so large amounts get the short
-                          form (200K RON) on narrow cards; full value in the tooltip */}
-                      {Math.abs(tx.amount) >= COMPACT_FROM ? (
-                        <span title={fmt(tx.amount, tx.type)}>
-                          <span className="@md:hidden">
-                            {formatCompact(tx.amount, sign(tx.type))}
-                          </span>
-                          <span className="hidden @md:inline">
-                            {fmt(tx.amount, tx.type)}
-                          </span>
-                        </span>
-                      ) : (
-                        fmt(tx.amount, tx.type)
-                      )}
+                      {/* Short form (200K RON) on cards narrower than 28rem */}
+                      <CompactAmount value={tx.amount} sign={sign(tx.type)} />
                     </TableCell>
                   </TableRow>
                 ))}

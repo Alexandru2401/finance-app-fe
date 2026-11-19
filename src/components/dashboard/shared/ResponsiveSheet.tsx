@@ -16,6 +16,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import { PORTAL_ELEMENT_ID } from "react-joyride";
 import { cn } from "@/lib/utils";
 
 interface ResponsiveSheetProps {
@@ -26,11 +27,24 @@ interface ResponsiveSheetProps {
   footer?: ReactNode;
   // Width of the side panel on desktop, e.g. "sm:max-w-lg"
   className?: string;
+  // Same height whatever the content (drawer: 85dvh, sheet: full height);
+  // the children get a flex column and must scroll their own list
+  fixedHeight?: boolean;
   children: ReactNode;
 }
 
+// A click or focus in the guided tour's tooltip (its own portal, outside the
+// panel) must not close the panel: the tour can point at things inside it.
+// Together with the #react-joyride-portal rule in index.css
+function keepOpenForTour(event: Event) {
+  const target = event.target;
+  if (target instanceof Element && target.closest(`#${PORTAL_ELEMENT_ID}`)) {
+    event.preventDefault();
+  }
+}
+
 // Bottom drawer on mobile, side sheet from md up. Only one of them is mounted.
-// Both are modal: don't put guided-tour steps inside (see CLAUDE.md, tours).
+// Both are modal (focus trap, Escape, aria-modal); tour steps inside work.
 export function ResponsiveSheet({
   open,
   onOpenChange,
@@ -38,6 +52,7 @@ export function ResponsiveSheet({
   description,
   footer,
   className,
+  fixedHeight = false,
   children,
 }: ResponsiveSheetProps) {
   const isMobile = useIsMobile();
@@ -45,14 +60,28 @@ export function ResponsiveSheet({
   if (isMobile) {
     return (
       <Drawer open={open} onOpenChange={onOpenChange}>
-        <DrawerContent className="data-[vaul-drawer-direction=bottom]:max-h-[90dvh]">
+        <DrawerContent
+          onPointerDownOutside={keepOpenForTour}
+          onInteractOutside={keepOpenForTour}
+          className={cn(
+            "data-[vaul-drawer-direction=bottom]:max-h-[90dvh]",
+            fixedHeight && "data-[vaul-drawer-direction=bottom]:h-[85dvh]",
+          )}
+        >
           <DrawerHeader className="text-left">
             <DrawerTitle>{title}</DrawerTitle>
             {description && (
               <DrawerDescription>{description}</DrawerDescription>
             )}
           </DrawerHeader>
-          <div className="overflow-y-auto px-4 pb-6">{children}</div>
+          <div
+            className={cn(
+              "px-4 pb-6",
+              fixedHeight ? "flex min-h-0 flex-1 flex-col" : "overflow-y-auto",
+            )}
+          >
+            {children}
+          </div>
           {footer && <DrawerFooter className="pt-0">{footer}</DrawerFooter>}
         </DrawerContent>
       </Drawer>
@@ -61,12 +90,26 @@ export function ResponsiveSheet({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className={cn("w-full overflow-y-auto", className)}>
+      <SheetContent
+        onInteractOutside={keepOpenForTour}
+        className={cn(
+          "w-full",
+          fixedHeight ? "overflow-hidden" : "overflow-y-auto",
+          className,
+        )}
+      >
         <SheetHeader>
           <SheetTitle>{title}</SheetTitle>
           {description && <SheetDescription>{description}</SheetDescription>}
         </SheetHeader>
-        <div className="px-4 pb-6">{children}</div>
+        <div
+          className={cn(
+            "px-4 pb-6",
+            fixedHeight && "flex min-h-0 flex-1 flex-col",
+          )}
+        >
+          {children}
+        </div>
         {footer && <SheetFooter>{footer}</SheetFooter>}
       </SheetContent>
     </Sheet>

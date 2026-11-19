@@ -13,6 +13,13 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import clsx from "clsx";
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import { useIsMobile } from "@/hooks/useIsMobile";
 import { useTranslation } from "react-i18next";
 
 const isMac =
@@ -30,6 +37,7 @@ const NOTIFICATIONS_ENABLED = FEATURES.notifications;
 export default function DashboardMainNavigation() {
   const [open, setOpen] = useState(true);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const isMobile = useIsMobile();
   const location = useLocation();
   const [searchOpen, setSearchOpen] = useState(false);
   const { t } = useTranslation();
@@ -268,37 +276,30 @@ export default function DashboardMainNavigation() {
         {renderNav(open)}
       </aside>
 
-      {/* Backdrop drawer - mobile */}
-      <div
-        onClick={() => setMobileOpen(false)}
-        aria-hidden="true"
-        className={clsx(
-          "fixed inset-0 z-40 bg-overlay transition-opacity duration-300 md:hidden",
-          mobileOpen ? "opacity-100" : "pointer-events-none opacity-0",
-        )}
-      />
-
-      {/* Drawer propriu-zis - mobile */}
-      <aside
-        className={clsx(
-          "fixed left-0 top-0 z-50 h-dvh w-64 border-r bg-background transition-transform duration-300 md:hidden",
-          mobileOpen ? "translate-x-0" : "-translate-x-full",
-        )}
-      >
-        {/* Close button */}
-        <button
-          onClick={() => setMobileOpen(false)}
-          aria-label={t("dashboard.nav.closeMenu")}
-          className={clsx(
-            "absolute -right-4 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-page transition-colors hover:bg-accent",
-            !mobileOpen && "hidden",
-          )}
+      {/* Mobile menu: shadcn Sheet from the left (focus trap, Escape,
+          aria-modal, scroll lock). Only on phones: closed past md, so its
+          overlay never covers the desktop layout */}
+      <Sheet open={mobileOpen && isMobile} onOpenChange={setMobileOpen}>
+        <SheetContent
+          side="left"
+          showCloseButton={false}
+          aria-describedby={undefined}
+          className="w-64 gap-0 bg-background p-0"
         >
-          <X className="h-4 w-4" />
-        </button>
+          <SheetTitle className="sr-only">{t("dashboard.nav.menu")}</SheetTitle>
+          <SheetClose asChild>
+            <button
+              type="button"
+              aria-label={t("dashboard.nav.closeMenu")}
+              className="absolute right-2 top-2 z-10 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-page transition-colors hover:bg-accent"
+            >
+              <X className="h-4 w-4" aria-hidden="true" />
+            </button>
+          </SheetClose>
 
-        {renderNav(true, () => setMobileOpen(false))}
-      </aside>
+          {renderNav(true, () => setMobileOpen(false))}
+        </SheetContent>
+      </Sheet>
 
       {SEARCH_ENABLED && (
         <SearchDialog open={searchOpen} onOpenChange={setSearchOpen} />

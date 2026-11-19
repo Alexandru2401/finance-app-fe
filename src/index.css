@@ -265,6 +265,14 @@
   }
 }
 
+/* Guided tour (react-joyride) over an open Sheet / Drawer: Radix modals set
+   pointer-events: none on <body>, and the tour renders in its own portal
+   under <body>, so its buttons would stop working. ResponsiveSheet also
+   ignores outside clicks coming from this portal */
+#react-joyride-portal {
+  pointer-events: auto;
+}
+
 @keyframes marquee {
   from {
     transform: translateX(0);

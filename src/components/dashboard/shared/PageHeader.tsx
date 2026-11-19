@@ -1,15 +1,20 @@
 import type { ReactNode } from "react";
+import { cn } from "@/lib/utils";
 
 interface PageHeaderProps {
   title: string;
   subtitle?: string;
   children?: ReactNode;
+  // Extra classes for the actions box, e.g. "w-full sm:w-auto" when a page
+  // lays out its own rows of controls on phones
+  actionsClassName?: string;
 }
 
 export default function PageHeader({
   title,
   subtitle,
   children,
+  actionsClassName,
 }: PageHeaderProps) {
   return (
     // Wraps by available space, not by viewport: the title asks for 20rem, and
@@ -23,8 +28,15 @@ export default function PageHeader({
         )}
       </div>
 
+      {/* max-w-full, not shrink-0: on its own row the actions can still
+          wrap onto more lines instead of running off the screen */}
       {children && (
-        <div className="flex shrink-0 flex-wrap items-center gap-2">
+        <div
+          className={cn(
+            "flex max-w-full min-w-0 flex-wrap items-center gap-2",
+            actionsClassName,
+          )}
+        >
           {children}
         </div>
       )}

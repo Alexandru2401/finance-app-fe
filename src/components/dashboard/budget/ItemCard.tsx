@@ -18,10 +18,25 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { FileText, Minus, Pencil, PiggyBank, Plus, Trash2 } from "lucide-react";
+import {
+  Ellipsis,
+  FileText,
+  Minus,
+  Pencil,
+  PiggyBank,
+  Plus,
+  Trash2,
+} from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useEffect, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import { useCurrency } from "@/hooks/useCurrency";
+import FitAmount from "@/components/dashboard/shared/FitAmount";
 import { Link } from "react-router";
 import RecurringBadge from "@/components/dashboard/shared/RecurringBadge";
 import type { Section } from "../../../pages/dashboard/BudgetPage";
@@ -139,20 +154,23 @@ export default function ItemCard({ section, onShowForm }: ItemCardProps) {
 
   return (
     <div className="flex w-full flex-1 flex-col">
-      {/* Fills the height it gets from the page; the footer stays at the bottom */}
-      <Card className="flex-1">
-        <CardHeader className="items-center">
-          <div>
+      {/* Fills the height it gets from the page; the footer stays at the bottom.
+          @container: the rows adapt to the card's width, not the viewport's */}
+      <Card className="@container flex-1">
+        <CardHeader className="items-center !px-4 md:!px-6">
+          <div className="min-w-0">
             <CardTitle className="flex items-center justify-between gap-2 text-lg text-foreground">
-              {section.title}
-              <Link to="/dashboard/transactions">
-                <Button
-                  variant="outline"
-                  className="cursor-pointer max-w-34 md:w-auto"
-                >
+              <span className="min-w-0 truncate">{section.title}</span>
+              <Button
+                asChild
+                variant="outline"
+                size="sm"
+                className="shrink-0 cursor-pointer"
+              >
+                <Link to="/dashboard/transactions">
                   {t("dashboard.common.seeAll")}
-                </Button>
-              </Link>
+                </Link>
+              </Button>
             </CardTitle>
             <CardDescription className="text-xs text-muted-foreground font-medium">
               {t("dashboard.budget.items.summary", {
@@ -164,7 +182,7 @@ export default function ItemCard({ section, onShowForm }: ItemCardProps) {
         </CardHeader>
 
         {section.section && (
-          <CardContent className="flex-1 overflow-hidden">
+          <CardContent className="flex-1 overflow-hidden !px-4 md:!px-6">
             {section.items.length === 0 ? (
               <div className="flex flex-col items-center justify-center gap-4 py-6">
                 <p className="text-sm text-muted-foreground">
@@ -184,15 +202,17 @@ export default function ItemCard({ section, onShowForm }: ItemCardProps) {
                 {section.items.slice(0, 5).map((item) => (
                   <div
                     key={item.item_id}
-                    className="flex items-center gap-3 rounded-lg border border-border/50 px-3 py-1.5"
+                    className="flex items-center gap-2 rounded-lg border border-border/50 px-2 py-1.5 @md:gap-3 @md:px-3"
                   >
                     <div
-                      className={`flex size-9 shrink-0 items-center justify-center rounded-lg ${styles.bubble}`}
+                      className={`flex size-8 shrink-0 items-center justify-center rounded-lg @md:size-9 ${styles.bubble}`}
                     >
                       {SectionIcon}
                     </div>
 
-                    <div className="flex min-w-0 flex-col">
+                    {/* Category keeps at least 5rem; past that the amount
+                        shortens (200K RON) instead of pushing it out */}
+                    <div className="flex min-w-20 flex-1 flex-col">
                       <div className="flex min-w-0 items-center gap-1.5">
                         <p className="truncate text-sm font-semibold capitalize text-foreground">
                           {categoryName(item)}
@@ -206,13 +226,51 @@ export default function ItemCard({ section, onShowForm }: ItemCardProps) {
                       )}
                     </div>
 
-                    <p
-                      className={`ml-auto shrink-0 text-sm font-semibold tabular-nums ${styles.text}`}
-                    >
-                      {styles.sign} {formatMoney(item.amount, "auto", true)}
-                    </p>
+                    <FitAmount
+                      value={item.amount}
+                      sign={styles.sign as "+" | "-"}
+                      fixed
+                      className={`flex-1 text-right text-sm font-semibold ${styles.text}`}
+                    />
 
-                    <div className="flex shrink-0">
+                    {/* Narrow cards: the three actions in a "..." menu.
+                        modal={false}: the items open dialogs, and a modal menu
+                        closing under them can leave the page unclickable */}
+                    <DropdownMenu modal={false}>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon-sm"
+                          aria-label={t("dashboard.budget.items.actions")}
+                          className="shrink-0 cursor-pointer @md:hidden"
+                        >
+                          <Ellipsis size={18} />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                          onSelect={() => setNotesId(item.item_id)}
+                        >
+                          <FileText className="text-finance-warning" />
+                          {t("dashboard.budget.items.viewDetails")}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onSelect={() => startEdit(item)}>
+                          <Pencil className="text-finance-primary" />
+                          {t("dashboard.budget.items.edit")}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          variant="destructive"
+                          onSelect={() => setDeletingItem(item)}
+                        >
+                          <Trash2 />
+                          {t("dashboard.budget.items.delete")}
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+
+                    {/* Wider cards: the actions as separate buttons */}
+                    <div className="hidden shrink-0 @md:flex">
                       {/* View details */}
                       <Button
                         type="button"
@@ -255,11 +313,11 @@ export default function ItemCard({ section, onShowForm }: ItemCardProps) {
         )}
 
         {section.items.length > 0 && (
-          <CardFooter>
+          <CardFooter className="!px-4 md:!px-6">
             <Button
               variant="ghost"
               onClick={() => onShowForm()}
-              className="cursor-pointer max-w-34 md:w-auto"
+              className="cursor-pointer"
             >
               <Plus size={16} />
               {t("dashboard.budget.items.addMore")}

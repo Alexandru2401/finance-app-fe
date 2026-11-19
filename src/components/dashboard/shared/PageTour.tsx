@@ -28,6 +28,8 @@ export interface TourStep<T extends TourName = TourName> {
   key: keyof Tours[T] & string;
   // Runs before the step, e.g. to open the panel the step points at
   before?: () => void;
+  // ms to wait after before(), e.g. for a sheet to finish sliding in (default 150)
+  wait?: number;
   // Intro / outro step: a centered card with no target (no data-tour needed)
   center?: boolean;
 }
@@ -185,7 +187,7 @@ export default function PageTour<T extends TourName>({
     return () => clearTimeout(timer);
   }, [pending]);
 
-  const joyrideSteps: Step[] = steps.map(({ key, before, center }) => {
+  const joyrideSteps: Step[] = steps.map(({ key, before, center, wait }) => {
     const path = `dashboard.tours.${tour}.${key}` as StepPath;
     return {
       target: center ? "body" : `[data-tour="${key}"]`,
@@ -199,7 +201,7 @@ export default function PageTour<T extends TourName>({
         ? () =>
             new Promise<void>((resolve) => {
               before();
-              setTimeout(resolve, 150);
+              setTimeout(resolve, wait ?? 150);
             })
         : undefined,
     };

@@ -2,7 +2,14 @@ import { FEATURES } from "@/lib/features";
 import BudgetForm from "@/components/dashboard/budget/BudgetForm";
 import ItemCard from "@/components/dashboard/budget/ItemCard";
 import { Button } from "@/components/ui/button";
-import { CalendarDays, ExternalLink, Plus, Tags, Target } from "lucide-react";
+import {
+  CalendarDays,
+  ExternalLink,
+  Plus,
+  Tags,
+  Target,
+  X,
+} from "lucide-react";
 import { Link } from "react-router";
 import { ResponsiveSheet } from "@/components/dashboard/shared/ResponsiveSheet";
 import { CategoriesManager } from "@/components/dashboard/settings/CategoriesSettings";
@@ -11,9 +18,19 @@ import { useTranslation } from "react-i18next";
 
 import ExtraInfo from "@/components/dashboard/budget/ExtraInfo";
 import Insights from "@/components/dashboard/budget/Insights";
-import SummaryCards from "@/components/dashboard/budget/SummaryCards";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import SummaryCards, {
+  SUMMARY_CARD,
+  SUMMARY_GRID,
+} from "@/components/dashboard/budget/SummaryCards";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import CardError from "@/components/dashboard/shared/CardError";
 
 import {
   Select,
@@ -70,55 +87,80 @@ const EMPTY_TARGET: BudgetTarget = {
   net: null,
 };
 
+// Every bar sits in a box as tall as the real line (text-lg = 28px,
+// text-xl = 28px, text-xs = 16px...), so the page doesn't jump on load
 function SummaryCardsSkeleton() {
   return (
-    <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory pb-2 md:grid md:grid-cols-2 lg:grid-cols-4 md:overflow-visible md:pb-0">
-      {[0, 1, 2, 3].map((i) => (
-        <Card
-          key={i}
-          className="border min-w-[80%] snap-center shrink-0 md:min-w-0 md:shrink"
-        >
-          <CardHeader>
-            <Skeleton className="h-5 w-24" />
-          </CardHeader>
-          <CardContent>
-            <Skeleton className="h-6 w-20" />
-            <div className="mt-3 space-y-1">
-              <div className="flex justify-between">
-                <Skeleton className="h-3 w-20" />
-                <Skeleton className="h-3 w-14" />
+    <div className="@container">
+      <div className={SUMMARY_GRID}>
+        {[0, 1, 2, 3].map((i) => (
+          <Card key={i} className={SUMMARY_CARD}>
+            <CardHeader>
+              <div className="flex h-7 items-center gap-2">
+                <Skeleton className="size-6 rounded-md" />
+                <Skeleton className="h-4 w-24" />
               </div>
-              <Skeleton className="h-1.5 w-full rounded-full" />
-            </div>
-          </CardContent>
-        </Card>
-      ))}
+            </CardHeader>
+            <CardContent>
+              <div className="flex h-7 items-center">
+                <Skeleton className="h-5 w-32" />
+              </div>
+              {/* The net balance card has no target row */}
+              {i < 3 && (
+                <div className="mt-3 space-y-1">
+                  <div className="flex h-4 items-center justify-between">
+                    <Skeleton className="h-3 w-20" />
+                    <Skeleton className="h-3 w-14" />
+                  </div>
+                  <Skeleton className="h-1.5 w-full rounded-full" />
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        ))}
+      </div>
     </div>
   );
 }
 
+// Same structure as ItemCard: header (title + "See all"), 5 rows, footer
 function ItemListSkeleton() {
   return (
-    <Card className="flex-1">
-      <CardHeader>
-        <Skeleton className="h-5 w-28" />
-        <Skeleton className="mt-1 h-3 w-40" />
+    <Card className="@container flex-1">
+      <CardHeader className="!px-4 md:!px-6">
+        <div className="flex h-7 items-center justify-between gap-2">
+          <Skeleton className="h-4.5 w-24" />
+          <Skeleton className="h-8 w-20 rounded-md" />
+        </div>
+        <div className="flex h-4 items-center">
+          <Skeleton className="h-3 w-44" />
+        </div>
       </CardHeader>
-      <CardContent className="space-y-1">
+      <CardContent className="flex-1 space-y-1 !px-4 md:!px-6">
         {[0, 1, 2, 3, 4].map((i) => (
           <div
             key={i}
-            className="flex items-center gap-3 rounded-lg border border-border/50 px-3 py-1.5"
+            className="flex items-center gap-2 rounded-lg border border-border/50 px-2 py-1.5 @md:gap-3 @md:px-3"
           >
-            <Skeleton className="size-9 shrink-0 rounded-lg" />
-            <div className="flex min-w-0 flex-col gap-1">
-              <Skeleton className="h-4 w-24" />
-              <Skeleton className="h-3 w-16" />
+            <Skeleton className="size-8 shrink-0 rounded-lg @md:size-9" />
+            <div className="flex min-w-20 flex-1 flex-col">
+              <div className="flex h-5 items-center">
+                <Skeleton className="h-3.5 w-24 max-w-full" />
+              </div>
+              <div className="flex h-4 items-center">
+                <Skeleton className="h-3 w-16" />
+              </div>
             </div>
-            <Skeleton className="ml-auto h-4 w-14 shrink-0" />
+            <Skeleton className="h-3.5 w-20 shrink-0" />
+            {/* Actions: a menu button on narrow cards, three buttons on wider ones */}
+            <Skeleton className="size-8 shrink-0 rounded-md @md:hidden" />
+            <Skeleton className="hidden h-8 w-26 shrink-0 rounded-md @md:block" />
           </div>
         ))}
       </CardContent>
+      <CardFooter className="!px-4 md:!px-6">
+        <Skeleton className="h-9 w-36 rounded-md" />
+      </CardFooter>
     </Card>
   );
 }
@@ -140,9 +182,15 @@ export default function BudgetPage() {
   const [itemsByTab, setItemsByTab] = useState<
     Partial<Record<"income" | "expenses" | "savings", BudgetItem[]>>
   >({});
-  const [itemsError, setItemsError] = useState<string | null>(null);
+  // Key of the request that failed (tab|month|refresh|attempt): the error
+  // only shows for that request, not for the next tab or month
+  const [itemsErrorKey, setItemsErrorKey] = useState<string | null>(null);
+  const [itemsAttempt, setItemsAttempt] = useState(0);
   const [summary, setSummary] = useState<BudgetSummary | null>(null);
   const [summaryLoaded, setSummaryLoaded] = useState(false);
+  // The last summary request failed (the old totals stay if there are any)
+  const [summaryFailed, setSummaryFailed] = useState(false);
+  const [summaryAttempt, setSummaryAttempt] = useState(0);
   // Bumped after any change so the list and the totals are fetched again
   const [refreshKey, setRefreshKey] = useState(0);
   const [activeTab, setActiveTab] = useState<"income" | "expenses" | "savings">(
@@ -165,9 +213,16 @@ export default function BudgetPage() {
 
   function changeMonth(month: string) {
     setSelectedMonth(month);
-    // The cached lists belong to the previous month
+    // The cached lists and totals belong to the previous month
     setItemsByTab({});
+    setSummary(null);
+    setSummaryLoaded(false);
   }
+
+  const retrySummary = () => {
+    setSummaryLoaded(false);
+    setSummaryAttempt((n) => n + 1);
+  };
 
   const refresh = () => setRefreshKey((k) => k + 1);
 
@@ -179,7 +234,9 @@ export default function BudgetPage() {
     { key: "target", before: closeForm },
     { key: "categories", before: closeForm },
     { key: "add", before: closeForm },
-    { key: "formCategory", before: openForm },
+    // The sheet / drawer slides in for 500ms: wait for it, so the tooltip
+    // is placed next to the field and not where the panel started
+    { key: "formCategory", before: openForm, wait: 550 },
     { key: "formRecurring", before: openForm },
   ];
 
@@ -190,6 +247,7 @@ export default function BudgetPage() {
   }
 
   // Latest 5 transactions of the selected month for the active tab
+  const itemsKey = `${activeTab}|${selectedMonth}|${refreshKey}|${itemsAttempt}`;
   useEffect(() => {
     let ignore = false;
 
@@ -209,9 +267,9 @@ export default function BudgetPage() {
           ...prev,
           [activeTab]: res.data.transactions.map(toBudgetItem),
         }));
-        setItemsError(null);
+        setItemsErrorKey(null);
       } else {
-        setItemsError(res.error);
+        setItemsErrorKey(itemsKey);
       }
     }
 
@@ -219,7 +277,7 @@ export default function BudgetPage() {
     return () => {
       ignore = true;
     };
-  }, [activeTab, refreshKey, selectedMonth]);
+  }, [activeTab, itemsKey, selectedMonth]);
 
   // Totals come from the summary endpoint, not from the 5 items shown
   useEffect(() => {
@@ -231,6 +289,7 @@ export default function BudgetPage() {
 
       // Keep the previous totals if a refetch fails
       if (res.ok) setSummary(res.data);
+      setSummaryFailed(!res.ok);
       setSummaryLoaded(true);
     }
 
@@ -238,7 +297,10 @@ export default function BudgetPage() {
     return () => {
       ignore = true;
     };
-  }, [refreshKey, selectedMonth]);
+  }, [refreshKey, selectedMonth, summaryAttempt]);
+
+  // Nothing to show: failed and no older totals (otherwise those stay)
+  const summaryError = summaryLoaded && summaryFailed && !summary;
 
   const totalIncome = summary?.income ?? 0;
   const totalExpenses = summary?.expense ?? 0;
@@ -324,82 +386,113 @@ export default function BudgetPage() {
   );
 
   return (
-    <section className="relative py-4 px-4 max-w-7xl mx-auto">
+    // @container: the layout follows the space next to the sidebar (open or
+    // collapsed), not the viewport width
+    <section className="@container relative mx-auto max-w-7xl px-4 py-4">
       <PageHeader
         title={t("dashboard.budget.title")}
         subtitle={t("dashboard.budget.subtitle")}
+        actionsClassName="w-full sm:w-auto"
       >
-        {" "}
-        <div className="flex flex-col md:items-end">
-          <div className="flex flex-wrap md:flex-row md:items-center gap-2 mt-4">
-            <PageTour tour="budget" steps={tourSteps} onEnd={closeForm} />
+        {/* Phones: one row, only the month select keeps its text and takes the
+            free space; the other buttons are icons (like Guided tour).
+            From sm: labels back, one wrapping row */}
+        <div className="flex w-full items-center gap-2 sm:w-auto sm:flex-wrap">
+          <PageTour tour="budget" steps={tourSteps} onEnd={closeForm} />
 
-            <Select value={selectedMonth} onValueChange={changeMonth}>
-              <SelectTrigger
-                data-tour="month"
-                size="sm"
-                className="w-44 cursor-pointer"
-                aria-label={t("dashboard.budget.selectMonth")}
-              >
-                <CalendarDays size={16} className="text-muted-foreground" />
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {monthOptions.map((month) => (
-                  <SelectItem key={month} value={month}>
-                    {formatMonth(month, i18n.language)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <Button
-              variant="outline"
+          <Select value={selectedMonth} onValueChange={changeMonth}>
+            <SelectTrigger
+              data-tour="month"
               size="sm"
-              data-tour="target"
-              onClick={() => setOpenTargets(true)}
-              className="cursor-pointer gap-2"
+              className="min-w-0 flex-1 cursor-pointer sm:w-44 sm:flex-none"
+              aria-label={t("dashboard.budget.selectMonth")}
             >
-              <Target size={16} />
+              <CalendarDays size={16} className="text-muted-foreground" />
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent position="popper">
+              {monthOptions.map((month) => (
+                <SelectItem key={month} value={month}>
+                  {formatMonth(month, i18n.language)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Button
+            variant="outline"
+            size="sm"
+            data-tour="target"
+            onClick={() => setOpenTargets(true)}
+            className="shrink-0 cursor-pointer gap-2"
+            aria-label={t("dashboard.budget.yourTarget")}
+          >
+            <Target size={16} aria-hidden="true" />
+            <span className="hidden sm:inline">
               {t("dashboard.budget.yourTarget")}
-            </Button>
+            </span>
+          </Button>
 
-            <Button
-              variant="outline"
-              size="sm"
-              data-tour="categories"
-              onClick={() => setOpenCategories(true)}
-              className="cursor-pointer gap-2"
-            >
-              <Tags size={16} />
+          <Button
+            variant="outline"
+            size="sm"
+            data-tour="categories"
+            onClick={() => setOpenCategories(true)}
+            className="shrink-0 cursor-pointer gap-2"
+            aria-label={t("dashboard.budget.categories.button")}
+          >
+            <Tags size={16} aria-hidden="true" />
+            <span className="hidden sm:inline">
               {t("dashboard.budget.categories.button")}
-            </Button>
+            </span>
+          </Button>
 
-            <Button
-              variant="default"
-              data-tour="add"
-              onClick={() => setShowForm((prev) => !prev)}
-              className="cursor-pointer max-w-34 md:w-auto"
-              size="sm"
-            >
-              <Plus size={16} />
+          <Button
+            variant="default"
+            data-tour="add"
+            onClick={() => setShowForm((prev) => !prev)}
+            className="shrink-0 cursor-pointer"
+            size="sm"
+            aria-label={
+              showForm
+                ? t("dashboard.budget.close")
+                : t("dashboard.budget.addEntry")
+            }
+          >
+            {/* Icon only on phones: X while the form is open */}
+            {showForm ? (
+              <X size={16} aria-hidden="true" />
+            ) : (
+              <Plus size={16} aria-hidden="true" />
+            )}
+            <span className="hidden sm:inline">
               {showForm
                 ? t("dashboard.budget.close")
                 : t("dashboard.budget.addEntry")}
-            </Button>
-          </div>
+            </span>
+          </Button>
         </div>
       </PageHeader>
 
-      {/* Without the side column the lists take the whole width */}
+      {/* Without the side column the lists take the whole width.
+          Side column from a 64rem content width; min-w-0 lets the columns
+          shrink below their content instead of spilling out */}
       <div
-        className={`grid grid-cols-1 gap-6 ${FEATURES.budgetInsights ? "lg:grid-cols-3" : ""}`}
+        className={`grid grid-cols-1 gap-6 ${FEATURES.budgetInsights ? "@5xl:grid-cols-3" : ""}`}
       >
         <div
-          className={`${FEATURES.budgetInsights ? "col-span-2" : ""} flex flex-col gap-3`}
+          className={`${FEATURES.budgetInsights ? "@5xl:col-span-2" : ""} flex min-w-0 flex-col gap-3`}
         >
           {!summaryLoaded ? (
             <SummaryCardsSkeleton />
+          ) : summaryError ? (
+            // Not zeros: 0 RON everywhere would look like real (empty) data
+            <Card className="min-h-36">
+              <CardError
+                message={t("dashboard.budget.summary.loadError")}
+                onRetry={retrySummary}
+              />
+            </Card>
           ) : (
             <SummaryCards
               totalIncome={totalIncome}
@@ -411,7 +504,7 @@ export default function BudgetPage() {
             />
           )}
 
-          {/* On lg the grid stretches this column to the height of the side
+          {/* With the side column, the grid stretches this column to the height of the side
               column, so the list card ends at the same level as the donut */}
           <div className="flex flex-1 flex-col">
             <Tabs
@@ -442,10 +535,20 @@ export default function BudgetPage() {
                       section={section}
                       onShowForm={() => setShowForm(true)}
                     />
-                  ) : itemsError ? (
+                  ) : itemsErrorKey === itemsKey &&
+                    section.section === activeTab ? (
+                    // Title kept, and about the height of the 5-row list
                     <Card className="flex-1">
-                      <CardContent className="py-6 text-sm text-destructive">
-                        {t("dashboard.budget.loadError")}
+                      <CardHeader className="!px-4 md:!px-6">
+                        <CardTitle className="text-lg text-foreground">
+                          {section.title}
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="flex min-h-64 flex-1 !px-4 md:!px-6">
+                        <CardError
+                          message={t("dashboard.budget.loadError")}
+                          onRetry={() => setItemsAttempt((n) => n + 1)}
+                        />
                       </CardContent>
                     </Card>
                   ) : (
@@ -458,9 +561,13 @@ export default function BudgetPage() {
         </div>
 
         {FEATURES.budgetInsights && (
-          <div className="flex flex-col md:flex-row md:justify-between lg:flex-col gap-6">
+          // Under the lists: side by side from 48rem, stacked below; in the
+          // side column (64rem+) stacked again
+          <div className="grid min-w-0 grid-cols-1 content-start gap-6 @3xl:grid-cols-2 @5xl:grid-cols-1">
             <Insights
               summary={summaryLoaded ? summary : null}
+              summaryError={summaryError}
+              onRetrySummary={retrySummary}
               month={selectedMonth}
               refreshKey={refreshKey}
             />
@@ -473,37 +580,17 @@ export default function BudgetPage() {
         )}
       </div>
 
-      {showForm && (
-        <>
-          <div
-            className="fixed inset-0 z-40 bg-overlay"
-            onClick={() => setShowForm(false)}
-          />
-          <aside className="fixed inset-y-0 right-0 z-50 max-w-md overflow-y-auto bg-background shadow-2xl border-l border-muted/30 md:max-w-xl lg:max-w-2xl">
-            <div className="flex items-center justify-between border-b border-muted/20 px-6 py-4">
-              <div>
-                <h2 className="text-xl font-semibold">
-                  {t("dashboard.budget.form.title")}
-                </h2>
-                <p className="text-sm text-muted-foreground">
-                  {t("dashboard.budget.form.subtitle")}
-                </p>
-              </div>
-              <Button
-                variant="ghost"
-                onClick={() => setShowForm(false)}
-                className="cursor-pointer"
-              >
-                {t("dashboard.budget.close")}
-              </Button>
-            </div>
-
-            <div className="p-6">
-              <BudgetForm onCreated={handleCreated} />
-            </div>
-          </aside>
-        </>
-      )}
+      {/* Add form: bottom drawer on phones, side sheet from md. Both modal
+          (focus trap, Escape, aria-modal); the tour can still point inside */}
+      <ResponsiveSheet
+        open={showForm}
+        onOpenChange={setShowForm}
+        title={t("dashboard.budget.form.title")}
+        description={t("dashboard.budget.form.subtitle")}
+        className="sm:max-w-xl lg:max-w-2xl"
+      >
+        <BudgetForm onCreated={handleCreated} />
+      </ResponsiveSheet>
 
       <ResponsiveSheet
         open={openCategories}
@@ -511,6 +598,8 @@ export default function BudgetPage() {
         title={t("dashboard.settings.categories.title")}
         description={t("dashboard.settings.categories.description")}
         className="sm:max-w-lg"
+        // Same height with 2 or 20 categories; only the list scrolls
+        fixedHeight
         footer={
           <Button variant="link" size="sm" asChild className="gap-1.5">
             <Link to="/dashboard/settings?tab=categories">
@@ -521,17 +610,21 @@ export default function BudgetPage() {
         }
       >
         {/* Opens on the active tab; a delete can change the list names */}
-        <CategoriesManager initialType={activeTab} onChange={refresh} />
+        <CategoriesManager
+          initialType={activeTab}
+          onChange={refresh}
+          fillHeight
+        />
       </ResponsiveSheet>
 
-      {openTargets && (
-        <TargetsPanel
-          targets={target}
-          month={selectedMonth}
-          onSave={saveTargets}
-          onClose={() => setOpenTargets(false)}
-        />
-      )}
+      {/* Always mounted (like the categories panel), so it animates in and out */}
+      <TargetsPanel
+        open={openTargets}
+        onOpenChange={setOpenTargets}
+        targets={target}
+        month={selectedMonth}
+        onSave={saveTargets}
+      />
     </section>
   );
 }
