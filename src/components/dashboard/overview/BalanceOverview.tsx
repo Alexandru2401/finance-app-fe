@@ -47,12 +47,18 @@ export default function BalanceOverview({ period }: Props) {
   const { t } = useTranslation();
 
   const chartConfig = {
-    income: { label: t("dashboard.common.income"), color: "var(--chart-2)" },
+    income: {
+      label: t("dashboard.common.income"),
+      color: "var(--finance-success)",
+    },
     spendings: {
       label: t("dashboard.common.expenses"),
-      color: "var(--chart-5)",
+      color: "var(--finance-danger)",
     },
-    savings: { label: t("dashboard.common.savings"), color: "var(--chart-1)" },
+    savings: {
+      label: t("dashboard.common.savings"),
+      color: "var(--finance-primary)",
+    },
   } satisfies ChartConfig;
 
   const [attempt, setAttempt] = useState(0);
@@ -123,17 +129,17 @@ export default function BalanceOverview({ period }: Props) {
     {
       budgetType: "income",
       money: summary.income,
-      fill: "var(--chart-2)",
+      fill: "var(--finance-success)",
     },
     {
       budgetType: "spendings",
       money: summary.expense,
-      fill: "var(--chart-5)",
+      fill: "var(--finance-danger)",
     },
     {
       budgetType: "savings",
       money: summary.savings,
-      fill: "var(--chart-1)",
+      fill: "var(--finance-primary)",
     },
   ];
 

@@ -228,7 +228,7 @@ export default function PageTour<T extends TourName>({
           skipBeacon: true,
           closeButtonAction: "skip",
           arrowColor: "var(--card)",
-          overlayColor: "rgb(0 0 0 / 0.45)",
+          overlayColor: "var(--overlay)",
           spotlightPadding: 8,
           spotlightRadius: 14,
           zIndex: 1000,
